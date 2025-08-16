@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "45963215599",
+    "project_id": "trackai-5f380",
+    "storage_bucket": "trackai-5f380.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:45963215599:android:c15b19578391d0e6b6911a",
+        "android_client_info": {
+          "package_name": "com.example.trackai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDITJk6TvH7KPNABHcFEr81k146wZOaQTk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
