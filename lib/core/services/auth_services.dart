@@ -1,29 +1,15 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseService {
-  static Future<void> checkAndSignOutIfNewDay() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String today = DateTime.now().toIso8601String().substring(
-      0,
-      10,
-    ); // yyyy-MM-dd
-    final String? lastLoginDate = prefs.getString('lastLoginDate');
-    if (lastLoginDate != null && lastLoginDate != today) {
-      // New day detected, sign out
-      await signOut();
-      await prefs.setString('lastLoginDate', today);
-    } else if (lastLoginDate == null && isSignedIn) {
-      // First login, set date
-      await prefs.setString('lastLoginDate', today);
-    }
-  }
-
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
 
   // Initialize Firebase
   static Future<void> initializeFirebase() async {
@@ -36,13 +22,51 @@ class FirebaseService {
   // Auth state stream
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  // Check if user is signed in
+  static bool get isSignedIn => currentUser != null;
+
+  // Get user display name
+  static String get userDisplayName =>
+      currentUser?.displayName ?? currentUser?.email ?? 'User';
+
+  // Get user email
+  static String get userEmail => currentUser?.email ?? '';
+
+  // Get user photo URL
+  static String? get userPhotoURL => currentUser?.photoURL;
+
+  // Store login date for daily logout feature
+  static Future<void> _storeLoginDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String today = DateTime.now().toIso8601String().substring(0, 10);
+    await prefs.setString('lastLoginDate', today);
+  }
+
+  // Check and sign out if new day (your existing feature)
+  static Future<void> checkAndSignOutIfNewDay() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String today = DateTime.now().toIso8601String().substring(0, 10);
+    final String? lastLoginDate = prefs.getString('lastLoginDate');
+
+    if (lastLoginDate != null && lastLoginDate != today) {
+      // New day detected, sign out
+      await signOut();
+      await prefs.setString('lastLoginDate', today);
+    } else if (lastLoginDate == null && isSignedIn) {
+      // First login, set date
+      await prefs.setString('lastLoginDate', today);
+    }
+  }
+
   // Email/Password Sign Up
-  static Future<UserCredential?> signUpWithEmailPassword(
+  static Future<User?> signUpWithEmailPassword(
     String email,
     String password,
-    String displayName,
+    String firstName,
+    String lastName,
   ) async {
     try {
+      final displayName = '$firstName $lastName'.trim();
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -50,14 +74,17 @@ class FirebaseService {
       await userCredential.user?.updateDisplayName(displayName);
 
       // Create user document in Firestore
-      await _createUserDocument(userCredential.user!, displayName);
+      await _createUserDocument(
+        userCredential.user!,
+        displayName,
+        firstName,
+        lastName,
+      );
 
-      // Store last login date
-      final prefs = await SharedPreferences.getInstance();
-      final String today = DateTime.now().toIso8601String().substring(0, 10);
-      await prefs.setString('lastLoginDate', today);
+      // Store login date
+      await _storeLoginDate();
 
-      return userCredential;
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleAuthException(e));
     } catch (e) {
@@ -66,7 +93,7 @@ class FirebaseService {
   }
 
   // Email/Password Sign In
-  static Future<UserCredential?> signInWithEmailPassword(
+  static Future<User?> signInWithEmailPassword(
     String email,
     String password,
   ) async {
@@ -76,12 +103,13 @@ class FirebaseService {
         password: password,
       );
 
-      // Store last login date
-      final prefs = await SharedPreferences.getInstance();
-      final String today = DateTime.now().toIso8601String().substring(0, 10);
-      await prefs.setString('lastLoginDate', today);
+      // Update last sign in
+      await updateLastSignIn();
 
-      return userCredential;
+      // Store login date
+      await _storeLoginDate();
+
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleAuthException(e));
     } catch (e) {
@@ -89,51 +117,64 @@ class FirebaseService {
     }
   }
 
-  // Google Sign In using signInWithProvider/signInWithPopup
-  static Future<UserCredential?> signInWithGoogle({
-    String? linkEmail,
-    String? linkPassword,
-  }) async {
+  // Google Sign In - Fixed for mobile platforms
+  static Future<User?> signInWithGoogle() async {
     try {
-      final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-      UserCredential userCredential;
-      if (Platform.isAndroid || Platform.isIOS) {
-        userCredential = await _auth.signInWithProvider(googleProvider);
-      } else {
-        userCredential = await _auth.signInWithPopup(googleProvider);
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      
+      // If the user cancels the sign-in
+      if (googleUser == null) {
+        return null;
       }
-      // If linkEmail and linkPassword are provided, try to link
-      if (linkEmail != null && linkPassword != null) {
-        final emailCred = EmailAuthProvider.credential(
-          email: linkEmail,
-          password: linkPassword,
-        );
-        try {
-          await userCredential.user?.linkWithCredential(emailCred);
-        } on FirebaseAuthException catch (e) {
-          if (e.code != 'provider-already-linked') {
-            throw Exception(
-              'Failed to link email/password: ' + (e.message ?? ''),
-            );
-          }
-        }
-      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // Create a new credential using the correct property names
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+
       // Create user document if new user
       if (userCredential.additionalUserInfo?.isNewUser == true) {
+        final nameParts = (userCredential.user?.displayName ?? 'User').split(' ');
+        final firstName = nameParts.isNotEmpty ? nameParts[0] : '';
+        final lastName = nameParts.length > 1
+            ? nameParts.sublist(1).join(' ')
+            : '';
+
         await _createUserDocument(
           userCredential.user!,
           userCredential.user?.displayName ?? 'User',
+          firstName,
+          lastName,
         );
+      } else {
+        // Update last sign in for existing users
+        await updateLastSignIn();
       }
-      return userCredential;
+
+      // Store login date
+      await _storeLoginDate();
+
+      return userCredential.user;
     } catch (e) {
-      throw Exception('Google sign-in failed: $e');
+      print('Google sign-in error: $e');
+      throw Exception('Google sign-in failed: ${e.toString()}');
     }
   }
 
   // Sign Out
   static Future<void> signOut() async {
     try {
+      // Sign out from Google
+      await _googleSignIn.signOut();
+      // Sign out from Firebase
       await _auth.signOut();
     } catch (e) {
       throw Exception('Sign out failed: $e');
@@ -152,12 +193,19 @@ class FirebaseService {
   }
 
   // Create user document in Firestore
-  static Future<void> _createUserDocument(User user, String displayName) async {
+  static Future<void> _createUserDocument(
+    User user,
+    String displayName,
+    String? firstName,
+    String? lastName,
+  ) async {
     try {
       await _firestore.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'email': user.email,
         'displayName': displayName,
+        'firstName': firstName ?? '',
+        'lastName': lastName ?? '',
         'photoURL': user.photoURL,
         'createdAt': FieldValue.serverTimestamp(),
         'lastSignIn': FieldValue.serverTimestamp(),
@@ -240,21 +288,14 @@ class FirebaseService {
         return 'Email/password accounts are not enabled.';
       case 'network-request-failed':
         return 'Network error. Please check your connection.';
+      case 'invalid-credential':
+        return 'Invalid credentials. Please check your email and password.';
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with the same email but different sign-in credentials.';
+      case 'credential-already-in-use':
+        return 'This credential is already associated with a different user account.';
       default:
         return e.message ?? 'An authentication error occurred.';
     }
   }
-
-  // Check if user is signed in
-  static bool get isSignedIn => currentUser != null;
-
-  // Get user display name
-  static String get userDisplayName =>
-      currentUser?.displayName ?? currentUser?.email ?? 'User';
-
-  // Get user email
-  static String get userEmail => currentUser?.email ?? '';
-
-  // Get user photo URL
-  static String? get userPhotoURL => currentUser?.photoURL;
 }

@@ -38,7 +38,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
-
     _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
@@ -56,19 +55,24 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   Future<void> _handleEmailLogin() async {
     if (!_formKey.currentState!.validate()) return;
+    
     setState(() {
       isLoading = true;
     });
+    
     try {
-      await FirebaseService.signInWithEmailPassword(
+      final user = await FirebaseService.signInWithEmailPassword(
         _emailController.text.trim(),
         _passwordController.text,
       );
-      if (mounted) {
+      
+      if (user != null && mounted) {
         Navigator.pushReplacementNamed(context, AppRoutes.home);
       }
     } catch (e) {
-      if (mounted) _showErrorSnackBar(e.toString());
+      if (mounted) {
+        _showErrorSnackBar(e.toString().replaceAll('Exception: ', ''));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -79,16 +83,25 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    if (isGoogleLoading) return; // Prevent multiple calls
+    
     setState(() {
       isGoogleLoading = true;
     });
+    
     try {
-      await FirebaseService.signInWithGoogle();
-      if (mounted) {
+      final user = await FirebaseService.signInWithGoogle();
+      
+      if (user != null && mounted) {
+        // Successful sign-in
         Navigator.pushReplacementNamed(context, AppRoutes.home);
       }
+      // If user is null, it means user cancelled - no error message needed
     } catch (e) {
-      if (mounted) _showErrorSnackBar(e.toString());
+      if (mounted) {
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+        _showErrorSnackBar(errorMessage);
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -98,16 +111,49 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
+  void _handleForgotPassword() async {
+    if (_emailController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter your email address first');
+      return;
+    }
+    
+    try {
+      await FirebaseService.resetPassword(_emailController.text.trim());
+      if (mounted) {
+        _showSuccessSnackBar('Password reset email sent. Check your inbox.');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar(e.toString().replaceAll('Exception: ', ''));
+      }
+    }
+  }
+
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
         ),
         backgroundColor: AppColors.errorColor,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        backgroundColor: AppColors.successColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
     );
@@ -115,15 +161,26 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
+      backgroundColor: AppColors.background(isDark),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
-          gradient: AppColors.backgroundLinearGradient(isDark),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.black,
+              AppColors.background(isDark),
+              AppColors.darkGrey,
+            ],
+          ),
         ),
         child: SafeArea(
           child: AnimatedBuilder(
@@ -135,27 +192,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   position: _slideAnimation,
                   child: ScaleTransition(
                     scale: _scaleAnimation,
-                    child: Center(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isTablet ? screenWidth * 0.3 : 32.0,
-                          vertical: 32.0,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? screenWidth * 0.2 : 24.0,
+                        vertical: 24.0,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: screenHeight - MediaQuery.of(context).padding.top - 48,
                         ),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight: screenHeight * 0.9,
-                            maxWidth: isTablet ? 450 : double.infinity,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildHeader(isDark),
-                              const SizedBox(height: 48),
-                              _buildForm(isDark),
-                              const SizedBox(height: 32),
-                              _buildSignupButton(isDark),
-                            ],
-                          ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildHeader(),
+                            const SizedBox(height: 40),
+                            _buildForm(),
+                          ],
                         ),
                       ),
                     ),
@@ -169,84 +221,98 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
-    return AnimatedBuilder(
-      animation: _fadeAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _fadeAnimation.value,
-          child: Column(
-            children: [
-              
-              const SizedBox(height: 24),
-              ShaderMask(
-                shaderCallback: (bounds) => AppColors.appBarGradient.createShader(bounds),
-                child: const Text(
-                  'TrackAI',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Welcome back!',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: AppColors.textSecondary(isDark).withOpacity(0.9),
-                  fontWeight: FontWeight.w300,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: 60,
-                height: 3,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryLinearGradient(isDark),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ],
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        // TrackAI Logo/Title
+        ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [const Color.fromARGB(255, 80, 173, 113), const Color.fromARGB(255, 110, 239, 155)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: const Text(
+            'TrackAI',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
           ),
-        );
-      },
+        ),
+        const SizedBox(height: 32),
+        const Text(
+          'Welcome back',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Sign in to your TrackAI account',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.textSecondary(true),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildForm(bool isDark) {
+  Widget _buildForm() {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: AppColors.cardLinearGradient(isDark),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.4 : 0.1),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-          if (isDark)
-            BoxShadow(
-              color: AppColors.primary(isDark).withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-        ],
+        color: AppColors.cardBackground(true).withOpacity(0.8),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.darkGrey,
+          width: 1,
+        ),
       ),
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Sign in',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Enter your credentials to access your account',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary(true),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Email Field
+            const Text(
+              'Email',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
             _buildTextField(
               controller: _emailController,
-              label: 'Email Address',
-              icon: Icons.alternate_email_rounded,
+              hintText: 'Enter your email',
+              icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
-              isDark: isDark,
               validator: (value) {
                 if (value?.isEmpty ?? true) {
                   return 'Please enter your email';
@@ -257,13 +323,23 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 return null;
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            
+            // Password Field
+            const Text(
+              'Password',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
             _buildTextField(
               controller: _passwordController,
-              label: 'Password',
-              icon: Icons.lock_outline_rounded,
+              hintText: 'Enter your password',
+              icon: Icons.lock_outline,
               obscureText: obscurePassword,
-              isDark: isDark,
               validator: (value) {
                 if (value?.isEmpty ?? true) {
                   return 'Please enter your password';
@@ -272,9 +348,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               },
               suffixIcon: IconButton(
                 icon: Icon(
-                  obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                  color: AppColors.textSecondary(isDark),
-                  size: 22,
+                  obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: AppColors.textSecondary(true),
+                  size: 20,
                 ),
                 onPressed: () {
                   setState(() {
@@ -283,12 +359,42 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 },
               ),
             ),
-            const SizedBox(height: 32),
-            _buildSubmitButton(isDark),
+            const SizedBox(height: 16),
+            
+            // Forgot Password Link
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _handleForgotPassword,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+                ),
+                child: Text(
+                  'Forgot password?',
+                  style: TextStyle(
+                    color: AppColors.successColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
-            _buildDivider(isDark),
+            
+            // Sign In Button
+            _buildSubmitButton(),
+            const SizedBox(height: 20),
+            
+            // OR Divider
+            _buildDivider(),
+            const SizedBox(height: 20),
+            
+            // Google Sign In Button
+            _buildGoogleSignInButton(),
             const SizedBox(height: 24),
-            _buildGoogleSignInButton(isDark),
+            
+            // Sign Up Link
+            _buildSignUpLink(),
           ],
         ),
       ),
@@ -297,109 +403,81 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   Widget _buildTextField({
     required TextEditingController controller,
-    required String label,
+    required String hintText,
     required IconData icon,
-    required bool isDark,
     bool obscureText = false,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     Widget? suffixIcon,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: [
-            AppColors.inputFill(isDark).withOpacity(0.8),
-            AppColors.inputFill(isDark).withOpacity(0.4),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      validator: validator,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
       ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        validator: validator,
-        style: TextStyle(
-          color: AppColors.textPrimary(isDark),
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(
+          color: AppColors.textSecondary(true).withOpacity(0.7),
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
         ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(
-            color: AppColors.textSecondary(isDark),
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-          prefixIcon: Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryLinearGradient(isDark),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          suffixIcon: suffixIcon,
-          filled: false,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: AppColors.inputFocusedBorder,
-              width: 2,
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: AppColors.errorColor, width: 2),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: AppColors.errorColor, width: 2),
-          ),
+        prefixIcon: Icon(
+          icon,
+          color: AppColors.textSecondary(true),
+          size: 20,
+        ),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: AppColors.inputFill(true),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.inputFocusedBorder, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.errorColor, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.errorColor, width: 2),
+        ),
+        errorStyle: TextStyle(
+          fontSize: 12,
+          color: AppColors.errorColor,
         ),
       ),
     );
   }
 
-  Widget _buildSubmitButton(bool isDark) {
+  Widget _buildSubmitButton() {
     return Container(
       width: double.infinity,
-      height: 60,
+      height: 48,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: AppColors.primaryLinearGradient(isDark),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary(isDark).withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: AppColors.primary(isDark).withOpacity(0.2),
-            blurRadius: 40,
-            offset: const Offset(0, 16),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.successColor,
+            AppColors.successColor,
+          ],
+        ),
       ),
       child: ElevatedButton(
         onPressed: isLoading ? null : _handleEmailLogin,
@@ -408,112 +486,68 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: isLoading
             ? const SizedBox(
-                width: 26,
-                height: 26,
+                width: 20,
+                height: 20,
                 child: CircularProgressIndicator(
                   color: Colors.white,
-                  strokeWidth: 3,
+                  strokeWidth: 2,
                 ),
               )
             : const Text(
-                'Sign In',
+                'Sign in',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
                 ),
               ),
       ),
     );
   }
 
-  Widget _buildDivider(bool isDark) {
+  Widget _buildDivider() {
     return Row(
       children: [
         Expanded(
           child: Container(
             height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  AppColors.textSecondary(isDark).withOpacity(0.4),
-                  Colors.transparent,
-                ],
-              ),
-            ),
+            color: AppColors.darkGrey,
           ),
         ),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: AppColors.cardLinearGradient(isDark),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.textSecondary(isDark).withOpacity(0.2),
-              width: 1,
-            ),
-          ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'OR',
             style: TextStyle(
-              color: AppColors.textSecondary(isDark).withOpacity(0.8),
-              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary(true),
               fontSize: 12,
-              letterSpacing: 1,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
         Expanded(
           child: Container(
             height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  AppColors.textSecondary(isDark).withOpacity(0.4),
-                  Colors.transparent,
-                ],
-              ),
-            ),
+            color: AppColors.darkGrey,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildGoogleSignInButton(bool isDark) {
+  Widget _buildGoogleSignInButton() {
     return Container(
       width: double.infinity,
-      height: 60,
+      height: 48,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: [
-            AppColors.inputFill(isDark).withOpacity(0.6),
-            AppColors.inputFill(isDark).withOpacity(0.3),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(
-          color: AppColors.primary(isDark).withOpacity(0.3),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.darkGrey, width: 1),
+        color: AppColors.inputFill(true),
       ),
       child: OutlinedButton.icon(
         onPressed: isGoogleLoading ? null : _handleGoogleSignIn,
@@ -521,44 +555,37 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           backgroundColor: Colors.transparent,
           side: BorderSide.none,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         icon: isGoogleLoading
             ? SizedBox(
-                width: 22,
-                height: 22,
+                width: 18,
+                height: 18,
                 child: CircularProgressIndicator(
-                  color: AppColors.primary(isDark),
-                  strokeWidth: 2.5,
+                  color: AppColors.successColor,
+                  strokeWidth: 2,
                 ),
               )
             : Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.grey],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                width: 20,
+                height: 20,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
                 ),
-                child: const Center(
-                  child: Text(
-                    'G',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                child: Center(
+                  child: Icon(
+                    Icons.g_mobiledata,
+                    color: Colors.red,
+                    size: 16,
                   ),
                 ),
               ),
         label: Text(
           'Continue with Google',
           style: TextStyle(
-            color: AppColors.textPrimary(isDark),
+            color: AppColors.textPrimary(true),
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -567,35 +594,28 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSignupButton(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+  Widget _buildSignUpLink() {
+    return Center(
       child: TextButton(
         onPressed: () {
           Navigator.pushReplacementNamed(context, AppRoutes.signup);
         },
         style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         ),
         child: RichText(
           text: TextSpan(
             style: TextStyle(
-              color: AppColors.textSecondary(isDark),
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: AppColors.textSecondary(true),
             ),
             children: [
               const TextSpan(text: "Don't have an account? "),
               TextSpan(
-                text: 'Sign Up',
+                text: 'Sign up',
                 style: TextStyle(
-                  color: AppColors.accent(isDark),
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.accent(isDark),
+                  color: AppColors.successColor,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

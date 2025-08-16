@@ -5,7 +5,7 @@ import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'firebase_options.dart';
-
+import 'package:trackai/core/wrappers/authwrapper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -27,13 +27,13 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'TrackAI',
-          initialRoute: AppRoutes.login,
-          onGenerateRoute: AppRoutes.onGenerateRoute,
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           themeMode: themeProvider.isDarkMode
               ? ThemeMode.dark
               : ThemeMode.light,
+          home: const AuthWrapper(),
+          onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },
     );

@@ -12,7 +12,20 @@
           "package_name": "com.example.trackai"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "45963215599-30peuop9j0kr5sikkov8d19unlq427vv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trackai",
+            "certificate_hash": "adaa75fc85809940a10831c7607537da67ebc384"
+          }
+        },
+        {
+          "client_id": "45963215599-dkv5vtebg73hka8g246ovj92ldelaull.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDITJk6TvH7KPNABHcFEr81k146wZOaQTk"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "45963215599-dkv5vtebg73hka8g246ovj92ldelaull.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "45963215599-gvhqhctnqfil5h0agmcv4rakp992b7hn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.trackai"
+              }
+            }
+          ]
         }
       }
     }
