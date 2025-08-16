@@ -35,13 +35,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
+          ),
+        );
     _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
-    
+
     _animationController.forward();
   }
 
@@ -55,19 +59,25 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   Future<void> _handleEmailLogin() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       isLoading = true;
     });
-    
+
     try {
       final user = await FirebaseService.signInWithEmailPassword(
         _emailController.text.trim(),
         _passwordController.text,
       );
-      
+
       if (user != null && mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        // Force navigation to home page after successful authentication
+        print('Login successful for user: ${user.email}');
+        // Add a small delay to ensure Firebase state is updated
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -84,17 +94,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   Future<void> _handleGoogleSignIn() async {
     if (isGoogleLoading) return; // Prevent multiple calls
-    
+
     setState(() {
       isGoogleLoading = true;
     });
-    
+
     try {
       final user = await FirebaseService.signInWithGoogle();
-      
+
       if (user != null && mounted) {
-        // Successful sign-in
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        // Force navigation to home page after successful authentication
+        print('Google sign-in successful for user: ${user.email}');
+        // Add a small delay to ensure Firebase state is updated
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        }
       }
       // If user is null, it means user cancelled - no error message needed
     } catch (e) {
@@ -116,7 +131,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       _showErrorSnackBar('Please enter your email address first');
       return;
     }
-    
+
     try {
       await FirebaseService.resetPassword(_emailController.text.trim());
       if (mounted) {
@@ -134,7 +149,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: AppColors.errorColor,
         behavior: SnackBarBehavior.floating,
@@ -149,7 +167,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: AppColors.successColor,
         behavior: SnackBarBehavior.floating,
@@ -165,7 +186,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       backgroundColor: AppColors.background(isDark),
       body: Container(
@@ -199,7 +220,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       ),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          minHeight: screenHeight - MediaQuery.of(context).padding.top - 48,
+                          minHeight:
+                              screenHeight -
+                              MediaQuery.of(context).padding.top -
+                              48,
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -227,7 +251,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         // TrackAI Logo/Title
         ShaderMask(
           shaderCallback: (bounds) => LinearGradient(
-            colors: [const Color.fromARGB(255, 80, 173, 113), const Color.fromARGB(255, 110, 239, 155)],
+            colors: [
+              const Color.fromARGB(255, 80, 173, 113),
+              const Color.fromARGB(255, 110, 239, 155),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ).createShader(bounds),
@@ -269,10 +296,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: AppColors.cardBackground(true).withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.darkGrey,
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.darkGrey, width: 1),
       ),
       child: Form(
         key: _formKey,
@@ -297,7 +321,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Email Field
             const Text(
               'Email',
@@ -317,14 +341,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 if (value?.isEmpty ?? true) {
                   return 'Please enter your email';
                 }
-                if (!RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$').hasMatch(value!)) {
+                if (!RegExp(
+                  r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$',
+                ).hasMatch(value!)) {
                   return 'Please enter a valid email';
                 }
                 return null;
               },
             ),
             const SizedBox(height: 20),
-            
+
             // Password Field
             const Text(
               'Password',
@@ -360,14 +386,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Forgot Password Link
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _handleForgotPassword,
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: 4,
+                  ),
                 ),
                 child: Text(
                   'Forgot password?',
@@ -380,19 +409,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Sign In Button
             _buildSubmitButton(),
             const SizedBox(height: 20),
-            
+
             // OR Divider
             _buildDivider(),
             const SizedBox(height: 20),
-            
+
             // Google Sign In Button
             _buildGoogleSignInButton(),
             const SizedBox(height: 24),
-            
+
             // Sign Up Link
             _buildSignUpLink(),
           ],
@@ -427,15 +456,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-        prefixIcon: Icon(
-          icon,
-          color: AppColors.textSecondary(true),
-          size: 20,
-        ),
+        prefixIcon: Icon(icon, color: AppColors.textSecondary(true), size: 20),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: AppColors.inputFill(true),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
@@ -456,10 +484,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: AppColors.errorColor, width: 2),
         ),
-        errorStyle: TextStyle(
-          fontSize: 12,
-          color: AppColors.errorColor,
-        ),
+        errorStyle: TextStyle(fontSize: 12, color: AppColors.errorColor),
       ),
     );
   }
@@ -473,10 +498,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.successColor,
-            AppColors.successColor,
-          ],
+          colors: [AppColors.successColor, AppColors.successColor],
         ),
       ),
       child: ElevatedButton(
@@ -485,9 +507,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: isLoading
             ? const SizedBox(
@@ -513,12 +533,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Widget _buildDivider() {
     return Row(
       children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            color: AppColors.darkGrey,
-          ),
-        ),
+        Expanded(child: Container(height: 1, color: AppColors.darkGrey)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -530,12 +545,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
           ),
         ),
-        Expanded(
-          child: Container(
-            height: 1,
-            color: AppColors.darkGrey,
-          ),
-        ),
+        Expanded(child: Container(height: 1, color: AppColors.darkGrey)),
       ],
     );
   }
@@ -554,9 +564,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.transparent,
           side: BorderSide.none,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         icon: isGoogleLoading
             ? SizedBox(
@@ -575,11 +583,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(
-                    Icons.g_mobiledata,
-                    color: Colors.red,
-                    size: 16,
-                  ),
+                  child: Icon(Icons.g_mobiledata, color: Colors.red, size: 16),
                 ),
               ),
         label: Text(

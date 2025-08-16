@@ -12,6 +12,12 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
+  // Static method to force rebuild of all AuthWrapper instances
+  static void forceRebuild() {
+    // This will be called from outside to force a rebuild
+    print('AuthWrapper: Force rebuild requested');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -27,8 +33,10 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Check for midnight logout
-      FirebaseService.checkAndSignOutIfNewDay();
+      // Temporarily disabled daily logout to debug auth issues
+      // print('AuthWrapper: App resumed, checking for daily logout...');
+      // FirebaseService.checkAndSignOutIfNewDay();
+      print('AuthWrapper: App resumed, daily logout temporarily disabled');
     }
     super.didChangeAppLifecycleState(state);
   }
@@ -36,19 +44,24 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return StreamBuilder(
       stream: FirebaseService.authStateChanges,
       builder: (context, snapshot) {
         // Show loading screen while checking authentication state
         if (snapshot.connectionState == ConnectionState.waiting) {
+          print('AuthWrapper: Waiting for auth state...');
           return LoadingScreen(isDark: isDark);
         }
 
         // Show appropriate screen based on authentication state
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data != null) {
+          print('AuthWrapper: User is authenticated, showing HomePage');
+          print('AuthWrapper: User email: ${snapshot.data?.email}');
+          print('AuthWrapper: User UID: ${snapshot.data?.uid}');
           return const HomePage();
         } else {
+          print('AuthWrapper: User is not authenticated, showing LoginPage');
           return const LoginPage();
         }
       },
@@ -74,7 +87,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
       vsync: this,
     );
 
@@ -117,11 +130,15 @@ class _LoadingScreenState extends State<LoadingScreen>
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          gradient: AppColors.primaryLinearGradient(widget.isDark),
+                          gradient: AppColors.primaryLinearGradient(
+                            widget.isDark,
+                          ),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary(widget.isDark).withOpacity(0.4),
+                              color: AppColors.primary(
+                                widget.isDark,
+                              ).withOpacity(0.4),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -154,7 +171,8 @@ class _LoadingScreenState extends State<LoadingScreen>
               const SizedBox(height: 20),
               CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.accent(widget.isDark)),
+                  AppColors.accent(widget.isDark),
+                ),
                 strokeWidth: 3,
               ),
               const SizedBox(height: 16),

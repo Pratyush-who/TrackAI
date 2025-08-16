@@ -89,7 +89,13 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       );
 
       if (user != null && mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        // Force navigation to home page after successful authentication
+        print('Signup successful for user: ${user.email}');
+        // Add a small delay to ensure Firebase state is updated
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -115,8 +121,13 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       final user = await FirebaseService.signInWithGoogle();
 
       if (user != null && mounted) {
-        // Successful sign-in
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        // Force navigation to home page after successful authentication
+        print('Google sign-in successful for user: ${user.email}');
+        // Add a small delay to ensure Firebase state is updated
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        }
       } else if (mounted) {
         // User cancelled the sign-in
         setState(() {
