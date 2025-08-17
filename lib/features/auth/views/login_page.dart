@@ -196,11 +196,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: const [0.0, 0.8, 2.0],
+            stops: [0.1, 0.85, 1.0],
             colors: [
               AppColors.black,
-              AppColors.black,
-              const Color.fromARGB(255, 41, 96, 88).withOpacity(0.3),
+              AppColors.darkCardBackground,
+              AppColors.darkPrimary,
             ],
           ),
         ),
@@ -249,11 +249,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Widget _buildHeader() {
     return Column(
       children: [
+        // TrackAI Logo/Title
         ShaderMask(
           shaderCallback: (bounds) => LinearGradient(
             colors: [
-              const Color.fromARGB(255, 80, 173, 113),
-              AppColors.darkPrimary,
+              const Color.fromARGB(255, 84, 164, 152),
+              const Color.fromARGB(255, 110, 239, 155),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -264,6 +265,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               fontSize: 28,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
+              color: Colors.white,
             ),
           ),
         ),
@@ -296,28 +298,32 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: AppColors.cardBackground(true).withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkSecondary, width: 1),
+        border: Border.all(color: AppColors.darkPrimary, width: 0.2),
       ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sign in',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            Center(
+              child: const Text(
+                'Sign in',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              'Enter your credentials to access your account',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary(true),
-                fontWeight: FontWeight.w400,
+            Center(
+              child: Text(
+                'Enter your credentials to access your account',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary(true),
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -385,30 +391,30 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 },
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // Forgot Password Link
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: _handleForgotPassword,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 0,
-                    vertical: 4,
-                  ),
-                ),
-                child: Text(
-                  'Forgot password?',
-                  style: TextStyle(
-                    color: AppColors.darkPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
+            // // Forgot Password Link
+            // Align(
+            //   alignment: Alignment.centerRight,
+            //   child: TextButton(
+            //     onPressed: _handleForgotPassword,
+            //     style: TextButton.styleFrom(
+            //       padding: const EdgeInsets.symmetric(
+            //         horizontal: 0,
+            //         vertical: 4,
+            //       ),
+            //     ),
+            //     child: Text(
+            //       'Forgot password?',
+            //       style: TextStyle(
+            //         color: AppColors.darkPrimary,
+            //         fontSize: 14,
+            //         fontWeight: FontWeight.w500,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(height: 24),
 
             // Sign In Button
             _buildSubmitButton(),
@@ -462,7 +468,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         fillColor: AppColors.inputFill(true),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 7,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

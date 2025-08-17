@@ -186,12 +186,13 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: const [0.0, 0.8, 2.0],
+            stops: [0.1, 0.85, 1.0],
             colors: [
               AppColors.black,
-              AppColors.black,
-              const Color.fromARGB(255, 41, 96, 88).withOpacity(0.3),
-            ],        ),
+              AppColors.darkCardBackground,
+              AppColors.darkPrimary,
+            ],
+          ),
         ),
         child: SafeArea(
           child: AnimatedBuilder(
@@ -221,8 +222,8 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                             ShaderMask(
                               shaderCallback: (bounds) => LinearGradient(
                                 colors: [
-                                  const Color.fromARGB(255, 80, 173, 113),
-                                  AppColors.darkPrimary,
+                                  const Color.fromARGB(255, 84, 164, 152),
+                                  const Color.fromARGB(255, 110, 239, 155),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -232,7 +233,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  // color: Colors.white,
+                                  color: Colors.white,
                                   letterSpacing: 1.2,
                                 ),
                               ),
@@ -279,13 +280,14 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       ],
     );
   }
+
   Widget _buildForm() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.cardBackground(true).withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkSecondary, width: 1),
+        border: Border.all(color: AppColors.darkPrimary, width: 0.3),
       ),
       child: Form(
         key: _formKey,
@@ -589,10 +591,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: AppColors.inputFill(true),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 6,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
