@@ -196,10 +196,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
+            stops: const [0.0, 0.8, 2.0],
             colors: [
               AppColors.black,
-              AppColors.background(isDark),
-              AppColors.darkGrey,
+              AppColors.black,
+              const Color.fromARGB(255, 41, 96, 88).withOpacity(0.3),
             ],
           ),
         ),
@@ -248,12 +249,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Widget _buildHeader() {
     return Column(
       children: [
-        // TrackAI Logo/Title
         ShaderMask(
           shaderCallback: (bounds) => LinearGradient(
             colors: [
               const Color.fromARGB(255, 80, 173, 113),
-              const Color.fromARGB(255, 110, 239, 155),
+              AppColors.darkPrimary,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -296,7 +296,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: AppColors.cardBackground(true).withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkGrey, width: 1),
+        border: Border.all(color: AppColors.darkSecondary, width: 1),
       ),
       child: Form(
         key: _formKey,
@@ -401,7 +401,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 child: Text(
                   'Forgot password?',
                   style: TextStyle(
-                    color: AppColors.successColor,
+                    color: AppColors.darkPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -498,7 +498,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.successColor, AppColors.successColor],
+          colors: [AppColors.darkPrimary, AppColors.darkPrimary],
         ),
       ),
       child: ElevatedButton(
@@ -578,12 +578,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             : Container(
                 width: 20,
                 height: 20,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
                 child: Center(
-                  child: Icon(Icons.g_mobiledata, color: Colors.red, size: 16),
+                  child: Image.asset(
+                    'assets/images/google.png',
+                    width: 24,
+                    height: 24,
+                  ),
                 ),
               ),
         label: Text(
@@ -618,7 +618,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               TextSpan(
                 text: 'Sign up',
                 style: TextStyle(
-                  color: AppColors.successColor,
+                  color: AppColors.darkPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),

@@ -186,12 +186,12 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
+            stops: const [0.0, 0.8, 2.0],
             colors: [
               AppColors.black,
-              AppColors.background(isDark),
-              AppColors.darkGrey,
-            ],
-          ),
+              AppColors.black,
+              const Color.fromARGB(255, 41, 96, 88).withOpacity(0.3),
+            ],        ),
         ),
         child: SafeArea(
           child: AnimatedBuilder(
@@ -222,7 +222,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                               shaderCallback: (bounds) => LinearGradient(
                                 colors: [
                                   const Color.fromARGB(255, 80, 173, 113),
-                                  const Color.fromARGB(255, 110, 239, 155),
+                                  AppColors.darkPrimary,
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -279,35 +279,38 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       ],
     );
   }
-
   Widget _buildForm() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.cardBackground(true).withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkGrey, width: 1),
+        border: Border.all(color: AppColors.darkSecondary, width: 1),
       ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sign up',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            Center(
+              child: const Text(
+                'Sign up',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              'Create your account to get started',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary(true),
-                fontWeight: FontWeight.w400,
+            Center(
+              child: Text(
+                'Create your account to get started',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary(true),
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -588,7 +591,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
         fillColor: AppColors.inputFill(true),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 6,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -624,7 +627,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.successColor, AppColors.successColor],
+          colors: [AppColors.darkPrimary, AppColors.darkPrimary],
         ),
       ),
       child: ElevatedButton(
@@ -704,15 +707,12 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
             : Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
+
                 child: Center(
                   child: Image.asset(
                     'assets/images/google.png',
-                    width: 18,
-                    height: 18,
+                    width: 24,
+                    height: 24,
                   ),
                 ),
               ),
