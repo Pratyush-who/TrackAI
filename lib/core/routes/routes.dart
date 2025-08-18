@@ -4,6 +4,7 @@ import 'package:trackai/features/analytics/analyticsscreen.dart';
 import 'package:trackai/features/home/homepage.dart';
 import 'package:trackai/features/home/homescreen.dart';
 import 'package:trackai/features/auth/views/login_page.dart';
+import 'package:trackai/features/onboarding/onboardingflow.dart';
 import 'package:trackai/features/settings/settingsscreen.dart';
 import 'package:trackai/features/auth/views/signup_page.dart';
 import 'package:trackai/features/tracker/trackerscreen.dart';
@@ -12,6 +13,7 @@ class AppRoutes {
   // Route names
   static const String login = '/login';
   static const String signup = '/signup';
+  static const String onboarding = '/onboarding';
   static const String home = '/home';
   static const String homeScreen = '/home-screen';
   static const String trackerScreen = '/tracker-screen';
@@ -28,22 +30,18 @@ class AppRoutes {
         return _createRoute(const LoginPage());
       case signup:
         return _createRoute(const SignupPage());
-
+      case onboarding:
+        return _createRoute(const OnboardingFlow());
       case home:
         return _createRoute(const HomePage());
-
       case homeScreen:
         return _createRoute(const Homescreen());
-
       case trackerScreen:
         return _createRoute(const Trackerscreen());
-
       case analyticsScreen:
         return _createRoute(const AnalyticsScreen());
-
       case settingsScreen:
         return _createRoute(const Settingsscreen());
-
       default:
         return _createRoute(
           Scaffold(

@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trackai/core/constants/appcolors.dart';
-import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/services/auth_services.dart';
+import 'package:trackai/features/auth/views/login_page.dart';
+import 'package:trackai/core/wrappers/authwrapper.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -89,12 +90,19 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       );
 
       if (user != null && mounted) {
-        // Force navigation to home page after successful authentication
+        // Let AuthWrapper handle navigation to onboarding or home
         print('Signup successful for user: ${user.email}');
-        // Add a small delay to ensure Firebase state is updated
-        await Future.delayed(const Duration(milliseconds: 200));
+        // Give more time for Firebase auth state to propagate
+        await Future.delayed(const Duration(milliseconds: 500));
+        print('Signup: Auth state should now be updated');
+
+        // Force a rebuild of the entire widget tree
         if (mounted) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          // Clear the navigation stack and restart from AuthWrapper
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
+            (route) => false,
+          );
         }
       }
     } catch (e) {
@@ -121,12 +129,19 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       final user = await FirebaseService.signInWithGoogle();
 
       if (user != null && mounted) {
-        // Force navigation to home page after successful authentication
+        // Let AuthWrapper handle navigation to onboarding or home
         print('Google sign-in successful for user: ${user.email}');
-        // Add a small delay to ensure Firebase state is updated
-        await Future.delayed(const Duration(milliseconds: 200));
+        // Give more time for Firebase auth state to propagate
+        await Future.delayed(const Duration(milliseconds: 500));
+        print('Google signup: Auth state should now be updated');
+
+        // Force a rebuild of the entire widget tree
         if (mounted) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          // Clear the navigation stack and restart from AuthWrapper
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
+            (route) => false,
+          );
         }
       } else if (mounted) {
         // User cancelled the sign-in
@@ -731,7 +746,10 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
     return Center(
       child: TextButton(
         onPressed: () {
-          Navigator.pushReplacementNamed(context, AppRoutes.login);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
         },
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

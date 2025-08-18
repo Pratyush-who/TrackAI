@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
-import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/services/auth_services.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/analytics/analyticsscreen.dart';
@@ -103,9 +102,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _handleLogout() async {
     try {
       await FirebaseService.signOut();
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.login);
-      }
+      // AuthWrapper will automatically handle navigation to LoginPage
+      print('Logout successful - AuthWrapper will handle navigation');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -123,7 +121,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final isDark = themeProvider.isDarkMode;
-        
+
         return Scaffold(
           extendBody: true,
           backgroundColor: AppColors.background(isDark),
@@ -140,7 +138,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
           bottomNavigationBar: _buildBottomNavigationBar(isDark),
           floatingActionButton: null,
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
         );
       },
     );
@@ -156,7 +155,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           gradient: AppColors.backgroundLinearGradient(isDark),
           boxShadow: [
             BoxShadow(
-              color: (isDark ? AppColors.black : AppColors.lightGrey).withOpacity(0.1),
+              color: (isDark ? AppColors.black : AppColors.lightGrey)
+                  .withOpacity(0.1),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -201,10 +201,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
-                return RotationTransition(
-                  turns: animation,
-                  child: child,
-                );
+                return RotationTransition(turns: animation, child: child);
               },
               child: Icon(
                 isDark ? Icons.light_mode : Icons.dark_mode,
@@ -238,12 +235,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         width: 32,
                         height: 32,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Icon(
-                              Icons.person,
-                              color: AppColors.primary(isDark),
-                              size: 20,
-                            ),
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.person,
+                          color: AppColors.primary(isDark),
+                          size: 20,
+                        ),
                       ),
                     )
                   : Icon(
@@ -273,9 +269,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              PopupMenuDivider(
-                height: 1,
-              ),
+              PopupMenuDivider(height: 1),
               PopupMenuItem<String>(
                 value: 'logout',
                 child: const Row(
@@ -309,15 +303,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? AppColors.black : AppColors.lightGrey).withOpacity(0.3),
+            color: (isDark ? AppColors.black : AppColors.lightGrey).withOpacity(
+              0.3,
+            ),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
         ],
-        border: isDark ? null : Border.all(
-          color: AppColors.lightGrey.withOpacity(0.2),
-          width: 1,
-        ),
+        border: isDark
+            ? null
+            : Border.all(color: AppColors.lightGrey.withOpacity(0.2), width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
