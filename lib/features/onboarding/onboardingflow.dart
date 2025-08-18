@@ -8,7 +8,7 @@ import 'package:trackai/features/onboarding/genderselection.dart';
 import 'package:trackai/features/onboarding/goalpace.dart';
 import 'package:trackai/features/onboarding/goalselection.dart';
 import 'package:trackai/features/onboarding/heightweight.dart';
-import 'package:trackai/features/onboarding/observices.dart';
+import 'package:trackai/features/onboarding/service/observices.dart';
 import 'package:trackai/features/onboarding/resultshowcase.dart';
 import 'package:trackai/features/onboarding/workoutfrequency.dart';
 import 'package:trackai/features/home/homepage.dart';
@@ -224,15 +224,16 @@ class _OnboardingFlowState extends State<OnboardingFlow>
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.1, 0.85, 1.0],
-            colors: [
-              AppColors.black,
-              AppColors.darkCardBackground,
-              AppColors.darkPrimary,
-            ],
-          ),
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  stops: [0.0, 0.15, 0.85, 1.0],
+                  colors: [
+                    AppColors.primary(true).withOpacity(0.3),
+                    AppColors.black,
+                    AppColors.black,
+                    AppColors.primary(true).withOpacity(0.3),
+                  ],
+                ),
         ),
         child: SafeArea(
           child: Stack(

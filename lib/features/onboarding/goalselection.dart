@@ -63,8 +63,11 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -176,7 +179,7 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
         final index = entry.key;
         final option = entry.value;
         bool isSelected = selectedGoal == option['value'];
-        
+
         return TweenAnimationBuilder<double>(
           duration: Duration(milliseconds: 300 + (index * 100)),
           tween: Tween(begin: 0.0, end: 1.0),

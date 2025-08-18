@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trackai/core/services/auth_services.dart';
 import 'package:trackai/features/home/homepage.dart';
 import 'package:trackai/features/auth/views/login_page.dart';
-import 'package:trackai/features/onboarding/observices.dart';
+import 'package:trackai/features/onboarding/service/observices.dart';
 import 'package:trackai/features/onboarding/onboardingflow.dart';
 
 class AuthWrapper extends StatefulWidget {

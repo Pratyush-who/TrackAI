@@ -31,7 +31,7 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize based on metric/imperial preference
     if (widget.isMetric) {
       desiredWeightKg = 50;
@@ -40,7 +40,7 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
       desiredWeight = 110;
       desiredWeightKg = desiredWeight * 0.453592;
     }
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -52,8 +52,11 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -180,17 +183,14 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
                   AppColors.successColor.withOpacity(0.3),
                 ],
               ),
-              border: Border.all(
-                color: AppColors.successColor,
-                width: 3,
-              ),
+              border: Border.all(color: AppColors.successColor, width: 3),
             ),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    widget.isMetric 
+                    widget.isMetric
                         ? '${desiredWeightKg.round()}'
                         : '${desiredWeight.round()}',
                     style: TextStyle(
@@ -221,7 +221,7 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
             ),
             child: Column(
               children: [
-                                  Text(
+                Text(
                   'Adjust your target weight',
                   style: TextStyle(
                     fontSize: 16,
@@ -233,13 +233,18 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
                 SliderTheme(
                   data: SliderThemeData(
                     trackHeight: 8,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 16),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 16,
+                    ),
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 24,
+                    ),
                     activeTrackColor: AppColors.successColor,
                     inactiveTrackColor: AppColors.darkGrey,
                     thumbColor: AppColors.successColor,
                     overlayColor: AppColors.successColor.withOpacity(0.3),
-                    valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                    valueIndicatorShape:
+                        const PaddleSliderValueIndicatorShape(),
                     valueIndicatorColor: AppColors.successColor,
                     valueIndicatorTextStyle: const TextStyle(
                       color: Colors.white,
@@ -252,7 +257,7 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
                     min: widget.isMetric ? 30 : 66,
                     max: widget.isMetric ? 200 : 440,
                     divisions: widget.isMetric ? 170 : 374,
-                    label: widget.isMetric 
+                    label: widget.isMetric
                         ? '${desiredWeightKg.round()} kg'
                         : '${desiredWeight.round()} lbs',
                     onChanged: _updateWeight,
@@ -287,7 +292,10 @@ class _DesiredWeightPageState extends State<DesiredWeightPage>
             decoration: BoxDecoration(
               color: AppColors.successColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.successColor.withOpacity(0.3), width: 1),
+              border: Border.all(
+                color: AppColors.successColor.withOpacity(0.3),
+                width: 1,
+              ),
             ),
             child: Row(
               children: [

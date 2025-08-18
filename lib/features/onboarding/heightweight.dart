@@ -35,16 +35,16 @@ class _HeightWeightPageState extends State<HeightWeightPage>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize with existing data if available
     isMetric = widget.initialData['isMetric'] ?? false;
     heightFeet = (widget.initialData['heightFeet'] ?? 5).toDouble();
     heightInches = (widget.initialData['heightInches'] ?? 6).toDouble();
     weightLbs = (widget.initialData['weightLbs'] ?? 119).toDouble();
-    
+
     // Convert to metric if needed
     _updateMetricValues();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -56,8 +56,11 @@ class _HeightWeightPageState extends State<HeightWeightPage>
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -206,7 +209,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: !isMetric ? AppColors.successColor : Colors.transparent,
+                  color: !isMetric
+                      ? AppColors.successColor
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -215,7 +220,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: !isMetric ? Colors.white : AppColors.textSecondary(true),
+                      color: !isMetric
+                          ? Colors.white
+                          : AppColors.textSecondary(true),
                     ),
                   ),
                 ),
@@ -239,7 +246,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isMetric ? Colors.white : AppColors.textSecondary(true),
+                      color: isMetric
+                          ? Colors.white
+                          : AppColors.textSecondary(true),
                     ),
                   ),
                 ),
@@ -254,13 +263,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
   Widget _buildSliders() {
     return Row(
       children: [
-        Expanded(
-          child: _buildHeightSlider(),
-        ),
+        Expanded(child: _buildHeightSlider()),
         const SizedBox(width: 32),
-        Expanded(
-          child: _buildWeightSlider(),
-        ),
+        Expanded(child: _buildWeightSlider()),
       ],
     );
   }
@@ -285,11 +290,15 @@ class _HeightWeightPageState extends State<HeightWeightPage>
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.darkGrey, width: 1),
           ),
-          child: isMetric ? _buildMetricHeightSlider() : _buildImperialHeightSliders(),
+          child: isMetric
+              ? _buildMetricHeightSlider()
+              : _buildImperialHeightSliders(),
         ),
         const SizedBox(height: 12),
         Text(
-          isMetric ? '${heightCm.round()} cm' : '${heightFeet.round()}\' ${heightInches.round()}"',
+          isMetric
+              ? '${heightCm.round()} cm'
+              : '${heightFeet.round()}\' ${heightInches.round()}"',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -321,8 +330,12 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                   child: SliderTheme(
                     data: SliderThemeData(
                       trackHeight: 6,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 12,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 20,
+                      ),
                       activeTrackColor: AppColors.successColor,
                       inactiveTrackColor: AppColors.darkGrey,
                       thumbColor: AppColors.successColor,
@@ -366,8 +379,12 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                   child: SliderTheme(
                     data: SliderThemeData(
                       trackHeight: 6,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 12,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 20,
+                      ),
                       activeTrackColor: AppColors.successColor,
                       inactiveTrackColor: AppColors.darkGrey,
                       thumbColor: AppColors.successColor,
@@ -480,8 +497,12 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                   child: SliderTheme(
                     data: SliderThemeData(
                       trackHeight: 6,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 12,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 20,
+                      ),
                       activeTrackColor: AppColors.successColor,
                       inactiveTrackColor: AppColors.darkGrey,
                       thumbColor: AppColors.successColor,

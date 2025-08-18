@@ -66,8 +66,11 @@ class _GoalPacePageState extends State<GoalPacePage>
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -179,7 +182,7 @@ class _GoalPacePageState extends State<GoalPacePage>
         final index = entry.key;
         final option = entry.value;
         bool isSelected = selectedPace == option['value'];
-        
+
         return TweenAnimationBuilder<double>(
           duration: Duration(milliseconds: 300 + (index * 150)),
           tween: Tween(begin: 0.0, end: 1.0),
@@ -238,7 +241,7 @@ class _GoalPacePageState extends State<GoalPacePage>
                     color: AppColors.successColor.withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -275,7 +278,9 @@ class _GoalPacePageState extends State<GoalPacePage>
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
-                          color: isSelected ? AppColors.successColor : Colors.white,
+                          color: isSelected
+                              ? AppColors.successColor
+                              : Colors.white,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -304,20 +309,22 @@ class _GoalPacePageState extends State<GoalPacePage>
             if (isSelected) ...[
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: iconColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: iconColor.withOpacity(0.3), width: 1),
+                  border: Border.all(
+                    color: iconColor.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.schedule,
-                      color: iconColor,
-                      size: 16,
-                    ),
+                    Icon(Icons.schedule, color: iconColor, size: 16),
                     const SizedBox(width: 6),
                     Text(
                       'Timeline: $duration',

@@ -136,6 +136,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               children: _pages,
             ),
           ),
+          
           bottomNavigationBar: _buildBottomNavigationBar(isDark),
           floatingActionButton: null,
           floatingActionButtonLocation:

@@ -67,8 +67,8 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
 
     return AnimatedBuilder(
       animation: _animationController,
@@ -77,20 +77,36 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
           opacity: _fadeAnimation,
           child: SlideTransition(
             position: _slideAnimation,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? screenWidth * 0.2 : 24.0,
-                vertical: 24.0,
+            child: Container(
+              decoration: BoxDecoration(
+                
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 40),
-                  _buildGenderOptions(),
-                  const SizedBox(height: 40),
-                  _buildContinueButton(),
-                ],
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      // Main content - centered
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildIcon(),
+                            const SizedBox(height: 40),
+                            _buildTitle(),
+                            const SizedBox(height: 24),
+                            _buildSubtitle(),
+                            const SizedBox(height: 48),
+                            _buildGenderOptions(),
+                          ],
+                        ),
+                      ),
+                      
+                      // Bottom button
+                      _buildNextButton(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -99,120 +115,178 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildProgressIndicator() {
+    return Row(
       children: [
         const Text(
-          'Tell us about yourself',
+          'Step 1 / 14',
           style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -0.5,
+            color: Colors.white54,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Choose your gender to help us personalize your experience',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.textSecondary(true),
-            fontWeight: FontWeight.w400,
+        const SizedBox(width: 16),
+        Expanded(
+          child: Container(
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.darkGrey,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: 1 / 14, // 1 out of 14 steps
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary(true),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildIcon() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: AppColors.primary(true).withOpacity(0.1),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.primary(true),
+          width: 0.5,
+        ),
+      ),
+      child: Icon(
+        FontAwesomeIcons.userGroup,
+        color: AppColors.primary(true),
+        size: 28,
+      ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return const Text(
+      'What is your gender?',
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        letterSpacing: -0.5,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _buildSubtitle() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.primary(true).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary(true).withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: AppColors.primary(true),
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              'This helps us tailor recommendations and\ncalculate your metabolic rate more\naccurately.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.primary(true),
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildGenderOptions() {
     return Column(
       children: [
-        _buildGenderCard(
-          'Male',
-          FontAwesomeIcons.mars,
-          selectedGender == 'Male',
-        ),
-        const SizedBox(height: 16),
-        _buildGenderCard(
-          'Female',
-          FontAwesomeIcons.venus,
-          selectedGender == 'Female',
-        ),
-        const SizedBox(height: 16),
-        _buildGenderCard(
-          'Other',
-          FontAwesomeIcons.genderless,
-          selectedGender == 'Other',
-        ),
+        _buildGenderOption('Male'),
+        const SizedBox(height: 12),
+        _buildGenderOption('Female'),
+        const SizedBox(height: 12),
+        _buildGenderOption('Other'),
       ],
     );
   }
 
-  Widget _buildGenderCard(String gender, IconData icon, bool isSelected) {
+  Widget _buildGenderOption(String gender) {
+    final isSelected = selectedGender == gender;
+    
     return GestureDetector(
       onTap: () => _selectGender(gender),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(20),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.successColor.withOpacity(0.1)
-              : AppColors.cardBackground(true).withOpacity(0.8),
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected 
+              ? AppColors.primary(true).withOpacity(0.1)
+              : AppColors.cardBackground(true),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.successColor : AppColors.darkGrey,
+            color: isSelected 
+                ? AppColors.primary(true)
+                : AppColors.darkGrey,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.successColor.withOpacity(0.2)
-                    : AppColors.darkGrey.withOpacity(0.3),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? AppColors.successColor : Colors.white70,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 gender,
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? AppColors.successColor : Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected 
+                      ? AppColors.primary(true)
+                      : AppColors.textPrimary(true),
                 ),
               ),
             ),
             if (isSelected)
-              Icon(Icons.check_circle, color: AppColors.successColor, size: 24),
+              Icon(
+                Icons.check_circle,
+                color: AppColors.primary(true),
+                size: 20,
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildContinueButton() {
+  Widget _buildNextButton() {
     return Container(
       width: double.infinity,
-      height: 48,
+      height: 64, // Increased height to match the image
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(32), // More rounded
         gradient: selectedGender != null
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.successColor, AppColors.successColor],
-              )
+            ? AppColors.primaryLinearGradient(true)
             : null,
         color: selectedGender == null ? AppColors.darkGrey : null,
       ),
@@ -222,15 +296,25 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        child: Text(
-          'Continue',
-          style: TextStyle(
-            color: selectedGender != null ? Colors.white : Colors.white54,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32), // Match container radius
           ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (selectedGender == null)
+              
+            if (selectedGender == null) const SizedBox(width: 8),
+            Text(
+              'Next',
+              style: TextStyle(
+                color: selectedGender != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

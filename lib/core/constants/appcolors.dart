@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Dark Theme Colors
   static const Color darkPrimary = Color.fromRGBO(89, 183, 169, 1.0);
-  
+
   static const Color darkSecondary = Color.fromRGBO(33, 43, 42, 1.0);
   static const Color darkBackground = Color.fromRGBO(25, 25, 25, 1.0);
   static const Color darkAccent = Color.fromRGBO(55, 200, 105, 1);

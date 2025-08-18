@@ -46,15 +46,13 @@ class _CompletionPageState extends State<CompletionPage>
       ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.8, curve: Curves.elasticOut),
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.0, 0.8, curve: Curves.elasticOut),
+          ),
+        );
 
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -64,10 +62,7 @@ class _CompletionPageState extends State<CompletionPage>
     );
 
     _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _confettiController,
-        curve: Curves.linear,
-      ),
+      CurvedAnimation(parent: _confettiController, curve: Curves.linear),
     );
 
     _animationController.forward();
@@ -104,7 +99,7 @@ class _CompletionPageState extends State<CompletionPage>
                 );
               },
             ),
-            
+
             // Main content
             FadeTransition(
               opacity: _fadeAnimation,
@@ -163,11 +158,7 @@ class _CompletionPageState extends State<CompletionPage>
             ),
           ],
         ),
-        child: const Icon(
-          Icons.check,
-          color: Colors.white,
-          size: 60,
-        ),
+        child: const Icon(Icons.check, color: Colors.white, size: 60),
       ),
     );
   }
@@ -239,7 +230,10 @@ class _CompletionPageState extends State<CompletionPage>
       decoration: BoxDecoration(
         color: AppColors.cardBackground(true).withOpacity(0.8),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.successColor.withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: AppColors.successColor.withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +250,7 @@ class _CompletionPageState extends State<CompletionPage>
           ...features.asMap().entries.map((entry) {
             final index = entry.key;
             final feature = entry.value;
-            
+
             return TweenAnimationBuilder<double>(
               duration: Duration(milliseconds: 800 + (index * 200)),
               tween: Tween(begin: 0.0, end: 1.0),
@@ -348,7 +342,9 @@ class _CompletionPageState extends State<CompletionPage>
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -362,11 +358,7 @@ class _CompletionPageState extends State<CompletionPage>
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(
-              Icons.arrow_forward,
-              color: Colors.white,
-              size: 20,
-            ),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
           ],
         ),
       ),
@@ -405,16 +397,17 @@ class ConfettiPainter extends CustomPainter {
     ];
 
     for (int i = 0; i < 50; i++) {
-      final x = (size.width * (i % 10) / 10) + 
-               (30 * math.sin((animation * 2 + i) * 2));
+      final x =
+          (size.width * (i % 10) / 10) +
+          (30 * math.sin((animation * 2 + i) * 2));
       final y = (size.height * animation + (i * 20)) % size.height;
-      
+
       paint.color = colors[i % colors.length].withOpacity(0.7);
-      
+
       canvas.save();
       canvas.translate(x, y);
       canvas.rotate(animation * 4 + i);
-      
+
       if (i % 3 == 0) {
         // Draw circles
         canvas.drawCircle(Offset.zero, 3, paint);
@@ -422,7 +415,7 @@ class ConfettiPainter extends CustomPainter {
         // Draw rectangles
         canvas.drawRect(const Rect.fromLTWH(-2, -2, 4, 8), paint);
       }
-      
+
       canvas.restore();
     }
   }
