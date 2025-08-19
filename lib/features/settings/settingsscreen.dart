@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:trackai/core/constants/appcolors.dart';
-import 'package:trackai/features/onboarding/observices.dart';
 import 'package:trackai/features/onboarding/service/observices.dart';
 
 class Settingsscreen extends StatefulWidget {

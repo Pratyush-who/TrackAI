@@ -9,8 +9,12 @@ import 'package:trackai/features/onboarding/goalpace.dart';
 import 'package:trackai/features/onboarding/goalselection.dart';
 import 'package:trackai/features/onboarding/heightweight.dart';
 import 'package:trackai/features/onboarding/service/observices.dart';
-import 'package:trackai/features/onboarding/resultshowcase.dart';
+import 'package:trackai/features/onboarding/onboarding_data.dart';
+
 import 'package:trackai/features/onboarding/workoutfrequency.dart';
+import 'package:trackai/features/onboarding/otherapps.dart';
+import 'package:trackai/features/onboarding/accomplishment.dart';
+import 'package:trackai/features/onboarding/bmiresults.dart';
 import 'package:trackai/features/home/homepage.dart';
 
 class OnboardingFlow extends StatefulWidget {
@@ -30,20 +34,7 @@ class _OnboardingFlowState extends State<OnboardingFlow>
   bool _isLoading = false;
 
   // Onboarding data
-  Map<String, dynamic> onboardingData = {
-    'gender': '',
-    'workoutFrequency': '',
-    'heightFeet': 5,
-    'heightInches': 6,
-    'weightLbs': 119.0,
-    'isMetric': false,
-    'dateOfBirth': null,
-    'goal': '',
-    'desiredWeight': 110.0,
-    'goalPace': '',
-    'dietPreference': '',
-    'completedAt': null,
-  };
+  OnboardingData onboardingData = OnboardingData();
 
   final List<Widget> _pages = [];
 
@@ -69,18 +60,24 @@ class _OnboardingFlowState extends State<OnboardingFlow>
         onNext: _nextPage,
         onDataUpdate: (data) => _updateData('gender', data),
       ),
+      OtherAppsPage(
+        onNext: _nextPage,
+        onBack: _previousPage,
+        onDataUpdate: (data) => _updateData('otherApps', data),
+      ),
       WorkoutFrequencyPage(
         onNext: _nextPage,
         onBack: _previousPage,
         onDataUpdate: (data) => _updateData('workoutFrequency', data),
       ),
-      ResultsShowcasePage(onNext: _nextPage, onBack: _previousPage),
       HeightWeightPage(
         onNext: _nextPage,
         onBack: _previousPage,
         onDataUpdate: _updateHeightWeightData,
-        initialData: onboardingData,
+        initialData: onboardingData.toMap(),
       ),
+      // BMI page will be created dynamically with updated data
+      _buildBmiPage(),
       DateOfBirthPage(
         onNext: _nextPage,
         onBack: _previousPage,
@@ -91,11 +88,16 @@ class _OnboardingFlowState extends State<OnboardingFlow>
         onBack: _previousPage,
         onDataUpdate: (data) => _updateData('goal', data),
       ),
+      AccomplishmentPage(
+        onNext: _nextPage,
+        onBack: _previousPage,
+        onDataUpdate: (data) => _updateData('accomplishment', data),
+      ),
       DesiredWeightPage(
         onNext: _nextPage,
         onBack: _previousPage,
         onDataUpdate: (data) => _updateData('desiredWeight', data),
-        isMetric: onboardingData['isMetric'] ?? false,
+        isMetric: onboardingData.isMetric,
       ),
       GoalPacePage(
         onNext: _nextPage,
@@ -111,16 +113,61 @@ class _OnboardingFlowState extends State<OnboardingFlow>
     ]);
   }
 
+  Widget _buildBmiPage() {
+    return BmiResultsPage(
+      onNext: _nextPage,
+      onBack: _previousPage,
+      onboardingData: onboardingData,
+    );
+  }
+
   void _updateData(String key, dynamic value) {
     setState(() {
-      onboardingData[key] = value;
+      switch (key) {
+        case 'gender':
+          onboardingData.gender = value;
+          break;
+        case 'otherApps':
+          onboardingData.otherApps = value;
+          break;
+        case 'workoutFrequency':
+          onboardingData.workoutFrequency = value;
+          break;
+        case 'dateOfBirth':
+          onboardingData.dateOfBirth = value;
+          break;
+        case 'goal':
+          onboardingData.goal = value;
+          break;
+        case 'accomplishment':
+          onboardingData.accomplishment = value;
+          break;
+        case 'desiredWeight':
+          onboardingData.desiredWeight = value;
+          break;
+        case 'goalPace':
+          onboardingData.goalPace = value;
+          break;
+        case 'dietPreference':
+          onboardingData.dietPreference = value;
+          break;
+      }
     });
   }
 
   void _updateHeightWeightData(Map<String, dynamic> data) {
+    print('Height/Weight data received: $data');
     setState(() {
-      onboardingData.addAll(data);
+      // Update the OnboardingData object with the new height/weight data
+      onboardingData.heightFeet = data['heightFeet'] ?? onboardingData.heightFeet;
+      onboardingData.heightInches = data['heightInches'] ?? onboardingData.heightInches;
+      onboardingData.weightLbs = (data['weightLbs'] ?? onboardingData.weightLbs).toDouble();
+      onboardingData.isMetric = data['isMetric'] ?? onboardingData.isMetric;
+      
+      // Update the BMI page with new data
+      _pages[4] = _buildBmiPage();
     });
+    print('Updated onboarding data: ${onboardingData.toMap()}');
   }
 
   void _nextPage() {
@@ -154,8 +201,8 @@ class _OnboardingFlowState extends State<OnboardingFlow>
 
     try {
       // Save onboarding data to Firestore
-      onboardingData['completedAt'] = DateTime.now();
-      await OnboardingService.saveOnboardingData(onboardingData);
+      onboardingData.completedAt = DateTime.now();
+      await OnboardingService.saveOnboardingData(onboardingData.toMap());
 
       if (mounted) {
         // AuthWrapper will automatically detect completion and show HomePage
@@ -224,16 +271,16 @@ class _OnboardingFlowState extends State<OnboardingFlow>
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.0, 0.15, 0.85, 1.0],
-                  colors: [
-                    AppColors.primary(true).withOpacity(0.3),
-                    AppColors.black,
-                    AppColors.black,
-                    AppColors.primary(true).withOpacity(0.3),
-                  ],
-                ),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: [0.0, 0.15, 0.85, 1.0],
+            colors: [
+              AppColors.primary(true).withOpacity(0.3),
+              AppColors.black,
+              AppColors.black,
+              AppColors.primary(true).withOpacity(0.3),
+            ],
+          ),
         ),
         child: SafeArea(
           child: Stack(

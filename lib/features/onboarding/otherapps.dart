@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 
-class DateOfBirthPage extends StatefulWidget {
+class OtherAppsPage extends StatefulWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
-  final Function(DateTime) onDataUpdate;
+  final Function(String) onDataUpdate;
 
-  const DateOfBirthPage({
+  const OtherAppsPage({
     Key? key,
     required this.onNext,
     required this.onBack,
@@ -14,20 +15,15 @@ class DateOfBirthPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<DateOfBirthPage> createState() => _DateOfBirthPageState();
+  State<OtherAppsPage> createState() => _OtherAppsPageState();
 }
 
-class _DateOfBirthPageState extends State<DateOfBirthPage>
+class _OtherAppsPageState extends State<OtherAppsPage>
     with TickerProviderStateMixin {
+  String? selectedOption;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
-  DateTime? selectedDate;
-  final DateTime minDate = DateTime(1920);
-  final DateTime maxDate = DateTime.now().subtract(
-    const Duration(days: 365 * 13),
-  ); // Minimum 13 years old
 
   @override
   void initState() {
@@ -58,54 +54,17 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
     super.dispose();
   }
 
-  Future<void> _selectDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime(1995),
-      firstDate: minDate,
-      lastDate: maxDate,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: AppColors.successColor,
-              onPrimary: Colors.white,
-              surface: AppColors.cardBackground(true),
-              onSurface: Colors.white,
-            ),
-            dialogBackgroundColor: AppColors.cardBackground(true),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
-      widget.onDataUpdate(picked);
-    }
+  void _selectOption(String option) {
+    setState(() {
+      selectedOption = option;
+    });
+    widget.onDataUpdate(option);
   }
 
   void _continue() {
-    if (selectedDate != null) {
+    if (selectedOption != null) {
       widget.onNext();
     }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  int _calculateAge(DateTime birthDate) {
-    final today = DateTime.now();
-    int age = today.year - birthDate.year;
-    if (today.month < birthDate.month ||
-        (today.month == birthDate.month && today.day < birthDate.day)) {
-      age--;
-    }
-    return age;
   }
 
   @override
@@ -135,8 +94,8 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                               _buildTitle(),
                               const SizedBox(height: 24),
                               _buildSubtitle(),
-                              const SizedBox(height: 40),
-                              _buildDateSelector(),
+                              const SizedBox(height: 48),
+                              _buildOptions(),
                               const SizedBox(height: 40),
                             ],
                           ),
@@ -191,13 +150,17 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary(true), width: 0.5),
       ),
-      child: Icon(Icons.cake, color: AppColors.primary(true), size: 28),
+      child: Icon(
+        FontAwesomeIcons.mobileScreen,
+        color: AppColors.primary(true),
+        size: 28,
+      ),
     );
   }
 
   Widget _buildTitle() {
     return const Text(
-      'When were you born?',
+      'Have you tried other apps?',
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
@@ -226,7 +189,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
           const SizedBox(width: 8),
           Flexible(
             child: Text(
-              'This helps us provide age-appropriate\nrecommendations.',
+              'This helps us understand your experience\nlevel and provide better guidance.',
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.primary(true),
@@ -241,102 +204,57 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
     );
   }
 
-  Widget _buildDateSelector() {
-    return Center(
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: _selectDate,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground(true).withOpacity(0.8),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: selectedDate != null
-                      ? AppColors.successColor
-                      : AppColors.darkGrey,
-                  width: selectedDate != null ? 2 : 1,
+  Widget _buildOptions() {
+    return Column(
+      children: [
+        _buildOption('Yes'),
+        const SizedBox(height: 12),
+        _buildOption('No'),
+      ],
+    );
+  }
+
+  Widget _buildOption(String option) {
+    final isSelected = selectedOption == option;
+
+    return GestureDetector(
+      onTap: () => _selectOption(option),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary(true).withOpacity(0.1)
+              : AppColors.cardBackground(true),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.primary(true) : AppColors.darkGrey,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                option,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected
+                      ? AppColors.primary(true)
+                      : AppColors.textPrimary(true),
                 ),
               ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 48,
-                    color: selectedDate != null
-                        ? AppColors.successColor
-                        : AppColors.textSecondary(true),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    selectedDate != null
-                        ? _formatDate(selectedDate!)
-                        : 'Select your date of birth',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: selectedDate != null
-                          ? AppColors.successColor
-                          : Colors.white,
-                    ),
-                  ),
-                  if (selectedDate != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      '${_calculateAge(selectedDate!)} years old',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textSecondary(true),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                  if (selectedDate == null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap to open calendar',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary(true),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ],
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: AppColors.primary(true),
+                size: 20,
               ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.successColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.successColor.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.security, color: AppColors.successColor, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Your personal information is securely stored and never shared',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary(true),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -347,13 +265,13 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedDate != null
+        gradient: selectedOption != null
             ? AppColors.primaryLinearGradient(true)
             : null,
-        color: selectedDate == null ? AppColors.darkGrey : null,
+        color: selectedOption == null ? AppColors.darkGrey : null,
       ),
       child: ElevatedButton(
-        onPressed: selectedDate != null ? _continue : null,
+        onPressed: selectedOption != null ? _continue : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -365,7 +283,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedDate != null
+            color: selectedOption != null
                 ? AppColors.textPrimary(true)
                 : AppColors.textSecondary(true),
             fontSize: 16,

@@ -90,9 +90,6 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
@@ -100,22 +97,43 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
           opacity: _fadeAnimation,
           child: SlideTransition(
             position: _slideAnimation,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? screenWidth * 0.2 : 24.0,
-                vertical: 24.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildBackButton(),
-                  const SizedBox(height: 20),
-                  _buildHeader(),
-                  const SizedBox(height: 40),
-                  _buildFrequencyOptions(),
-                  const SizedBox(height: 40),
-                  _buildContinueButton(),
-                ],
+            child: Container(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      // Main content - scrollable
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 40),
+                              _buildIcon(),
+                              const SizedBox(height: 40),
+                              _buildTitle(),
+                              const SizedBox(height: 24),
+                              _buildSubtitle(),
+                              const SizedBox(height: 48),
+                              _buildFrequencyOptions(),
+                              const SizedBox(height: 40),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Bottom buttons row
+                      Row(
+                        children: [
+                          _buildBackButton(),
+                          const SizedBox(width: 16),
+                          Expanded(child: _buildNextButton()),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -128,45 +146,82 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
     return GestureDetector(
       onTap: widget.onBack,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
           color: AppColors.cardBackground(true).withOpacity(0.8),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(color: AppColors.darkGrey, width: 1),
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
           color: Colors.white,
-          size: 18,
+          size: 20,
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'How often do you workout?',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -0.5,
-          ),
+  Widget _buildIcon() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: AppColors.primary(true).withOpacity(0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.primary(true), width: 0.5),
+      ),
+      child: Icon(
+        FontAwesomeIcons.dumbbell,
+        color: AppColors.primary(true),
+        size: 28,
+      ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return const Text(
+      'Describe your activity level',
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        letterSpacing: -0.5,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _buildSubtitle() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.primary(true).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary(true).withOpacity(0.3),
+          width: 1,
         ),
-        const SizedBox(height: 8),
-        Text(
-          'This helps us create a personalized fitness plan for you',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.textSecondary(true),
-            fontWeight: FontWeight.w400,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.info_outline, color: AppColors.primary(true), size: 16),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              'This helps us create a personalized fitness\nplan for you.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.primary(true),
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -260,18 +315,14 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
     );
   }
 
-  Widget _buildContinueButton() {
+  Widget _buildNextButton() {
     return Container(
       width: double.infinity,
-      height: 48,
+      height: 64,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(32),
         gradient: selectedFrequency != null
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.successColor, AppColors.successColor],
-              )
+            ? AppColors.primaryLinearGradient(true)
             : null,
         color: selectedFrequency == null ? AppColors.darkGrey : null,
       ),
@@ -281,12 +332,16 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32),
+          ),
         ),
         child: Text(
-          'Continue',
+          'Next',
           style: TextStyle(
-            color: selectedFrequency != null ? Colors.white : Colors.white54,
+            color: selectedFrequency != null
+                ? AppColors.textPrimary(true)
+                : AppColors.textSecondary(true),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
