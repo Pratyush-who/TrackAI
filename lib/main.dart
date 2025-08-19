@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform, 
+      options: DefaultFirebaseOptions.currentPlatform,
     );
     print('Firebase initialized successfully');
     await FirebaseService.initializeFirebase();
@@ -44,7 +44,6 @@ class MyApp extends StatelessWidget {
               ? ThemeMode.dark
               : ThemeMode.light,
           home: const AuthWrapper(),
-          // Remove onGenerateRoute to prevent conflicts with AuthWrapper
         );
       },
     );
