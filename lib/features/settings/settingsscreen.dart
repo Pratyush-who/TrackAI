@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/onboarding/service/observices.dart';
+import 'package:trackai/features/settings/healthandfeedback.dart';
+import 'package:trackai/features/settings/privacy_policy.dart';
+import 'package:trackai/features/settings/terms_and_service.dart';
 
 class Settingsscreen extends StatefulWidget {
   const Settingsscreen({
@@ -78,22 +81,31 @@ class _SettingsScreenState extends State<Settingsscreen> {
   }
 
   void _navigateToHelpFeedback() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Help & Feedback feature coming soon!')),
-    );
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) =>  HealthFeedbackPage(),
+    ),
+  );
   }
 
   void _navigateToPrivacyPolicy() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Privacy Policy feature coming soon!')),
-    );
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const PrivacyPolicyScreen(),
+    ),
+  );
+}
 
   void _navigateToTermsOfService() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Terms of Service feature coming soon!')),
-    );
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const TermsOfServiceScreen(),
+    ),
+  );
+}
 
   // Card decoration to match the design in the image
   BoxDecoration _getCardDecoration(bool isDarkTheme) {
@@ -175,7 +187,7 @@ class _SettingsScreenState extends State<Settingsscreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: screenHeight * 0.05),
+                  SizedBox(height: screenHeight * 0.02),
                   _buildProfileSummaryCard(isDarkTheme),
                   SizedBox(height: screenHeight * 0.02),
                   _buildCustomizationCard(isDarkTheme),
