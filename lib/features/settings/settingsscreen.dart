@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/onboarding/service/observices.dart';
+import 'package:trackai/features/settings/adjustgoals.dart';
 import 'package:trackai/features/settings/healthandfeedback.dart';
 import 'package:trackai/features/settings/privacy_policy.dart';
 import 'package:trackai/features/settings/terms_and_service.dart';
@@ -28,13 +29,13 @@ class _SettingsScreenState extends State<Settingsscreen> {
   bool _isLoading = true;
   bool _burnedCaloriesEnabled = false;
   bool _patternBackgroundEnabled = false;
+  
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _patternBackgroundEnabled = widget.patternBackgroundEnabled;
-
   }
 
   Future<void> _loadUserData() async {
@@ -75,9 +76,12 @@ class _SettingsScreenState extends State<Settingsscreen> {
   }
 
   void _navigateToAdjustGoals() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Adjust Goals feature coming soon!')),
-    );
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) =>  AdjustGoalsPage(),
+    ),
+  );
   }
 
   void _navigateToHelpFeedback() {
@@ -107,24 +111,24 @@ class _SettingsScreenState extends State<Settingsscreen> {
   );
 }
 
-  // Card decoration to match the design in the image
+  // Card decoration to match the design in the image - Made semi-transparent to show pattern
   BoxDecoration _getCardDecoration(bool isDarkTheme) {
     if (isDarkTheme) {
       return BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color.fromRGBO(40, 50, 49, 1.0), // left/top green
-            const Color.fromARGB(255, 14, 14, 14), // middle light shade
-            Color.fromRGBO(33, 43, 42, 1.0), // right/bottom same green again
+            Color.fromRGBO(40, 50, 49, 0.85), // Made semi-transparent
+            const Color.fromARGB(215, 14, 14, 14), // Made semi-transparent
+            Color.fromRGBO(33, 43, 42, 0.85), // Made semi-transparent
           ],
-          begin: Alignment.topLeft, // tilt gradient
+          begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0], // green -> dark -> green
+          stops: const [0.0, 0.5, 1.0],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.darkPrimary.withOpacity(0.8), // subtle green border
-          width: 0.5, // thin border like screenshot
+          color: AppColors.darkPrimary.withOpacity(0.8),
+          width: 0.5,
         ),
         boxShadow: [
           BoxShadow(
@@ -139,9 +143,9 @@ class _SettingsScreenState extends State<Settingsscreen> {
       return BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.lightSecondary, // left/top green
-            AppColors.lightSecondary, // middle light shade
-            AppColors.lightSecondary, // right/bottom same green again
+            AppColors.lightSecondary.withOpacity(0.85), // Made semi-transparent
+            AppColors.lightSecondary.withOpacity(0.85), // Made semi-transparent
+            AppColors.lightSecondary.withOpacity(0.85), // Made semi-transparent
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -172,7 +176,7 @@ class _SettingsScreenState extends State<Settingsscreen> {
     final isDarkTheme = themeProvider.isDarkMode;
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDarkTheme),
+      backgroundColor: Colors.transparent, // Made transparent to show pattern
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
@@ -302,7 +306,7 @@ class _SettingsScreenState extends State<Settingsscreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50), // Green background for unit
+                color: const Color(0xFF4CAF50),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -387,7 +391,7 @@ class _SettingsScreenState extends State<Settingsscreen> {
           const SizedBox(height: 16),
           _buildToggleItem(
             title: 'Pattern Background',
-            subtitle: 'Toggle decorative background',
+            subtitle: 'Toggle decorative background pattern',
             value: _patternBackgroundEnabled,
             onChanged: (value) {
               setState(() {
@@ -458,11 +462,11 @@ class _SettingsScreenState extends State<Settingsscreen> {
           ? BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color.fromRGBO(40, 50, 49, 1.0), // left/top green
-                  const Color.fromARGB(255, 14, 14, 14), // middle dark shade
-                  const Color.fromRGBO(33, 43, 42, 1.0), // right/bottom green
+                  const Color.fromRGBO(40, 50, 49, 0.85), // Made semi-transparent
+                  const Color.fromARGB(215, 14, 14, 14), // Made semi-transparent
+                  const Color.fromRGBO(33, 43, 42, 0.85), // Made semi-transparent
                 ],
-                begin: Alignment.topLeft, // tilt gradient
+                begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 stops: const [0.0, 0.5, 1.0],
               ),
@@ -483,9 +487,9 @@ class _SettingsScreenState extends State<Settingsscreen> {
           : BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.lightSecondary,
-                  AppColors.lightSecondary,
-                  AppColors.lightSecondary,
+                  AppColors.lightSecondary.withOpacity(0.85), // Made semi-transparent
+                  AppColors.lightSecondary.withOpacity(0.85), // Made semi-transparent
+                  AppColors.lightSecondary.withOpacity(0.85), // Made semi-transparent
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -668,7 +672,7 @@ class _SettingsScreenState extends State<Settingsscreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: const Color(0xFF4CAF50), // Green when active
+          activeColor: const Color(0xFF4CAF50),
           activeTrackColor: const Color(0xFF4CAF50).withOpacity(0.3),
           inactiveThumbColor: isDarkTheme ? Colors.white70 : Colors.black38,
           inactiveTrackColor: isDarkTheme
@@ -905,25 +909,23 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     }
   }
 
-  // Card decoration for personal details to match main screen
+  // Card decoration for personal details to match main screen - Made semi-transparent
   BoxDecoration _getCardDecoration(bool isDarkTheme) {
     if (isDarkTheme) {
       return BoxDecoration(
-        color: const Color(
-          0xFF1E1E1E,
-        ).withOpacity(0.8), // Dark semi-transparent
+        color: const Color(0xFF1E1E1E).withOpacity(0.8), // Made semi-transparent
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF404040), // Light grey border for dark theme
+          color: const Color(0xFF404040),
           width: 1,
         ),
       );
     } else {
       return BoxDecoration(
-        color: Colors.white.withOpacity(0.7), // Light semi-transparent
+        color: Colors.white.withOpacity(0.7), // Made semi-transparent
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFE0E0E0), // Light grey border
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
       );
@@ -936,9 +938,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     final isDarkTheme = themeProvider.isDarkMode;
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDarkTheme),
+      backgroundColor: Colors.transparent, // Made transparent to show pattern
       appBar: AppBar(
-        backgroundColor: AppColors.background(isDarkTheme),
+        backgroundColor: Colors.transparent, // Made transparent
         elevation: 0,
         leading: IconButton(
           icon: Icon(

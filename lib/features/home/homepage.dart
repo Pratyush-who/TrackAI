@@ -25,11 +25,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Animation<double> _fabExpandAnimation;
   late Animation<Offset> _fabSlideAnimation1;
   late Animation<Offset> _fabSlideAnimation2;
+  late Animation<double> _fabRotationAnimation;
   bool _isFabExpanded = false;
   bool _patternBackgroundEnabled = false;
   late List<Widget> _pages;
-
-  
 
   final List<BottomNavItem> _navItems = [
     BottomNavItem(
@@ -70,42 +69,47 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _loadPreferences();
     _pageController = PageController(initialPage: currentIndex);
     _fabAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _fabExpandController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 250),
       vsync: this,
     );
     _fabAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeOut),
     );
     _fabExpandAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fabExpandController, curve: Curves.elasticOut),
+      CurvedAnimation(parent: _fabExpandController, curve: Curves.easeOutCubic),
     );
 
-    // Horizontal slide animations (right to left)
+    // Smoother slide animations
     _fabSlideAnimation1 =
         Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
+          begin: const Offset(0.8, 0.0),
           end: const Offset(0.0, 0.0),
         ).animate(
           CurvedAnimation(
             parent: _fabExpandController,
-            curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+            curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic),
           ),
         );
 
     _fabSlideAnimation2 =
         Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
+          begin: const Offset(0.8, 0.0),
           end: const Offset(0.0, 0.0),
         ).animate(
           CurvedAnimation(
             parent: _fabExpandController,
-            curve: const Interval(0.2, 0.8, curve: Curves.elasticOut),
+            curve: const Interval(0.1, 0.9, curve: Curves.easeOutCubic),
           ),
         );
+
+    // Smoother rotation animation
+    _fabRotationAnimation = Tween<double>(begin: 0.0, end: 0.125).animate(
+      CurvedAnimation(parent: _fabExpandController, curve: Curves.easeInOut),
+    );
 
     _fabAnimationController.forward();
   }
@@ -204,20 +208,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  Widget _buildPatternBackground(bool isDark) {
-    if (!_patternBackgroundEnabled) return const SizedBox.shrink();
-
-    return Positioned.fill(
-      child: CustomPaint(
-        painter: PatternBackgroundPainter(
-          color: isDark
-              ? Colors.white.withOpacity(0.03)
-              : Colors.black.withOpacity(0.02),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
@@ -228,13 +218,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           extendBody: false,
           backgroundColor: AppColors.background(isDark),
           appBar: _buildAppBar(isDark, themeProvider),
-          body: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  gradient: AppColors.backgroundLinearGradient(isDark),
-                ),
-                child: PageView(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: AppColors.backgroundLinearGradient(isDark),
+            ),
+            child: Stack(
+              children: [
+                // Pattern background behind content but still allowing interactions
+                if (_patternBackgroundEnabled)
+                  Positioned.fill(
+                    child: IgnorePointer( // This is the key fix - ignores pointer events
+                      child: CustomPaint(
+                        painter: PatternBackgroundPainter(
+                          color: isDark
+                              ? Colors.white.withOpacity(0.12) // More visible in dark mode
+                              : Colors.black.withOpacity(0.08), // More visible in light mode
+                        ),
+                      ),
+                    ),
+                  ),
+                // Main content on top
+                PageView(
                   controller: _pageController,
                   onPageChanged: _onPageChanged,
                   children: _pages.map((page) {
@@ -248,9 +252,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     return page;
                   }).toList(),
                 ),
-              ),
-              _buildPatternBackground(isDark),
-            ],
+              ],
+            ),
           ),
           bottomNavigationBar: _buildBottomNavigationBar(isDark),
           floatingActionButton: _buildExpandableFAB(isDark),
@@ -297,7 +300,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ],
       ),
       actions: [
-        // Theme Switch Button
+        // Theme Switch Button - Fixed colors
         Container(
           margin: const EdgeInsets.only(right: 8),
           decoration: BoxDecoration(
@@ -313,17 +316,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               HapticFeedback.lightImpact();
               themeProvider.toggleTheme();
             },
-            icon: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return RotationTransition(turns: animation, child: child);
-              },
-              child: Icon(
-                isDark ? Icons.light_mode : Icons.dark_mode,
-                key: ValueKey<bool>(isDark),
-                color: AppColors.primary(isDark),
-                size: 22,
-              ),
+            icon: Icon(
+              isDark ? Icons.light_mode : Icons.dark_mode,
+              color: AppColors.primary(isDark), // Always use primary color when active
+              size: 22,
             ),
             tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
           ),
@@ -431,16 +427,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         backgroundColor: Colors.transparent,
         elevation: 0,
         selectedItemColor: const Color.fromRGBO(95, 200, 185, 1.0),
-        unselectedItemColor: const Color.fromARGB(255, 128, 133, 132),
+        unselectedItemColor: isDark 
+            ? Colors.grey[600] 
+            : Colors.grey[500],
         selectedFontSize: 12,
         unselectedFontSize: 12,
         selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
-          color: Color.fromRGBO(95, 200, 185, 1.0),
         ),
         unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w400,
-          color: Color.fromRGBO(95, 200, 185, 1.0),
         ),
         items: _navItems.map((item) {
           final isSelected = _navItems.indexOf(item) == currentIndex;
@@ -450,7 +446,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Icon(
                 isSelected ? item.activeIcon : item.icon,
                 size: 24,
-                color: const Color.fromRGBO(95, 200, 185, 1.0),
               ),
             ),
             label: item.label,
@@ -461,184 +456,192 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildExpandableFAB(bool isDark) {
-    return Stack(
-      alignment: Alignment.bottomRight,
-      children: [
-        // Backdrop for expanded FABs
-        if (_isFabExpanded)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              width: 300,
-              height: 80,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.black.withOpacity(0.3)
-                    : Colors.white.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(40),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-        // Expandable buttons row
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
+    return AnimatedBuilder(
+      animation: _fabExpandController,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.bottomRight,
           children: [
-            // Scan Nutrition Button (appears first, furthest left)
-            SlideTransition(
-              position: _fabSlideAnimation2,
-              child: ScaleTransition(
-                scale: _fabExpandAnimation,
+            // Backdrop for expanded FABs - only show when expanding
+            if (_fabExpandController.value > 0.0)
+              Positioned(
+                right: 0,
+                bottom: 0,
                 child: Opacity(
-                  opacity: _fabExpandAnimation.value,
+                  opacity: _fabExpandController.value,
                   child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white.withOpacity(0.9)
-                                : Colors.black.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'Scan',
-                            style: TextStyle(
-                              color: isDark ? Colors.black87 : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        FloatingActionButton(
-                          heroTag: "scan_nutrition",
-                          mini: true,
-                          onPressed: _onScanNutrition,
-                          backgroundColor: AppColors.accent(isDark),
-                          shape: const CircleBorder(),
-                          child: const Icon(
-                            Icons.qr_code_scanner,
-                            color: AppColors.white,
-                            size: 20,
-                          ),
+                    width: 280 * _fabExpandController.value,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3 * _fabExpandController.value)
+                          : Colors.white.withOpacity(0.8 * _fabExpandController.value),
+                      borderRadius: BorderRadius.circular(40),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1 * _fabExpandController.value),
+                          blurRadius: 10 * _fabExpandController.value,
+                          spreadRadius: 2 * _fabExpandController.value,
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Describe Food Button (appears second, middle)
-            SlideTransition(
-              position: _fabSlideAnimation1,
-              child: ScaleTransition(
-                scale: _fabExpandAnimation,
-                child: Opacity(
-                  opacity: _fabExpandAnimation.value,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white.withOpacity(0.9)
-                                : Colors.black.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+            // Expandable buttons row
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Scan Nutrition Button
+                if (_fabExpandController.value > 0.0)
+                  SlideTransition(
+                    position: _fabSlideAnimation2,
+                    child: FadeTransition(
+                      opacity: _fabExpandAnimation,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
                               ),
-                            ],
-                          ),
-                          child: Text(
-                            'Describe',
-                            style: TextStyle(
-                              color: isDark ? Colors.black87 : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withOpacity(0.9)
+                                    : Colors.black.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                'Scan',
+                                style: TextStyle(
+                                  color: isDark ? Colors.black87 : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
+                            FloatingActionButton(
+                              heroTag: "scan_nutrition",
+                              mini: true,
+                              onPressed: _onScanNutrition,
+                              backgroundColor: AppColors.accent(isDark),
+                              shape: const CircleBorder(),
+                              child: const Icon(
+                                Icons.qr_code_scanner,
+                                color: AppColors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ],
                         ),
-                        FloatingActionButton(
-                          heroTag: "describe_food",
-                          mini: true,
-                          onPressed: _onDescribeFood,
-                          backgroundColor: AppColors.primary(isDark),
-                          shape: const CircleBorder(),
-                          child: const Icon(
-                            Icons.restaurant_menu,
-                            color: AppColors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Main FAB (always visible, rightmost)
-            AnimatedBuilder(
-              animation: _fabAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _fabAnimation.value,
-                  child: FloatingActionButton(
-                    heroTag: "main_fab",
-                    onPressed: _toggleFabExpansion,
-                    backgroundColor: const Color.fromRGBO(95, 200, 185, 1.0),
-                    shape: const CircleBorder(),
-                    elevation: 6,
-                    child: AnimatedRotation(
-                      turns: _isFabExpanded ? 0.125 : 0, // 45 degree rotation
-                      duration: const Duration(milliseconds: 300),
-                      child: const Icon(
-                        Icons.add,
-                        color: AppColors.white,
-                        size: 28,
                       ),
                     ),
                   ),
-                );
-              },
+
+                // Describe Food Button
+                if (_fabExpandController.value > 0.0)
+                  SlideTransition(
+                    position: _fabSlideAnimation1,
+                    child: FadeTransition(
+                      opacity: _fabExpandAnimation,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withOpacity(0.9)
+                                    : Colors.black.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                'Describe',
+                                style: TextStyle(
+                                  color: isDark ? Colors.black87 : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            FloatingActionButton(
+                              heroTag: "describe_food",
+                              mini: true,
+                              onPressed: _onDescribeFood,
+                              backgroundColor: AppColors.primary(isDark),
+                              shape: const CircleBorder(),
+                              child: const Icon(
+                                Icons.restaurant_menu,
+                                color: AppColors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Main FAB - smoother animation
+                AnimatedBuilder(
+                  animation: _fabAnimation,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _fabAnimation.value,
+                      child: FloatingActionButton(
+                        heroTag: "main_fab",
+                        onPressed: _toggleFabExpansion,
+                        backgroundColor: const Color.fromRGBO(95, 200, 185, 1.0),
+                        shape: const CircleBorder(),
+                        elevation: 6,
+                        child: AnimatedBuilder(
+                          animation: _fabRotationAnimation,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _fabRotationAnimation.value * 2 * 3.14159,
+                              child: const Icon(
+                                Icons.add,
+                                color: AppColors.white,
+                                size: 28,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -689,7 +692,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 }
 
-// Custom painter for pattern background
+// Custom painter for pattern background - Updated to dots pattern
 class PatternBackgroundPainter extends CustomPainter {
   final Color color;
 
@@ -699,35 +702,20 @@ class PatternBackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.fill; // Changed to fill for dots
 
-    const spacing = 40.0;
+    const spacing = 30.0; // Spacing between dots
+    const dotRadius = 1.5; // Radius of each dot
 
-    // Draw diagonal lines
-    for (double i = -size.height; i < size.width + size.height; i += spacing) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i + size.height, size.height),
-        paint,
-      );
-    }
-
-    // Draw grid pattern
-    for (double i = 0; i < size.width; i += spacing * 2) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i, size.height),
-        paint..strokeWidth = 0.5,
-      );
-    }
-
-    for (double i = 0; i < size.height; i += spacing * 2) {
-      canvas.drawLine(
-        Offset(0, i),
-        Offset(size.width, i),
-        paint..strokeWidth = 0.5,
-      );
+    // Draw grid of dots
+    for (double x = spacing; x < size.width; x += spacing) {
+      for (double y = spacing; y < size.height; y += spacing) {
+        canvas.drawCircle(
+          Offset(x, y),
+          dotRadius,
+          paint,
+        );
+      }
     }
   }
 

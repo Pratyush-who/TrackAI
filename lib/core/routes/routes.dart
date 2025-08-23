@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:trackai/features/analytics/analyticsscreen.dart';
+import 'package:trackai/features/auth/views/login_page.dart';
+import 'package:trackai/features/auth/views/signup_page.dart';
+import 'package:trackai/features/onboarding/onboardingflow.dart';
 import 'package:trackai/features/home/homepage.dart';
 import 'package:trackai/features/home/homescreen.dart';
-import 'package:trackai/features/auth/views/login_page.dart';
-import 'package:trackai/features/onboarding/onboardingflow.dart';
-import 'package:trackai/features/settings/settingsscreen.dart';
-import 'package:trackai/features/auth/views/signup_page.dart';
+import 'package:trackai/features/home/ai-options/bodyAnalyzer.dart';
+import 'package:trackai/features/home/ai-options/smartGymkit.dart';
+import 'package:trackai/features/home/ai-options/calorieCalculator.dart';
+import 'package:trackai/features/home/ai-options/mealPlanner.dart';
+import 'package:trackai/features/home/ai-options/recipeGenerator.dart';
 import 'package:trackai/features/tracker/trackerscreen.dart';
+import 'package:trackai/features/analytics/analyticsscreen.dart';
+import 'package:trackai/features/settings/settingsscreen.dart';
 
 class AppRoutes {
-  // Route names
   static const String login = '/login';
   static const String signup = '/signup';
   static const String onboarding = '/onboarding';
@@ -19,43 +23,55 @@ class AppRoutes {
   static const String trackerScreen = '/tracker-screen';
   static const String analyticsScreen = '/analytics-screen';
   static const String settingsScreen = '/settings-screen';
+  static const String bodyAnalyzer = '/body-analyzer';
+  static const String smartGymkit = '/smart-gymkit';
+  static const String calorieCalculator = '/calorie-calculator';
+  static const String mealPlanner = '/meal-planner';
+  static const String recipeGenerator = '/recipe-generator';
 
-  // Initial route
   static const String initialRoute = login;
+static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    case '/login':
+      return _createRoute(const LoginPage());
+    case '/signup':
+      return _createRoute(const SignupPage());
+    case '/onboarding':
+      return _createRoute(const OnboardingFlow());
+    case '/home':
+      return _createRoute(const HomePage());
+    case '/home-screen':
+      return _createRoute(const Homescreen());
+    case '/tracker-screen':
+      return _createRoute(const Trackerscreen());
+    case '/analytics-screen':
+      return _createRoute(const AnalyticsScreen());
+    case '/settings-screen':
+      return _createRoute(const Settingsscreen());
+    case '/body-analyzer':
+      return _createRoute(const Bodyanalyzer());
+    case '/smart-gymkit':          // Added slash
+      return _createRoute(const Smartgymkit());
+    case '/calorie-calculator':    // Added slash
+      return _createRoute(const Caloriecalculator());
+    case '/meal-planner':          // Added slash
+      return _createRoute(const Mealplanner());
+    case '/recipe-generator':      // Added slash
+      return _createRoute(const Recipegenerator());
 
-  // Generate routes
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case login:
-        return _createRoute(const LoginPage());
-      case signup:
-        return _createRoute(const SignupPage());
-      case onboarding:
-        return _createRoute(const OnboardingFlow());
-      case home:
-        return _createRoute(const HomePage());
-      case homeScreen:
-        return _createRoute(const Homescreen());
-      case trackerScreen:
-        return _createRoute(const Trackerscreen());
-      case analyticsScreen:
-        return _createRoute(const AnalyticsScreen());
-      case settingsScreen:
-        return _createRoute(const Settingsscreen());
-      default:
-        return _createRoute(
-          Scaffold(
-            body: Center(
-              child: Text(
-                'Route not found: ${settings.name}',
-                style: const TextStyle(fontSize: 18, color: Colors.white),
-              ),
+    default:
+      return _createRoute(
+        Scaffold(
+          body: Center(
+            child: Text(
+              'Route not found: ${settings.name}',
+              style: const TextStyle(fontSize: 18, color: Colors.white),
             ),
           ),
-        );
-    }
+        ),
+      );
   }
-
+}
   static PageRoute _createRoute(Widget page) {
     return MaterialPageRoute(builder: (_) => page);
   }

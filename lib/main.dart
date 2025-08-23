@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/services/auth_services.dart';
@@ -13,6 +15,7 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await dotenv.load(fileName: ".env");
     print('Firebase initialized successfully');
     await FirebaseService.initializeFirebase();
     print('Firebase services initialized successfully');
@@ -44,6 +47,7 @@ class MyApp extends StatelessWidget {
               ? ThemeMode.dark
               : ThemeMode.light,
           home: const AuthWrapper(),
+          onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },
     );
