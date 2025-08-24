@@ -6,6 +6,7 @@ import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/services/auth_services.dart';
+import 'package:trackai/features/home/ai-options/service/filedownload.dart';
 import 'firebase_options.dart';
 import 'package:trackai/core/wrappers/authwrapper.dart';
 
@@ -19,6 +20,10 @@ void main() async {
     print('Firebase initialized successfully');
     await FirebaseService.initializeFirebase();
     print('Firebase services initialized successfully');
+
+    // Initialize storage permissions for file downloads
+    await FileDownloadService.hasStoragePermission();
+    print('Storage permissions checked');
   } catch (e) {
     print('Initialization error: $e');
   }
