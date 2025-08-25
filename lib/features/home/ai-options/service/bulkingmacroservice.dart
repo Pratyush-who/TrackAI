@@ -1,6 +1,4 @@
-
 class BulkingMacrosService {
-  /// Calculate bulking macros based on user input and profile data
   static Future<Map<String, dynamic>?> calculateBulkingMacros({
     required String gender,
     required double weight,
@@ -28,7 +26,6 @@ class BulkingMacrosService {
         activityLevel,
       );
 
-      // Generate recommendations
       List<String> recommendations = _generateRecommendations(
         gender,
         weight,
@@ -37,7 +34,6 @@ class BulkingMacrosService {
         weeklyGainTarget,
       );
 
-      // Generate meal timing suggestions
       List<Map<String, String>> mealTiming = _generateMealTiming();
 
       return {
@@ -68,8 +64,12 @@ class BulkingMacrosService {
     }
   }
 
-  /// Calculate BMR using Mifflin-St Jeor Equation
-  static double _calculateBMR(String gender, double weight, double height, int age) {
+  static double _calculateBMR(
+    String gender,
+    double weight,
+    double height,
+    int age,
+  ) {
     if (gender.toLowerCase() == 'male') {
       return (10 * weight) + (6.25 * height) - (5 * age) + 5;
     } else {
@@ -77,7 +77,6 @@ class BulkingMacrosService {
     }
   }
 
-  /// Calculate TDEE based on activity level
   static double _calculateTDEE(double bmr, String activityLevel) {
     final activityMultipliers = {
       'Sedentary (desk job, no exercise)': 1.2,
@@ -91,40 +90,28 @@ class BulkingMacrosService {
     return bmr * multiplier;
   }
 
-  /// Calculate caloric surplus based on weekly gain target
   static double _calculateCaloricSurplus(double weeklyGainTarget) {
-    // 1kg of muscle requires approximately 7000 calories surplus
-    // Convert weekly target to daily surplus
     return (weeklyGainTarget * 7000) / 7;
   }
 
-  /// Calculate macronutrient distribution
   static Map<String, double> _calculateMacros(
     double totalCalories,
     double weight,
     String gender,
     String activityLevel,
   ) {
-    // Protein: 1.6-2.2g per kg of body weight for bulking
     double proteinGrams = weight * 2.0;
     double proteinCalories = proteinGrams * 4;
 
-    // Fat: 20-30% of total calories
     double fatCalories = totalCalories * 0.25;
     double fatGrams = fatCalories / 9;
 
-    // Remaining calories for carbs
     double remainingCalories = totalCalories - proteinCalories - fatCalories;
     double carbGrams = remainingCalories / 4;
 
-    return {
-      'protein': proteinGrams,
-      'carbs': carbGrams,
-      'fat': fatGrams,
-    };
+    return {'protein': proteinGrams, 'carbs': carbGrams, 'fat': fatGrams};
   }
 
-  /// Generate AI recommendations for bulking
   static List<String> _generateRecommendations(
     String gender,
     double weight,
@@ -134,12 +121,10 @@ class BulkingMacrosService {
   ) {
     List<String> recommendations = [];
 
-    // Protein intake recommendation
     recommendations.add(
       'Aim for 2.0g of protein per kg of body weight to support muscle growth and recovery.',
     );
 
-    // Caloric surplus recommendation
     if (weeklyGainTarget > 0.5) {
       recommendations.add(
         'Your weekly gain target of ${weeklyGainTarget.toStringAsFixed(2)}kg/week is aggressive. Consider aiming for 0.25-0.5kg/week for lean muscle gains.',
@@ -150,22 +135,18 @@ class BulkingMacrosService {
       );
     }
 
-    // Meal timing
     recommendations.add(
       'Spread your protein intake across 4-6 meals throughout the day for optimal muscle protein synthesis.',
     );
 
-    // Hydration
     recommendations.add(
       'Drink at least 3-4 liters of water daily to support metabolism and muscle function.',
     );
 
-    // Training recommendation
     recommendations.add(
       'Combine this nutrition plan with a progressive overload strength training program for best results.',
     );
 
-    // Recovery
     recommendations.add(
       'Ensure 7-9 hours of quality sleep nightly for optimal recovery and hormone regulation.',
     );
@@ -173,7 +154,6 @@ class BulkingMacrosService {
     return recommendations;
   }
 
-  /// Generate meal timing suggestions
   static List<Map<String, String>> _generateMealTiming() {
     return [
       {
@@ -186,7 +166,8 @@ class BulkingMacrosService {
       },
       {
         'time': '1:00 PM',
-        'description': 'Lunch: Balanced meal with protein, carbs, and healthy fats',
+        'description':
+            'Lunch: Balanced meal with protein, carbs, and healthy fats',
       },
       {
         'time': '4:00 PM',
@@ -203,7 +184,6 @@ class BulkingMacrosService {
     ];
   }
 
-  /// Generate text representation of bulking plan for download/share
   static String generateBulkingPlanText(Map<String, dynamic> results) {
     final buffer = StringBuffer();
 
@@ -222,7 +202,9 @@ class BulkingMacrosService {
     buffer.writeln('BMR: ${results['bmr']} calories/day');
     buffer.writeln('TDEE: ${results['tdee']} calories/day');
     buffer.writeln('Caloric Surplus: ${results['surplus']} calories/day');
-    buffer.writeln('Expected Weekly Gain: ${results['weeklyGainRate']} kg/week');
+    buffer.writeln(
+      'Expected Weekly Gain: ${results['weeklyGainRate']} kg/week',
+    );
     buffer.writeln();
 
     buffer.writeln('USER INPUT:');
@@ -232,7 +214,9 @@ class BulkingMacrosService {
     buffer.writeln('Height: ${userInput['height']}cm');
     buffer.writeln('Age: ${userInput['age']} years');
     buffer.writeln('Activity Level: ${userInput['activityLevel']}');
-    buffer.writeln('Target Gain: ${userInput['targetGain']}kg in ${userInput['timeframe']} weeks');
+    buffer.writeln(
+      'Target Gain: ${userInput['targetGain']}kg in ${userInput['timeframe']} weeks',
+    );
     buffer.writeln();
 
     buffer.writeln('AI RECOMMENDATIONS:');
@@ -258,22 +242,16 @@ class BulkingMacrosService {
     return buffer.toString();
   }
 
-  /// Save bulking plan to local storage (similar to workout planner)
   static Future<void> saveBulkingPlan(Map<String, dynamic> plan) async {
     try {
-      // You can implement local storage saving logic here
-      // Similar to WorkoutPlannerService.saveWorkoutPlan()
       print('Bulking plan saved: $plan');
     } catch (e) {
       print('Error saving bulking plan: $e');
     }
   }
 
-  /// Get saved bulking plan from local storage
   static Future<Map<String, dynamic>?> getSavedBulkingPlan() async {
     try {
-      // You can implement local storage retrieval logic here
-      // Similar to WorkoutPlannerService.getSavedWorkoutPlan()
       return null;
     } catch (e) {
       print('Error loading saved bulking plan: $e');

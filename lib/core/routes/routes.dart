@@ -55,7 +55,7 @@ static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     case '/calorie-calculator':    // Added slash
       return _createRoute(const Caloriecalculator());
     case '/meal-planner':          // Added slash
-      return _createRoute(const Mealplanner());
+      return _createRoute( Mealplanner());
     case '/recipe-generator':      // Added slash
       return _createRoute(const Recipegenerator());
 

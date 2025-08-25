@@ -280,6 +280,9 @@ class _SmartgymkitState extends State<Smartgymkit>
   }
 
   void _showWorkoutPlanDialog(Map<String, dynamic> workoutPlan) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkTheme = themeProvider.isDarkMode;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -287,12 +290,15 @@ class _SmartgymkitState extends State<Smartgymkit>
           workoutPlan: workoutPlan,
           onDownload: () => _downloadWorkoutPlan(workoutPlan),
           onShare: () => _shareWorkoutPlan(workoutPlan),
+          isDarkTheme: isDarkTheme,
         );
       },
     );
   }
 
   void _showBulkingResultsDialog(Map<String, dynamic> results) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkTheme = themeProvider.isDarkMode;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -300,6 +306,7 @@ class _SmartgymkitState extends State<Smartgymkit>
           results: results,
           onDownload: () => _downloadBulkingPlan(results),
           onShare: () => _shareBulkingPlan(results),
+          isDarkTheme: isDarkTheme,
         );
       },
     );
@@ -312,38 +319,28 @@ class _SmartgymkitState extends State<Smartgymkit>
       );
       final planTitle = workoutPlan['title'] ?? 'Workout Plan';
 
-      // Check permission first
-      final hasPermission = await FileDownloadService.hasStoragePermission();
-      if (!hasPermission) {
-        await FileDownloadService.showPermissionDialog(context);
-        return;
-      }
-
-      final filePath = await FileDownloadService.downloadWorkoutPlan(
+      // Use the downloadMealPlan method from your service
+      final result = await FileDownloadService.downloadMealPlan(
         planText,
         planTitle,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Workout plan downloaded successfully!'),
-          backgroundColor: AppColors.darkPrimary,
-        ),
-      );
-    } catch (e) {
-      String errorMessage = 'Error downloading file';
-      if (e.toString().contains('permission')) {
-        errorMessage =
-            'Storage permission required. Please grant permission in settings.';
-        await FileDownloadService.showPermissionDialog(context);
+      if (result['success']) {
+        await FileDownloadService.showDownloadResult(context, result);
       } else {
-        errorMessage = 'Error downloading: ${e.toString()}';
+        // If download fails, offer share as alternative
+        await _showDownloadFailedDialog(result['error'], planText, planTitle);
       }
-
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text('Error downloading: ${e.toString()}'),
           backgroundColor: AppColors.errorColor,
+          action: SnackBarAction(
+            label: 'Share Instead',
+            textColor: Colors.white,
+            onPressed: () => _shareWorkoutPlan(workoutPlan),
+          ),
         ),
       );
     }
@@ -370,41 +367,122 @@ class _SmartgymkitState extends State<Smartgymkit>
     try {
       final planText = BulkingMacrosService.generateBulkingPlanText(results);
 
-      // Check permission first
-      final hasPermission = await FileDownloadService.hasStoragePermission();
-      if (!hasPermission) {
-        await FileDownloadService.showPermissionDialog(context);
-        return;
-      }
-
-      final filePath = await FileDownloadService.downloadWorkoutPlan(
+      // Use the downloadMealPlan method from your service
+      final result = await FileDownloadService.downloadMealPlan(
         planText,
         'Bulking_Macros_Plan',
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Bulking plan downloaded successfully!'),
-          backgroundColor: AppColors.darkPrimary,
-        ),
-      );
-    } catch (e) {
-      String errorMessage = 'Error downloading file';
-      if (e.toString().contains('permission')) {
-        errorMessage =
-            'Storage permission required. Please grant permission in settings.';
-        await FileDownloadService.showPermissionDialog(context);
+      if (result['success']) {
+        await FileDownloadService.showDownloadResult(context, result);
       } else {
-        errorMessage = 'Error downloading: ${e.toString()}';
+        // If download fails, offer share as alternative
+        await _showDownloadFailedDialog(
+          result['error'],
+          planText,
+          'Bulking_Macros_Plan',
+        );
       }
-
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text('Error downloading: ${e.toString()}'),
           backgroundColor: AppColors.errorColor,
+          action: SnackBarAction(
+            label: 'Share Instead',
+            textColor: Colors.white,
+            onPressed: () => _shareBulkingPlan(results),
+          ),
         ),
       );
     }
+  }
+
+  Future<void> _showDownloadFailedDialog(
+    String error,
+    String content,
+    String title,
+  ) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.error, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Download Failed'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Download failed: $error'),
+              SizedBox(height: 12),
+              Text(
+                'Would you like to share the file instead or try save and share?',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  await FileDownloadService.shareWorkoutPlan(content, title);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error sharing: ${e.toString()}'),
+                      backgroundColor: AppColors.errorColor,
+                    ),
+                  );
+                }
+              },
+              child: Text('Share Only'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  final result = await FileDownloadService.saveAndShareMealPlan(
+                    content,
+                    title,
+                  );
+                  if (result['success']) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('File created and share dialog opened'),
+                        backgroundColor: AppColors.darkPrimary,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: ${e.toString()}'),
+                      backgroundColor: AppColors.errorColor,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.darkPrimary,
+              ),
+              child: Text(
+                'Save & Share',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _shareBulkingPlan(Map<String, dynamic> results) async {
@@ -429,9 +507,9 @@ class _SmartgymkitState extends State<Smartgymkit>
       return BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color.fromRGBO(40, 50, 49, 0.85),
-            const Color.fromARGB(215, 14, 14, 14),
-            Color.fromRGBO(33, 43, 42, 0.85),
+            Color.fromRGBO(40, 50, 49, 1.0),
+            Color.fromARGB(255, 30, 30, 30),
+            Color.fromRGBO(33, 43, 42, 1.0),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -444,7 +522,7 @@ class _SmartgymkitState extends State<Smartgymkit>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkPrimary.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -453,24 +531,15 @@ class _SmartgymkitState extends State<Smartgymkit>
       );
     } else {
       return BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.lightSecondary.withOpacity(0.85),
-            AppColors.lightSecondary.withOpacity(0.85),
-            AppColors.lightSecondary.withOpacity(0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0],
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.lightPrimary.withOpacity(0.6),
+          color: AppColors.lightPrimary.withOpacity(0.3),
           width: 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.lightPrimary.withOpacity(0.05),
+            color: Colors.grey.withOpacity(0.1),
             blurRadius: 6,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -499,7 +568,7 @@ class _SmartgymkitState extends State<Smartgymkit>
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: isDarkTheme ? Color(0xFF121212) : Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -520,9 +589,11 @@ class _SmartgymkitState extends State<Smartgymkit>
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: const Color(0xFF4CAF50),
-          unselectedLabelColor: isDarkTheme ? Colors.white70 : Colors.black54,
-          indicatorColor: const Color(0xFF4CAF50),
+          labelColor: Theme.of(context).colorScheme.primary,
+          unselectedLabelColor: Theme.of(
+            context,
+          ).colorScheme.onSurface.withOpacity(0.5),
+          indicatorColor: Theme.of(context).colorScheme.primary,
           tabs: const [
             Tab(icon: Icon(Icons.fitness_center), text: 'Workout Planner'),
             Tab(
@@ -585,7 +656,7 @@ class _SmartgymkitState extends State<Smartgymkit>
                 const SizedBox(height: 12),
                 // Permission check button
                 FutureBuilder<bool>(
-                  future: FileDownloadService.hasStoragePermission(),
+                  future: FileDownloadService.requestStoragePermission(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && !snapshot.data!) {
                       return Container(
@@ -1258,7 +1329,7 @@ class _SmartgymkitState extends State<Smartgymkit>
                 const SizedBox(height: 12),
                 // Permission check button
                 FutureBuilder<bool>(
-                  future: FileDownloadService.hasStoragePermission(),
+                  future: FileDownloadService.requestStoragePermission(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && !snapshot.data!) {
                       return Container(
@@ -2034,17 +2105,68 @@ class _SmartgymkitState extends State<Smartgymkit>
 }
 
 // Enhanced Workout Plan Dialog
+// Enhanced Workout Plan Dialog
 class WorkoutPlanDialog extends StatelessWidget {
   final Map<String, dynamic> workoutPlan;
   final VoidCallback onDownload;
   final VoidCallback onShare;
+  final bool isDarkTheme; // Add theme parameter
 
   const WorkoutPlanDialog({
     Key? key,
     required this.workoutPlan,
     required this.onDownload,
     required this.onShare,
+    required this.isDarkTheme, // Make it required
   }) : super(key: key);
+
+  BoxDecoration _getDialogDecoration() {
+    if (isDarkTheme) {
+      return BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color.fromRGBO(40, 50, 49, 1.0),
+            Color.fromARGB(255, 30, 30, 30),
+            Color.fromRGBO(33, 43, 42, 1.0),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          stops: const [0.0, 0.5, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.darkPrimary.withOpacity(0.8),
+          width: 0.5,
+        ),
+      );
+    } else {
+      return BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.lightPrimary.withOpacity(0.3),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
+    }
+  }
+
+  Color get _primaryTextColor => isDarkTheme ? Colors.white : Colors.black87;
+  Color get _secondaryTextColor =>
+      isDarkTheme ? Colors.white70 : Colors.black54;
+  Color get _tertiaryTextColor => isDarkTheme ? Colors.white60 : Colors.black45;
+  Color get _iconColor => isDarkTheme ? Colors.white70 : Colors.black54;
+  Color get _cardBackgroundColor => isDarkTheme
+      ? Colors.white.withOpacity(0.1)
+      : Colors.black.withOpacity(0.05);
 
   @override
   Widget build(BuildContext context) {
@@ -2053,22 +2175,7 @@ class WorkoutPlanDialog extends StatelessWidget {
       insetPadding: EdgeInsets.all(16),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.8,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              const Color.fromRGBO(40, 50, 49, 1.0),
-              const Color.fromARGB(255, 14, 14, 14),
-              const Color.fromRGBO(33, 43, 42, 1.0),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppColors.darkPrimary.withOpacity(0.8),
-            width: 0.5,
-          ),
-        ),
+        decoration: _getDialogDecoration(),
         child: Column(
           children: [
             // Header
@@ -2086,7 +2193,7 @@ class WorkoutPlanDialog extends StatelessWidget {
                     child: Text(
                       workoutPlan['title'] ?? 'AI Workout Plan',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: _primaryTextColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2094,7 +2201,7 @@ class WorkoutPlanDialog extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: Colors.white70),
+                    icon: Icon(Icons.close, color: _iconColor),
                   ),
                 ],
               ),
@@ -2123,7 +2230,7 @@ class WorkoutPlanDialog extends StatelessWidget {
                       Text(
                         'Overview',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: _primaryTextColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2132,7 +2239,7 @@ class WorkoutPlanDialog extends StatelessWidget {
                       Text(
                         workoutPlan['overview'],
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: _secondaryTextColor,
                           fontSize: 14,
                           height: 1.5,
                         ),
@@ -2140,13 +2247,13 @@ class WorkoutPlanDialog extends StatelessWidget {
                       SizedBox(height: 20),
                     ],
 
-                    // Schedule Preview
+                    // Schedule Preview with Detailed Exercises
                     if (workoutPlan['schedule'] != null &&
                         workoutPlan['schedule'] is List) ...[
                       Text(
-                        'Workout Schedule Preview',
+                        'Workout Schedule',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: _primaryTextColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2154,64 +2261,255 @@ class WorkoutPlanDialog extends StatelessWidget {
                       SizedBox(height: 12),
                       ...((workoutPlan['schedule'] as List).take(5).map((day) {
                         return Container(
-                          margin: EdgeInsets.only(bottom: 12),
+                          margin: EdgeInsets.only(bottom: 16),
                           padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            color: _cardBackgroundColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.darkPrimary.withOpacity(0.3),
+                              width: 0.5,
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                day['title'] ?? 'Day ${day['day']}',
-                                style: TextStyle(
-                                  color: AppColors.darkPrimary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              if (day['type'] == 'rest')
-                                Text(
-                                  'Rest Day - Recovery and light stretching',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                  ),
-                                )
-                              else if (day['exercises'] != null &&
-                                  day['exercises'] is List)
-                                Text(
-                                  '${(day['exercises'] as List).length} exercises planned',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              if (day['focus'] != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Text(
-                                    'Focus: ${day['focus']}',
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize: 11,
-                                      fontStyle: FontStyle.italic,
+                              // Day Title and Duration
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      day['title'] ?? 'Day ${day['day']}',
+                                      style: TextStyle(
+                                        color: AppColors.darkPrimary,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
+                                  if (day['duration'] != null)
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.darkPrimary
+                                            .withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        day['duration'],
+                                        style: TextStyle(
+                                          color: AppColors.darkPrimary,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+
+                              // Focus/Type
+                              if (day['focus'] != null)
+                                Text(
+                                  'Focus: ${day['focus']}',
+                                  style: TextStyle(
+                                    color: _tertiaryTextColor,
+                                    fontSize: 13,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
+
+                              // Rest Day
+                              if (day['type'] == 'rest') ...[
+                                SizedBox(height: 8),
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.self_improvement,
+                                        color: Colors.orange,
+                                        size: 18,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Rest Day - Recovery and light stretching',
+                                        style: TextStyle(
+                                          color: Colors.orange,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]
+                              // Workout Day with Exercises
+                              else if (day['exercises'] != null &&
+                                  day['exercises'] is List) ...[
+                                SizedBox(height: 12),
+                                Text(
+                                  'Exercises:',
+                                  style: TextStyle(
+                                    color: _primaryTextColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                ...((day['exercises'] as List).map((exercise) {
+                                  return Container(
+                                    margin: EdgeInsets.only(bottom: 8),
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: isDarkTheme
+                                          ? Colors.white.withOpacity(0.05)
+                                          : Colors.black.withOpacity(0.02),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: isDarkTheme
+                                            ? Colors.white.withOpacity(0.1)
+                                            : Colors.black.withOpacity(0.05),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Exercise Name
+                                        Text(
+                                          exercise['name'] ??
+                                              exercise['exercise'] ??
+                                              'Exercise',
+                                          style: TextStyle(
+                                            color: _primaryTextColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        // Sets, Reps, Duration
+                                        Row(
+                                          children: [
+                                            if (exercise['sets'] != null) ...[
+                                              Icon(
+                                                Icons.repeat,
+                                                color: AppColors.darkPrimary,
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '${exercise['sets']} sets',
+                                                style: TextStyle(
+                                                  color: _secondaryTextColor,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                              if (exercise['reps'] != null ||
+                                                  exercise['duration'] != null)
+                                                Text(
+                                                  ' • ',
+                                                  style: TextStyle(
+                                                    color: _secondaryTextColor,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                            ],
+                                            if (exercise['reps'] != null) ...[
+                                              Text(
+                                                '${exercise['reps']} reps',
+                                                style: TextStyle(
+                                                  color: _secondaryTextColor,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ] else if (exercise['duration'] !=
+                                                null) ...[
+                                              Icon(
+                                                Icons.timer,
+                                                color: AppColors.darkPrimary,
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '${exercise['duration']}',
+                                                style: TextStyle(
+                                                  color: _secondaryTextColor,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        // Rest Period
+                                        if (exercise['rest'] != null) ...[
+                                          SizedBox(height: 2),
+                                          Text(
+                                            'Rest: ${exercise['rest']}',
+                                            style: TextStyle(
+                                              color: _tertiaryTextColor,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                        // Notes/Instructions
+                                        if (exercise['notes'] != null ||
+                                            exercise['instructions'] !=
+                                                null) ...[
+                                          SizedBox(height: 4),
+                                          Text(
+                                            exercise['notes'] ??
+                                                exercise['instructions'],
+                                            style: TextStyle(
+                                              color: _tertiaryTextColor,
+                                              fontSize: 11,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  );
+                                }).toList()),
+                              ]
+                              // Fallback for exercises without detailed structure
+                              else if (day['exercises'] != null) ...[
+                                SizedBox(height: 8),
+                                Text(
+                                  'Exercises included in this day',
+                                  style: TextStyle(
+                                    color: _secondaryTextColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         );
                       }).toList()),
                       if ((workoutPlan['schedule'] as List).length > 5)
-                        Text(
-                          '... and ${(workoutPlan['schedule'] as List).length - 5} more days',
-                          style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic,
+                        Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDarkTheme
+                                ? Colors.white.withOpacity(0.05)
+                                : Colors.black.withOpacity(0.02),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '... and ${(workoutPlan['schedule'] as List).length - 5} more days in the complete plan',
+                            style: TextStyle(
+                              color: _tertiaryTextColor,
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
                       SizedBox(height: 20),
@@ -2223,7 +2521,7 @@ class WorkoutPlanDialog extends StatelessWidget {
                       Text(
                         'AI Recommendations',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: _primaryTextColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2245,7 +2543,7 @@ class WorkoutPlanDialog extends StatelessWidget {
                                 child: Text(
                                   tip.toString(),
                                   style: TextStyle(
-                                    color: Colors.white70,
+                                    color: _secondaryTextColor,
                                     fontSize: 13,
                                     height: 1.4,
                                   ),
@@ -2323,7 +2621,7 @@ class WorkoutPlanDialog extends StatelessWidget {
             child: Text(
               '$label:',
               style: TextStyle(
-                color: Colors.white70,
+                color: _secondaryTextColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -2332,7 +2630,7 @@ class WorkoutPlanDialog extends StatelessWidget {
           Expanded(
             child: Text(
               value ?? 'Not specified',
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: _primaryTextColor, fontSize: 14),
             ),
           ),
         ],
@@ -2346,13 +2644,63 @@ class BulkingResultsDialog extends StatelessWidget {
   final Map<String, dynamic> results;
   final VoidCallback onDownload;
   final VoidCallback onShare;
+  final bool isDarkTheme; // Add theme parameter
 
   const BulkingResultsDialog({
     Key? key,
     required this.results,
     required this.onDownload,
     required this.onShare,
+    required this.isDarkTheme, // Make it required
   }) : super(key: key);
+
+  BoxDecoration _getDialogDecoration() {
+    if (isDarkTheme) {
+      return BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color.fromRGBO(40, 50, 49, 1.0),
+            Color.fromARGB(255, 30, 30, 30),
+            Color.fromRGBO(33, 43, 42, 1.0),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          stops: const [0.0, 0.5, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.darkPrimary.withOpacity(0.8),
+          width: 0.5,
+        ),
+      );
+    } else {
+      return BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.lightPrimary.withOpacity(0.3),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
+    }
+  }
+
+  Color get _primaryTextColor => isDarkTheme ? Colors.white : Colors.black87;
+  Color get _secondaryTextColor =>
+      isDarkTheme ? Colors.white70 : Colors.black54;
+  Color get _tertiaryTextColor => isDarkTheme ? Colors.white60 : Colors.black45;
+  Color get _iconColor => isDarkTheme ? Colors.white70 : Colors.black54;
+  Color get _cardBackgroundColor => isDarkTheme
+      ? Colors.white.withOpacity(0.1)
+      : Colors.black.withOpacity(0.05);
 
   @override
   Widget build(BuildContext context) {
@@ -2361,22 +2709,7 @@ class BulkingResultsDialog extends StatelessWidget {
       insetPadding: EdgeInsets.all(16),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.8,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              const Color.fromRGBO(40, 50, 49, 1.0),
-              const Color.fromARGB(255, 14, 14, 14),
-              const Color.fromRGBO(33, 43, 42, 1.0),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppColors.darkPrimary.withOpacity(0.8),
-            width: 0.5,
-          ),
-        ),
+        decoration: _getDialogDecoration(),
         child: Column(
           children: [
             // Header
@@ -2394,7 +2727,7 @@ class BulkingResultsDialog extends StatelessWidget {
                     child: Text(
                       'AI Bulking Macro Plan',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: _primaryTextColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2402,7 +2735,7 @@ class BulkingResultsDialog extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: Colors.white70),
+                    icon: Icon(Icons.close, color: _iconColor),
                   ),
                 ],
               ),
@@ -2419,7 +2752,7 @@ class BulkingResultsDialog extends StatelessWidget {
                     Text(
                       'Daily Macro Targets',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: _primaryTextColor,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2428,7 +2761,7 @@ class BulkingResultsDialog extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: _cardBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -2482,7 +2815,7 @@ class BulkingResultsDialog extends StatelessWidget {
                     Text(
                       'Metabolic Information',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: _primaryTextColor,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2491,7 +2824,7 @@ class BulkingResultsDialog extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: _cardBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -2525,7 +2858,7 @@ class BulkingResultsDialog extends StatelessWidget {
                       Text(
                         'AI Nutrition Recommendations',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: _primaryTextColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2536,7 +2869,9 @@ class BulkingResultsDialog extends StatelessWidget {
                           margin: EdgeInsets.only(bottom: 8),
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: isDarkTheme
+                                ? Colors.white.withOpacity(0.05)
+                                : Colors.black.withOpacity(0.02),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -2552,7 +2887,7 @@ class BulkingResultsDialog extends StatelessWidget {
                                 child: Text(
                                   rec.toString(),
                                   style: TextStyle(
-                                    color: Colors.white70,
+                                    color: _secondaryTextColor,
                                     fontSize: 13,
                                     height: 1.4,
                                   ),
@@ -2571,7 +2906,7 @@ class BulkingResultsDialog extends StatelessWidget {
                       Text(
                         'Suggested Meal Timing',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: _primaryTextColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2582,7 +2917,9 @@ class BulkingResultsDialog extends StatelessWidget {
                           margin: EdgeInsets.only(bottom: 8),
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: isDarkTheme
+                                ? Colors.white.withOpacity(0.05)
+                                : Colors.black.withOpacity(0.02),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -2600,7 +2937,7 @@ class BulkingResultsDialog extends StatelessWidget {
                                 child: Text(
                                   meal['description'] ?? '',
                                   style: TextStyle(
-                                    color: Colors.white70,
+                                    color: _secondaryTextColor,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -2670,7 +3007,9 @@ class BulkingResultsDialog extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: isDarkTheme
+            ? Colors.white.withOpacity(0.1)
+            : Colors.black.withOpacity(0.03),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -2678,7 +3017,7 @@ class BulkingResultsDialog extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: Colors.white70,
+              color: _secondaryTextColor,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -2692,7 +3031,7 @@ class BulkingResultsDialog extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(unit, style: TextStyle(color: Colors.white60, fontSize: 10)),
+          Text(unit, style: TextStyle(color: _tertiaryTextColor, fontSize: 10)),
         ],
       ),
     );
@@ -2704,11 +3043,14 @@ class BulkingResultsDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.white70, fontSize: 13)),
+          Text(
+            label,
+            style: TextStyle(color: _secondaryTextColor, fontSize: 13),
+          ),
           Text(
             value,
             style: TextStyle(
-              color: Colors.white,
+              color: _primaryTextColor,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:convert'; // Added for utf8 encoding
+import 'dart:convert';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,18 +14,16 @@ class FileDownloadService {
         final deviceInfo = DeviceInfoPlugin();
         final androidInfo = await deviceInfo.androidInfo;
 
-        // For Android 11+ (API 30+), we need MANAGE_EXTERNAL_STORAGE
-        if (androidInfo.version.sdkInt >= 30) {
+        // For Android 13+ (API 33+), we don't need storage permissions for media files
+        if (androidInfo.version.sdkInt >= 33) {
+          // For Android 13+, we can write to Downloads using MediaStore
+          // But for simplicity, we'll use share functionality
+          return true;
+        } else if (androidInfo.version.sdkInt >= 30) {
+          // For Android 11-12, try MANAGE_EXTERNAL_STORAGE first
           var status = await Permission.manageExternalStorage.status;
           if (status != PermissionStatus.granted) {
             status = await Permission.manageExternalStorage.request();
-            if (status != PermissionStatus.granted) {
-              // If MANAGE_EXTERNAL_STORAGE is denied, try WRITE_EXTERNAL_STORAGE
-              status = await Permission.storage.status;
-              if (status != PermissionStatus.granted) {
-                status = await Permission.storage.request();
-              }
-            }
           }
           return status == PermissionStatus.granted;
         } else {
@@ -48,78 +46,62 @@ class FileDownloadService {
     }
   }
 
-  // Check if we have storage permission
-  static Future<bool> hasStoragePermission() async {
+  // Get the best available download directory
+  static Future<Directory?> getDownloadDirectory() async {
     try {
       if (Platform.isAndroid) {
         final deviceInfo = DeviceInfoPlugin();
         final androidInfo = await deviceInfo.androidInfo;
 
+        // For newer Android versions, try different approaches
         if (androidInfo.version.sdkInt >= 30) {
-          final manageStatus = await Permission.manageExternalStorage.status;
-          final storageStatus = await Permission.storage.status;
-          return manageStatus == PermissionStatus.granted ||
-              storageStatus == PermissionStatus.granted;
-        } else {
-          final status = await Permission.storage.status;
-          return status == PermissionStatus.granted;
+          // Try to get external storage directory first
+          Directory? externalDir = await getExternalStorageDirectory();
+          if (externalDir != null) {
+            // Create a Downloads folder in the app's external directory
+            Directory downloadDir = Directory('${externalDir.path}/Downloads');
+            if (!await downloadDir.exists()) {
+              await downloadDir.create(recursive: true);
+            }
+            return downloadDir;
+          }
         }
+        
+        // Try the public Downloads directory (requires permission)
+        bool hasPermission = await requestStoragePermission();
+        if (hasPermission) {
+          Directory downloadsDir = Directory('/storage/emulated/0/Download');
+          if (await downloadsDir.exists()) {
+            return downloadsDir;
+          }
+        }
+
+        // Fallback to external storage directory
+        return await getExternalStorageDirectory();
       } else if (Platform.isIOS) {
-        return true;
+        // For iOS, use documents directory
+        return await getApplicationDocumentsDirectory();
       }
 
-      return false;
+      return null;
     } catch (e) {
-      print('Error checking storage permission: $e');
-      return false;
+      print('Error getting download directory: $e');
+      // Final fallback to app documents directory
+      return await getApplicationDocumentsDirectory();
     }
   }
 
-  // Download workout plan as text file with better error handling
-  static Future<String?> downloadWorkoutPlan(
+  // Download meal plan as text file with better error handling and path info
+  static Future<Map<String, dynamic>> downloadMealPlan(
     String content,
     String planTitle,
   ) async {
     try {
-      // Check if we already have permission
-      bool hasPermission = await hasStoragePermission();
-
-      // If not, request permission
-      if (!hasPermission) {
-        hasPermission = await requestStoragePermission();
-        if (!hasPermission) {
-          throw Exception(
-            'Storage permission is required to download files. Please grant permission in settings.',
-          );
-        }
-      }
-
-      // Get the appropriate directory
-      Directory? directory;
-
-      if (Platform.isAndroid) {
-        // Try to get the Downloads directory first
-        directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          // Fallback to external storage directory
-          directory = await getExternalStorageDirectory();
-          if (directory == null) {
-            // Final fallback to app documents directory
-            directory = await getApplicationDocumentsDirectory();
-          }
-        }
-      } else if (Platform.isIOS) {
-        // For iOS, use documents directory
-        directory = await getApplicationDocumentsDirectory();
-      }
+      // Get the download directory
+      Directory? directory = await getDownloadDirectory();
 
       if (directory == null) {
         throw Exception('Could not access storage directory');
-      }
-
-      // Ensure directory exists
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
       }
 
       // Create filename with timestamp
@@ -127,7 +109,7 @@ class FileDownloadService {
       final timestamp =
           '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}_${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}';
       final sanitizedTitle = planTitle.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-      final fileName = 'WorkoutPlan_${sanitizedTitle}_$timestamp.txt';
+      final fileName = 'MealPlan_${sanitizedTitle}_$timestamp.txt';
 
       // Create file
       final file = File('${directory.path}/$fileName');
@@ -135,15 +117,88 @@ class FileDownloadService {
       // Write content to file
       await file.writeAsString(content, encoding: utf8);
 
+      // Verify file was created and has content
+      if (!await file.exists()) {
+        throw Exception('File was not created successfully');
+      }
+
+      final fileSize = await file.length();
+      if (fileSize == 0) {
+        throw Exception('File was created but is empty');
+      }
+
       print('File downloaded successfully to: ${file.path}');
-      return file.path;
+      print('File size: $fileSize bytes');
+      
+      // Check if it's in public Downloads or app directory
+      bool isPublicDownload = file.path.contains('/storage/emulated/0/Download');
+      
+      return {
+        'success': true,
+        'filePath': file.path,
+        'fileName': fileName,
+        'fileSize': fileSize,
+        'isPublicDownload': isPublicDownload,
+        'directory': directory.path,
+      };
     } catch (e) {
-      print('Error downloading workout plan: $e');
-      throw Exception('Failed to download file: ${e.toString()}');
+      print('Error downloading meal plan: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
     }
   }
 
-  // Share workout plan file
+  // Alternative: Save to app directory and immediately share
+  static Future<Map<String, dynamic>> saveAndShareMealPlan(
+    String content, 
+    String planTitle
+  ) async {
+    try {
+      // Get app's documents directory (always accessible)
+      final appDir = await getApplicationDocumentsDirectory();
+      
+      // Create filename
+      final now = DateTime.now();
+      final timestamp =
+          '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
+      final sanitizedTitle = planTitle.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      final fileName = 'MealPlan_${sanitizedTitle}_$timestamp.txt';
+
+      // Create file in app directory
+      final file = File('${appDir.path}/$fileName');
+      await file.writeAsString(content, encoding: utf8);
+
+      // Verify file creation
+      if (!await file.exists()) {
+        throw Exception('File was not created successfully');
+      }
+
+      // Immediately share the file so user can save it wherever they want
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'My AI-generated meal plan',
+        subject: 'Meal Plan - $planTitle',
+      );
+
+      return {
+        'success': true,
+        'filePath': file.path,
+        'fileName': fileName,
+        'shared': true,
+        'message': 'File created and share dialog opened',
+      };
+    } catch (e) {
+      print('Error in saveAndShareMealPlan: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  // Share meal plan file (existing method, but improved)
   static Future<void> shareWorkoutPlan(String content, String planTitle) async {
     try {
       // Get temporary directory
@@ -154,7 +209,7 @@ class FileDownloadService {
       final timestamp =
           '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
       final sanitizedTitle = planTitle.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-      final fileName = 'WorkoutPlan_${sanitizedTitle}_$timestamp.txt';
+      final fileName = 'MealPlan_${sanitizedTitle}_$timestamp.txt';
 
       // Create file in temp directory
       final file = File('${tempDir.path}/$fileName');
@@ -163,13 +218,99 @@ class FileDownloadService {
       // Share the file
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: 'Check out my AI-generated workout plan!',
-        subject: 'My Workout Plan - $planTitle',
+        text: 'Check out my AI-generated meal plan!',
+        subject: 'My Meal Plan - $planTitle',
       );
     } catch (e) {
-      print('Error sharing workout plan: $e');
-      throw Exception('Failed to share workout plan: ${e.toString()}');
+      print('Error sharing meal plan: $e');
+      throw Exception('Failed to share meal plan: ${e.toString()}');
     }
+  }
+
+  // Show detailed result dialog
+  static Future<void> showDownloadResult(
+    BuildContext context, 
+    Map<String, dynamic> result
+  ) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        if (result['success']) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Download Successful'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('File saved successfully!'),
+                SizedBox(height: 8),
+                Text('File: ${result['fileName']}', style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 4),
+                Text('Location: ${result['directory']}', style: TextStyle(fontSize: 12)),
+                SizedBox(height: 4),
+                Text('Size: ${result['fileSize']} bytes', style: TextStyle(fontSize: 12)),
+                if (result['isPublicDownload'] == true) ...[
+                  SizedBox(height: 8),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'File saved to Downloads folder and should be visible in your file manager.',
+                      style: TextStyle(fontSize: 12, color: Colors.green[700]),
+                    ),
+                  ),
+                ] else ...[
+                  SizedBox(height: 8),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'File saved to app directory. Use Share button to save to your preferred location.',
+                      style: TextStyle(fontSize: 12, color: Colors.orange[700]),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        } else {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.error, color: Colors.red),
+                SizedBox(width: 8),
+                Text('Download Failed'),
+              ],
+            ),
+            content: Text('Error: ${result['error']}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 
   // Show permission dialog
@@ -180,8 +321,8 @@ class FileDownloadService {
         return AlertDialog(
           title: Text('Storage Permission Required'),
           content: Text(
-            'This app needs storage permission to download your workout plans. '
-            'Please grant permission to continue.',
+            'This app needs storage permission to download your meal plans. '
+            'Please grant permission to continue, or use the Share option instead.',
           ),
           actions: [
             TextButton(

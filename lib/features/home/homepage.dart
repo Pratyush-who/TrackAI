@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           margin: const EdgeInsets.only(right: 8),
           decoration: BoxDecoration(
             color: AppColors.cardBackground(isDark).withOpacity(0.8),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(52),
             border: Border.all(
               color: AppColors.primary(isDark).withOpacity(0.3),
               width: 1,

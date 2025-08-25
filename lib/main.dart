@@ -19,10 +19,10 @@ void main() async {
     await dotenv.load(fileName: ".env");
     print('Firebase initialized successfully');
     await FirebaseService.initializeFirebase();
-    print('Firebase services initialized successfully');
+    print('Firebase services initialized successfully');  
 
     // Initialize storage permissions for file downloads
-    await FileDownloadService.hasStoragePermission();
+    await FileDownloadService.requestStoragePermission();
     print('Storage permissions checked');
   } catch (e) {
     print('Initialization error: $e');
