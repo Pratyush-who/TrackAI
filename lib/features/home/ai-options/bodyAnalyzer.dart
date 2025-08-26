@@ -1297,7 +1297,7 @@ Widget build(BuildContext context) {
           child: ElevatedButton(
             onPressed: _isLoadingRecommendation ? null : _getAIRecommendation,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF4CAF50),
+              backgroundColor: AppColors.lightPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -1674,7 +1674,7 @@ Widget build(BuildContext context) {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
-                side: BorderSide(color: Color(0xFF4CAF50), width: 2),
+                side: BorderSide(color:(isDarkTheme)? Color(0xFF4CAF50):Colors.transparent, width: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -1682,7 +1682,7 @@ Widget build(BuildContext context) {
               child: Text(
                 'New Analysis',
                 style: TextStyle(
-                  color: Color(0xFF4CAF50),
+                  color: (isDarkTheme)? Color(0xFF4CAF50):Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),

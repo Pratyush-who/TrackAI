@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/services/auth_services.dart';
+import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/analytics/analyticsscreen.dart';
 import 'package:trackai/features/home/homescreen.dart';
@@ -29,6 +30,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _isFabExpanded = false;
   bool _patternBackgroundEnabled = false;
   late List<Widget> _pages;
+
+  // Streak-related variables
+  int _currentStreak = 0;
+  int _longestStreak = 0;
+  bool _isLoadingStreak = true;
 
   final List<BottomNavItem> _navItems = [
     BottomNavItem(
@@ -67,6 +73,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     ];
 
     _loadPreferences();
+    _loadStreakData();
     _pageController = PageController(initialPage: currentIndex);
     _fabAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -127,6 +134,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     setState(() {
       _patternBackgroundEnabled = enabled;
     });
+  }
+
+  // Load streak data
+  Future<void> _loadStreakData() async {
+    try {
+      final currentStreak = await StreakService.getCurrentStreakCount();
+      final longestStreak = await StreakService.getLongestStreak();
+      
+      setState(() {
+        _currentStreak = currentStreak;
+        _longestStreak = longestStreak;
+        _isLoadingStreak = false;
+      });
+    } catch (e) {
+      print('Error loading streak data: $e');
+      setState(() {
+        _isLoadingStreak = false;
+      });
+    }
   }
 
   @override
@@ -206,6 +232,108 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         );
       }
     }
+  }
+
+  void _showStreakDialog(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground(isDark),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: AppColors.primary(isDark).withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.local_fire_department,
+              color: AppColors.primary(isDark),
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Streak Stats',
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildStreakStatRow(
+              'Current Streak',
+              '$_currentStreak days',
+              Icons.whatshot,
+              isDark,
+            ),
+            const SizedBox(height: 16),
+            _buildStreakStatRow(
+              'Longest Streak',
+              '$_longestStreak days',
+              Icons.emoji_events,
+              isDark,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Keep logging in daily to maintain your streak!',
+              style: TextStyle(
+                color: AppColors.textSecondary(isDark),
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: TextStyle(color: AppColors.primary(isDark)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStreakStatRow(String title, String value, IconData icon, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: AppColors.primary(isDark),
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: AppColors.textSecondary(isDark),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: AppColors.textPrimary(isDark),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -300,108 +428,87 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ],
       ),
       actions: [
-        // Theme Switch Button - Fixed colors
-        Container(
-          margin: const EdgeInsets.only(right: 8),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground(isDark).withOpacity(0.8),
-            borderRadius: BorderRadius.circular(52),
-            border: Border.all(
-              color: AppColors.primary(isDark).withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          child: IconButton(
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              themeProvider.toggleTheme();
-            },
-            icon: Icon(
-              isDark ? Icons.light_mode : Icons.dark_mode,
-              color: AppColors.primary(isDark), // Always use primary color when active
-              size: 22,
-            ),
-            tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-          ),
-        ),
-        // User Profile Button
-        Container(
-          margin: const EdgeInsets.only(right: 8),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground(isDark).withOpacity(0.8),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.primary(isDark).withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          child: PopupMenuButton<String>(
-            icon: CircleAvatar(
-              backgroundColor: AppColors.primary(isDark).withOpacity(0.2),
-              child: FirebaseService.userPhotoURL != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.network(
-                        FirebaseService.userPhotoURL!,
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.person,
-                          color: AppColors.primary(isDark),
-                          size: 20,
-                        ),
-                      ),
-                    )
-                  : Icon(
-                      Icons.person,
-                      color: AppColors.primary(isDark),
-                      size: 20,
-                    ),
-            ),
-            color: AppColors.cardBackground(isDark),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            itemBuilder: (context) => [
-              PopupMenuItem<String>(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.person_outline,
-                      color: AppColors.textPrimary(isDark),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      FirebaseService.userDisplayName,
-                      style: TextStyle(color: AppColors.textPrimary(isDark)),
-                    ),
-                  ],
-                ),
+        // Streak Indicator
+        // Streak Indicator
+Container(
+  margin: const EdgeInsets.only(right: 8),
+  decoration: BoxDecoration(
+    color: AppColors.cardBackground(isDark).withOpacity(0.8),
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(
+      color: AppColors.darkPrimary.withOpacity(0.3), // Red border for streak indicator
+      width: 1.5,
+    ),
+  ),
+  child: _isLoadingStreak
+      ? Container(
+          padding: const EdgeInsets.all(12),
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.red, // Red progress indicator
               ),
-              PopupMenuDivider(height: 1),
-              PopupMenuItem<String>(
-                value: 'logout',
-                child: const Row(
-                  children: [
-                    Icon(Icons.logout, color: AppColors.errorColor),
-                    SizedBox(width: 12),
-                    Text(
-                      'Logout',
-                      style: TextStyle(color: AppColors.errorColor),
-                    ),
-                  ],
+            ),
+          ),
+        )
+      : Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.local_fire_department,
+                color: Colors.red, // Red fire icon
+                size: 20,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _currentStreak > 99 ? '99+' : _currentStreak.toString(),
+                style: TextStyle(
+                  color: isDark? Colors.white : Colors.black, // White text always
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
-            onSelected: (value) {
-              if (value == 'logout') {
-                _showLogoutDialog(isDark);
-              }
-            },
           ),
         ),
+),
+
+// Theme Switch Button - made smaller while keeping border radius
+Container(
+  margin: const EdgeInsets.only(right: 12),
+  decoration: BoxDecoration(
+    color: AppColors.cardBackground(isDark).withOpacity(0.8),
+    borderRadius: BorderRadius.circular(52), // Keep original border radius
+    border: Border.all(
+      color: AppColors.primary(isDark).withOpacity(0.3),
+      width: 1,
+    ),
+  ),
+  // Add a container to constrain the size
+  child: Container(
+    width: 40, // Smaller width
+    height: 40, // Smaller height
+    child: IconButton(
+      onPressed: () {
+        HapticFeedback.lightImpact();
+        themeProvider.toggleTheme();
+      },
+      icon: Icon(
+        isDark ? Icons.light_mode : Icons.dark_mode,
+        color: AppColors.primary(isDark),
+        size: 20, // Slightly smaller icon
+      ),
+      iconSize: 20, // Smaller button
+      padding: EdgeInsets.zero, // Remove extra padding
+      constraints: const BoxConstraints(), // Remove constraints
+    ),
+  ),
+),
       ],
     );
   }

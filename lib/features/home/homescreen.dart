@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
+import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/features/settings/service/goalservice.dart';
 
 class Homescreen extends StatefulWidget {
@@ -22,10 +23,17 @@ class _HomescreenState extends State<Homescreen> {
   bool _isLoadingGoals = true;
   String? _goalsError;
 
+  // Streak data
+  Map<String, bool> _streakData = {};
+  bool _isLoadingStreaks = true;
+  int _currentStreakCount = 0;
+
   @override
   void initState() {
     super.initState();
     _loadGoalsData();
+    _loadStreakData();
+    _recordDailyLogin();
   }
 
   @override
@@ -55,10 +63,43 @@ class _HomescreenState extends State<Homescreen> {
     }
   }
 
+  Future<void> _loadStreakData() async {
+    try {
+      setState(() {
+        _isLoadingStreaks = true;
+      });
+
+      final streakData = await StreakService.getMonthStreakData(_currentDate);
+      final currentStreak = await StreakService.getCurrentStreakCount();
+      
+      setState(() {
+        _streakData = streakData;
+        _currentStreakCount = currentStreak;
+        _isLoadingStreaks = false;
+      });
+    } catch (e) {
+      print('Error loading streak data: $e');
+      setState(() {
+        _isLoadingStreaks = false;
+      });
+    }
+  }
+
+  Future<void> _recordDailyLogin() async {
+    try {
+      await StreakService.recordDailyLogin();
+      // Refresh streak data after recording login
+      _loadStreakData();
+    } catch (e) {
+      print('Error recording daily login: $e');
+    }
+  }
+
   void _navigateToWeek(int direction) {
     setState(() {
       _currentDate = _currentDate.add(Duration(days: 7 * direction));
     });
+    _loadStreakData(); // Reload streak data for new date range
   }
 
   List<DateTime> _getWeekDates(DateTime date) {
@@ -82,6 +123,40 @@ class _HomescreenState extends State<Homescreen> {
       'December',
     ];
     return '${months[date.month - 1]} ${date.year}';
+  }
+
+  Color _getDateColor(DateTime date, bool isDarkTheme) {
+    final today = DateTime.now();
+    final isToday = date.day == today.day &&
+        date.month == today.month &&
+        date.year == today.year;
+    
+    final dateString = StreakService.formatDateStatic(date);
+    final isLoggedIn = _streakData[dateString] ?? false;
+    
+    if (isToday) {
+      return AppColors.accent(isDarkTheme); // Current green for today
+    } else if (date.isAfter(today)) {
+      // Future dates - default color
+      return Colors.transparent;
+    } else if (isLoggedIn) {
+      return Colors.green.withOpacity(0.3); // Light green for logged in
+    } else {
+      return Colors.red.withOpacity(0.3); // Light red for not logged in
+    }
+  }
+
+  Color _getDateTextColor(DateTime date, bool isDarkTheme) {
+    final today = DateTime.now();
+    final isToday = date.day == today.day &&
+        date.month == today.month &&
+        date.year == today.year;
+    
+    if (isToday) {
+      return Colors.white; // White text for today's highlighted date
+    } else {
+      return isDarkTheme ? Colors.white : Colors.black87;
+    }
   }
 
   BoxDecoration _getCardDecoration(bool isDarkTheme) {
@@ -139,28 +214,30 @@ class _HomescreenState extends State<Homescreen> {
       );
     }
   }
-void _handleAILabAction(String action) {
-  switch (action) {
-    case 'body-analyzer':
-      Navigator.pushNamed(context, AppRoutes.bodyAnalyzer);
-      break;
-    case 'smart-gymkit':
-      Navigator.pushNamed(context, AppRoutes.smartGymkit);
-      break;
-    case 'calorie_calc':
-      Navigator.pushNamed(context, AppRoutes.calorieCalculator);
-      break;
-    case 'meal_planner':
-      Navigator.pushNamed(context, AppRoutes.mealPlanner);
-      break;
-    case 'recipe_generator':
-      Navigator.pushNamed(context, AppRoutes.recipeGenerator);
-      break;
-    default:
-      _showSnackBar('Feature coming soon!');
-      break;
+
+  void _handleAILabAction(String action) {
+    switch (action) {
+      case 'body-analyzer':
+        Navigator.pushNamed(context, AppRoutes.bodyAnalyzer);
+        break;
+      case 'smart-gymkit':
+        Navigator.pushNamed(context, AppRoutes.smartGymkit);
+        break;
+      case 'calorie_calc':
+        Navigator.pushNamed(context, AppRoutes.calorieCalculator);
+        break;
+      case 'meal_planner':
+        Navigator.pushNamed(context, AppRoutes.mealPlanner);
+        break;
+      case 'recipe_generator':
+        Navigator.pushNamed(context, AppRoutes.recipeGenerator);
+        break;
+      default:
+        _showSnackBar('Feature coming soon!');
+        break;
+    }
   }
-}
+
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -254,45 +331,71 @@ void _handleAILabAction(String action) {
 
                   const SizedBox(height: 12),
 
-                  // Dates row
+                  // Dates row with streak coloring
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: weekDates.map((date) {
-                      final isToday =
-                          date.day == DateTime.now().day &&
-                          date.month == DateTime.now().month &&
-                          date.year == DateTime.now().year;
-
                       return Expanded(
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 2),
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isToday
-                                ? AppColors.accent(isDarkTheme)
-                                : Colors.transparent,
+                            color: _getDateColor(date, isDarkTheme),
                             shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${date.day}',
-                              style: TextStyle(
-                                color: isToday
-                                    ? Colors.white
-                                    : (isDarkTheme
-                                          ? Colors.white
-                                          : Colors.black87),
-                                fontSize: 16,
-                                fontWeight: isToday
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                              ),
+                            border: _isLoadingStreaks ? null : Border.all(
+                              color: _getDateColor(date, isDarkTheme) == Colors.transparent
+                                  ? Colors.transparent
+                                  : _getDateColor(date, isDarkTheme),
+                              width: 1,
                             ),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Loading indicator for streak data
+                              if (_isLoadingStreaks)
+                                SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.primary(isDarkTheme),
+                                    ),
+                                  ),
+                                ),
+                              // Date text
+                              if (!_isLoadingStreaks)
+                                Text(
+                                  '${date.day}',
+                                  style: TextStyle(
+                                    color: _getDateTextColor(date, isDarkTheme),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       );
                     }).toList(),
                   ),
+
+                  // Streak legend
+                  if (!_isLoadingStreaks)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildLegendItem(Colors.green.withOpacity(0.3), 'Logged in', isDarkTheme),
+                          const SizedBox(width: 16),
+                          _buildLegendItem(Colors.red.withOpacity(0.3), 'Missed', isDarkTheme),
+                          const SizedBox(width: 16),
+                          _buildLegendItem(AppColors.accent(isDarkTheme), 'Today', isDarkTheme),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -369,6 +472,30 @@ void _handleAILabAction(String action) {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label, bool isDarkTheme) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: isDarkTheme ? Colors.white70 : Colors.black54,
+            fontSize: 10,
+          ),
+        ),
+      ],
     );
   }
 

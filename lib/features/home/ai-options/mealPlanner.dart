@@ -783,7 +783,7 @@ ${preferences.isNotEmpty ? '- Food preferences: ${preferences}' : ''}
 
   Widget buildRecentPlansSection(bool isDarkTheme) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(8),
       decoration: getCardDecoration(isDarkTheme),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -815,12 +815,7 @@ ${preferences.isNotEmpty ? '- Food preferences: ${preferences}' : ''}
                   ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                    color: isDarkTheme
-                        ? AppColors.darkPrimary
-                        : AppColors.lightPrimary,
-                    shape: BoxShape.circle,
-                  ),
+                  
                   child: IconButton(
                     icon: Icon(
                       isRecentPlansExpanded

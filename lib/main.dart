@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:trackai/core/routes/routes.dart';
+import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/services/auth_services.dart';
@@ -19,11 +20,16 @@ void main() async {
     await dotenv.load(fileName: ".env");
     print('Firebase initialized successfully');
     await FirebaseService.initializeFirebase();
-    print('Firebase services initialized successfully');  
+    print('Firebase services initialized successfully');
 
     // Initialize storage permissions for file downloads
     await FileDownloadService.requestStoragePermission();
     print('Storage permissions checked');
+    
+    // Initialize streak system by recording today's login
+    await StreakService.recordDailyLogin();
+    print('Daily login recorded');
+    
   } catch (e) {
     print('Initialization error: $e');
   }
@@ -82,4 +88,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-// repo test
