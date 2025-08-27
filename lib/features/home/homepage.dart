@@ -840,4 +840,4 @@ class BottomNavItem {
     required this.activeIcon,
     required this.label,
   });
-}
+}  

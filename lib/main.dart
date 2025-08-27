@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:trackai/core/provider/analytics_provider.dart';
 import 'package:trackai/core/provider/favourite_provider.dart';
 import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/services/streak_service.dart';
@@ -37,6 +38,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => FavoritesProvider()),
+        ChangeNotifierProvider(create: (context)=>  AnalyticsProvider()),
       ],
       child: const MyApp(),
     ),
