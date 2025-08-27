@@ -19,7 +19,7 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
     return Consumer<AnalyticsProvider>(
       builder: (context, provider, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -132,16 +132,16 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
           const SizedBox(height: 16),
           ...provider.availableTrackers.map((tracker) {
             final isSelected = selectedTrackers.contains(tracker);
-            
+
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
-                color: isSelected 
+                color: isSelected
                     ? AppColors.primary(isDark).withOpacity(0.1)
                     : AppColors.surfaceColor(isDark),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected 
+                  color: isSelected
                       ? AppColors.primary(isDark)
                       : AppColors.primary(isDark).withOpacity(0.2),
                   width: isSelected ? 2 : 1,
@@ -152,7 +152,9 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
                   tracker,
                   style: TextStyle(
                     color: AppColors.textPrimary(isDark),
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                     fontSize: 14,
                   ),
                 ),
@@ -181,7 +183,7 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
   Widget _buildAnalyzeButton(AnalyticsProvider provider, bool isDark) {
     return SizedBox(
       width: double.infinity,
-              child: ElevatedButton(
+      child: ElevatedButton(
         onPressed: () async {
           // Set selected trackers in provider and analyze
           for (String tracker in selectedTrackers) {
@@ -204,18 +206,11 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.analytics,
-              color: Colors.white,
-              size: 20,
-            ),
+            Icon(Icons.analytics, color: Colors.white, size: 20),
             const SizedBox(width: 8),
             Text(
               'Analyze Correlations',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -247,11 +242,7 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.insights,
-                color: AppColors.primary(isDark),
-                size: 20,
-              ),
+              Icon(Icons.insights, color: AppColors.primary(isDark), size: 20),
               const SizedBox(width: 8),
               Text(
                 'Correlation Results',
@@ -277,10 +268,10 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
   Widget _buildCorrelationItem(Map<String, dynamic> correlation, bool isDark) {
     final double correlationValue = correlation['correlation'] ?? 0.0;
     final String strength = correlation['strength'] ?? 'None';
-    
+
     Color strengthColor;
     IconData strengthIcon;
-    
+
     switch (strength) {
       case 'Strong':
         strengthColor = AppColors.successColor;
@@ -305,10 +296,7 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
       decoration: BoxDecoration(
         color: AppColors.surfaceColor(isDark),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: strengthColor.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: strengthColor.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,11 +322,7 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      strengthIcon,
-                      color: strengthColor,
-                      size: 14,
-                    ),
+                    Icon(strengthIcon, color: strengthColor, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       strength,
@@ -363,7 +347,11 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            _getCorrelationInsight(correlation['tracker1'], correlation['tracker2'], strength),
+            _getCorrelationInsight(
+              correlation['tracker1'],
+              correlation['tracker2'],
+              strength,
+            ),
             style: TextStyle(
               fontSize: 12,
               color: AppColors.textSecondary(isDark),
@@ -410,28 +398,42 @@ class _CorrelationLabsPageState extends State<CorrelationLabsPage> {
     );
   }
 
-  String _getCorrelationInsight(String tracker1, String tracker2, String strength) {
+  String _getCorrelationInsight(
+    String tracker1,
+    String tracker2,
+    String strength,
+  ) {
     final Map<String, Map<String, String>> insights = {
       'Sleep Tracker': {
-        'Mood Tracker': 'Better sleep quality often correlates with improved mood stability.',
-        'Workout Tracker': 'Regular exercise may influence sleep patterns and quality.',
-        'Study Time Tracker': 'Sleep affects cognitive performance and study effectiveness.',
+        'Mood Tracker':
+            'Better sleep quality often correlates with improved mood stability.',
+        'Workout Tracker':
+            'Regular exercise may influence sleep patterns and quality.',
+        'Study Time Tracker':
+            'Sleep affects cognitive performance and study effectiveness.',
       },
       'Mood Tracker': {
-        'Meditation Tracker': 'Meditation practice can have a positive impact on emotional well-being.',
-        'Exercise Tracker': 'Physical activity is linked to improved mental health outcomes.',
-        'Social Activity': 'Social connections play a crucial role in mood regulation.',
+        'Meditation Tracker':
+            'Meditation practice can have a positive impact on emotional well-being.',
+        'Exercise Tracker':
+            'Physical activity is linked to improved mental health outcomes.',
+        'Social Activity':
+            'Social connections play a crucial role in mood regulation.',
       },
       'Workout Tracker': {
-        'Weight Tracker': 'Exercise frequency and weight changes often show clear relationships.',
-        'Sleep Tracker': 'Physical activity can improve sleep quality and duration.',
-        'Energy Level': 'Regular exercise typically correlates with higher energy levels.',
+        'Weight Tracker':
+            'Exercise frequency and weight changes often show clear relationships.',
+        'Sleep Tracker':
+            'Physical activity can improve sleep quality and duration.',
+        'Energy Level':
+            'Regular exercise typically correlates with higher energy levels.',
       },
     };
 
-    final insight = insights[tracker1]?[tracker2] ?? 
-                   insights[tracker2]?[tracker1] ?? 
-                   'This correlation shows how these two activities may influence each other.';
+    final insight =
+        insights[tracker1]?[tracker2] ??
+        insights[tracker2]?[tracker1] ??
+        'This correlation shows how these two activities may influence each other.';
 
     return '$strength correlation detected. $insight';
   }

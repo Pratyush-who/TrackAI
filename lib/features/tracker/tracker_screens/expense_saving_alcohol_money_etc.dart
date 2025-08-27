@@ -23,9 +23,30 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
   String? _selectedPaymentMethod;
   String? _selectedNecessity;
 
-  final List<String> paymentMethods = ['Cash', 'Credit Card', 'Debit Card', 'Digital Wallet', 'Bank Transfer', 'Other'];
-  final List<String> necessityLevels = ['Essential', 'Important', 'Optional', 'Luxury'];
-  final List<String> categories = ['Food', 'Transportation', 'Housing', 'Healthcare', 'Entertainment', 'Shopping', 'Bills', 'Other'];
+  final List<String> paymentMethods = [
+    'Cash',
+    'Credit Card',
+    'Debit Card',
+    'Digital Wallet',
+    'Bank Transfer',
+    'Other',
+  ];
+  final List<String> necessityLevels = [
+    'Essential',
+    'Important',
+    'Optional',
+    'Luxury',
+  ];
+  final List<String> categories = [
+    'Food',
+    'Transportation',
+    'Housing',
+    'Healthcare',
+    'Entertainment',
+    'Shopping',
+    'Bills',
+    'Other',
+  ];
 
   void _addCustomField() {
     setState(() {
@@ -104,7 +125,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final isDark = themeProvider.isDarkMode;
-        
+
         return Scaffold(
           backgroundColor: AppColors.background(isDark),
           appBar: AppBar(
@@ -112,7 +133,10 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             backgroundColor: Colors.transparent,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back, color: AppColors.textPrimary(isDark)),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textPrimary(isDark),
+              ),
             ),
             title: Text(
               'Log Expense Tracker',
@@ -141,27 +165,34 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                   children: [
                     Text(
                       'Enter the details for your expense tracker entry.',
-                      style: TextStyle(color: AppColors.textSecondary(isDark), fontSize: 16),
+                      style: TextStyle(
+                        color: AppColors.textSecondary(isDark),
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 24),
-                    
+
                     _buildTextField(
                       controller: _valueController,
                       label: 'Value (currency)',
                       hint: 'Enter amount spent',
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter amount';
-                        if (double.tryParse(value) == null) return 'Please enter a valid number';
+                        if (value == null || value.isEmpty)
+                          return 'Please enter amount';
+                        if (double.tryParse(value) == null)
+                          return 'Please enter a valid number';
                         return null;
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildDropdown(
                       label: 'Category',
-                      value: _categoryController.text.isEmpty ? null : _categoryController.text,
+                      value: _categoryController.text.isEmpty
+                          ? null
+                          : _categoryController.text,
                       items: categories,
                       onChanged: (value) {
                         setState(() {
@@ -170,7 +201,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildDropdown(
                       label: 'Payment Method',
@@ -184,7 +215,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildDropdown(
                       label: 'Necessity',
@@ -198,7 +229,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 24),
                     _buildCustomDataSection(isDark),
                     const SizedBox(height: 32),
@@ -224,7 +255,14 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textPrimary(isDark),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -238,15 +276,22 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             fillColor: AppColors.cardBackground(isDark),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppColors.primary(isDark), width: 2),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark),
+                width: 2,
+              ),
             ),
           ),
         ),
@@ -265,7 +310,14 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textPrimary(isDark),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: value,
@@ -276,12 +328,16 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             fillColor: AppColors.cardBackground(isDark),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
             ),
           ),
           dropdownColor: AppColors.cardBackground(isDark),
           style: TextStyle(color: AppColors.textPrimary(isDark)),
-          items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+          items: items
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .toList(),
           onChanged: onChanged,
         ),
       ],
@@ -295,11 +351,24 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Custom Data', style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Custom Data',
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             TextButton.icon(
               onPressed: _addCustomField,
               icon: Icon(Icons.add, color: AppColors.primary(isDark), size: 16),
-              label: Text('Add Custom Field', style: TextStyle(color: AppColors.primary(isDark), fontSize: 14)),
+              label: Text(
+                'Add Custom Field',
+                style: TextStyle(
+                  color: AppColors.primary(isDark),
+                  fontSize: 14,
+                ),
+              ),
             ),
           ],
         ),
@@ -312,18 +381,35 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             decoration: BoxDecoration(
               color: AppColors.cardBackground(isDark),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary(isDark).withOpacity(0.3)),
+              border: Border.all(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    Expanded(child: _buildTextField(controller: field['key']!, label: 'Field Name', hint: 'e.g., Store', isDark: isDark)),
-                    IconButton(onPressed: () => _removeCustomField(index), icon: Icon(Icons.delete, color: AppColors.errorColor)),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: field['key']!,
+                        label: 'Field Name',
+                        hint: 'e.g., Store',
+                        isDark: isDark,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => _removeCustomField(index),
+                      icon: Icon(Icons.delete, color: AppColors.errorColor),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _buildTextField(controller: field['value']!, label: 'Field Value', hint: 'e.g., Target', isDark: isDark),
+                _buildTextField(
+                  controller: field['value']!,
+                  label: 'Field Value',
+                  hint: 'e.g., Target',
+                  isDark: isDark,
+                ),
               ],
             ),
           );
@@ -341,9 +427,17 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               side: BorderSide(color: AppColors.textSecondary(isDark)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary(isDark), fontWeight: FontWeight.w600)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textSecondary(isDark),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -353,11 +447,26 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary(isDark),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: _isLoading
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                : const Text('Save Entry', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Save Entry',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ),
       ],
@@ -382,7 +491,15 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
   bool _isLoading = false;
   bool _isRecurring = false;
 
-  final List<String> sources = ['Salary', 'Freelance', 'Investment', 'Gift', 'Bonus', 'Side Hustle', 'Other'];
+  final List<String> sources = [
+    'Salary',
+    'Freelance',
+    'Investment',
+    'Gift',
+    'Bonus',
+    'Side Hustle',
+    'Other',
+  ];
 
   Future<void> _saveEntry() async {
     if (!_formKey.currentState!.validate()) return;
@@ -414,14 +531,20 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Savings entry saved successfully!'), backgroundColor: AppColors.successColor),
+          SnackBar(
+            content: const Text('Savings entry saved successfully!'),
+            backgroundColor: AppColors.successColor,
+          ),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving entry: $e'), backgroundColor: AppColors.errorColor),
+          SnackBar(
+            content: Text('Error saving entry: $e'),
+            backgroundColor: AppColors.errorColor,
+          ),
         );
       }
     } finally {
@@ -438,7 +561,7 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final isDark = themeProvider.isDarkMode;
-        
+
         return Scaffold(
           backgroundColor: AppColors.background(isDark),
           appBar: AppBar(
@@ -446,16 +569,29 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
             backgroundColor: Colors.transparent,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back, color: AppColors.textPrimary(isDark)),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textPrimary(isDark),
+              ),
             ),
             title: Text(
               'Log Savings Tracker',
-              style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            flexibleSpace: Container(decoration: BoxDecoration(gradient: AppColors.backgroundLinearGradient(isDark))),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: AppColors.backgroundLinearGradient(isDark),
+              ),
+            ),
           ),
           body: Container(
-            decoration: BoxDecoration(gradient: AppColors.backgroundLinearGradient(isDark)),
+            decoration: BoxDecoration(
+              gradient: AppColors.backgroundLinearGradient(isDark),
+            ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Form(
@@ -463,27 +599,36 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Enter the details for your savings tracker entry.',
-                        style: TextStyle(color: AppColors.textSecondary(isDark), fontSize: 16)),
+                    Text(
+                      'Enter the details for your savings tracker entry.',
+                      style: TextStyle(
+                        color: AppColors.textSecondary(isDark),
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 24),
-                    
+
                     _buildTextField(
                       controller: _valueController,
                       label: 'Value (currency)',
                       hint: 'Enter amount saved',
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter amount';
-                        if (double.tryParse(value) == null) return 'Please enter a valid number';
+                        if (value == null || value.isEmpty)
+                          return 'Please enter amount';
+                        if (double.tryParse(value) == null)
+                          return 'Please enter a valid number';
                         return null;
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildDropdown(
                       label: 'Source',
-                      value: _sourceController.text.isEmpty ? null : _sourceController.text,
+                      value: _sourceController.text.isEmpty
+                          ? null
+                          : _sourceController.text,
                       items: sources,
                       onChanged: (value) {
                         setState(() {
@@ -492,22 +637,25 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _goalController,
                       label: 'Towards Goal',
-                      hint: 'What are you saving for? (e.g., Emergency fund, Vacation)',
+                      hint:
+                          'What are you saving for? (e.g., Emergency fund, Vacation)',
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.cardBackground(isDark),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary(isDark).withOpacity(0.3)),
+                        border: Border.all(
+                          color: AppColors.primary(isDark).withOpacity(0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -524,13 +672,16 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
                           Expanded(
                             child: Text(
                               'Is this a recurring saving?',
-                              style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16),
+                              style: TextStyle(
+                                color: AppColors.textPrimary(isDark),
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
                     _buildCustomDataSection(isDark),
                     const SizedBox(height: 32),
@@ -556,7 +707,14 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textPrimary(isDark),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -568,20 +726,50 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
             hintStyle: TextStyle(color: AppColors.textSecondary(isDark)),
             filled: true,
             fillColor: AppColors.cardBackground(isDark),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3))),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark), width: 2)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark),
+                width: 2,
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDropdown({required String label, required List<String> items, required Function(String?) onChanged, required bool isDark, String? value, String? hint}) {
+  Widget _buildDropdown({
+    required String label,
+    required List<String> items,
+    required Function(String?) onChanged,
+    required bool isDark,
+    String? value,
+    String? hint,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textPrimary(isDark),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: value,
@@ -590,11 +778,18 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
             hintStyle: TextStyle(color: AppColors.textSecondary(isDark)),
             filled: true,
             fillColor: AppColors.cardBackground(isDark),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3))),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
+            ),
           ),
           dropdownColor: AppColors.cardBackground(isDark),
           style: TextStyle(color: AppColors.textPrimary(isDark)),
-          items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+          items: items
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .toList(),
           onChanged: onChanged,
         ),
       ],
@@ -608,15 +803,31 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Custom Data', style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Custom Data',
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             TextButton.icon(
               onPressed: () {
                 setState(() {
-                  _customFields.add({'key': TextEditingController(), 'value': TextEditingController()});
+                  _customFields.add({
+                    'key': TextEditingController(),
+                    'value': TextEditingController(),
+                  });
                 });
               },
               icon: Icon(Icons.add, color: AppColors.primary(isDark), size: 16),
-              label: Text('Add Custom Field', style: TextStyle(color: AppColors.primary(isDark), fontSize: 14)),
+              label: Text(
+                'Add Custom Field',
+                style: TextStyle(
+                  color: AppColors.primary(isDark),
+                  fontSize: 14,
+                ),
+              ),
             ),
           ],
         ),
@@ -629,13 +840,22 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
             decoration: BoxDecoration(
               color: AppColors.cardBackground(isDark),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary(isDark).withOpacity(0.3)),
+              border: Border.all(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    Expanded(child: _buildTextField(controller: field['key']!, label: 'Field Name', hint: 'e.g., Method', isDark: isDark)),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: field['key']!,
+                        label: 'Field Name',
+                        hint: 'e.g., Method',
+                        isDark: isDark,
+                      ),
+                    ),
                     IconButton(
                       onPressed: () {
                         setState(() {
@@ -649,7 +869,12 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                _buildTextField(controller: field['value']!, label: 'Field Value', hint: 'e.g., Auto Transfer', isDark: isDark),
+                _buildTextField(
+                  controller: field['value']!,
+                  label: 'Field Value',
+                  hint: 'e.g., Auto Transfer',
+                  isDark: isDark,
+                ),
               ],
             ),
           );
@@ -667,9 +892,17 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               side: BorderSide(color: AppColors.textSecondary(isDark)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary(isDark), fontWeight: FontWeight.w600)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textSecondary(isDark),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -679,11 +912,26 @@ class _SavingsTrackerScreenState extends State<SavingsTrackerScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary(isDark),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: _isLoading
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                : const Text('Save Entry', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Save Entry',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ),
       ],
@@ -763,14 +1011,20 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Menstrual cycle entry saved successfully!'), backgroundColor: AppColors.successColor),
+          SnackBar(
+            content: const Text('Menstrual cycle entry saved successfully!'),
+            backgroundColor: AppColors.successColor,
+          ),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving entry: $e'), backgroundColor: AppColors.errorColor),
+          SnackBar(
+            content: Text('Error saving entry: $e'),
+            backgroundColor: AppColors.errorColor,
+          ),
         );
       }
     } finally {
@@ -787,7 +1041,7 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final isDark = themeProvider.isDarkMode;
-        
+
         return Scaffold(
           backgroundColor: AppColors.background(isDark),
           appBar: AppBar(
@@ -795,16 +1049,29 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
             backgroundColor: Colors.transparent,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back, color: AppColors.textPrimary(isDark)),
+              icon: Icon(
+                Icons.arrow_back,
+                color: AppColors.textPrimary(isDark),
+              ),
             ),
             title: Text(
               'Log Menstrual Cycle',
-              style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            flexibleSpace: Container(decoration: BoxDecoration(gradient: AppColors.backgroundLinearGradient(isDark))),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: AppColors.backgroundLinearGradient(isDark),
+              ),
+            ),
           ),
           body: Container(
-            decoration: BoxDecoration(gradient: AppColors.backgroundLinearGradient(isDark)),
+            decoration: BoxDecoration(
+              gradient: AppColors.backgroundLinearGradient(isDark),
+            ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Form(
@@ -812,12 +1079,24 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Enter the details for your menstrual cycle entry.',
-                        style: TextStyle(color: AppColors.textSecondary(isDark), fontSize: 16)),
+                    Text(
+                      'Enter the details for your menstrual cycle entry.',
+                      style: TextStyle(
+                        color: AppColors.textSecondary(isDark),
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 24),
-                    
+
                     // Date Picker
-                    Text('Last Period Date', style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16, fontWeight: FontWeight.w600)),
+                    Text(
+                      'Last Period Date',
+                      style: TextStyle(
+                        color: AppColors.textPrimary(isDark),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Container(
                       width: double.infinity,
@@ -825,23 +1104,31 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.cardBackground(isDark),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.primary(isDark).withOpacity(0.3)),
+                        border: Border.all(
+                          color: AppColors.primary(isDark).withOpacity(0.3),
+                        ),
                       ),
                       child: InkWell(
                         onTap: () => _selectDate(context, isDark),
                         child: Row(
                           children: [
-                            Icon(Icons.calendar_today, color: AppColors.primary(isDark)),
+                            Icon(
+                              Icons.calendar_today,
+                              color: AppColors.primary(isDark),
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                              style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16),
+                              style: TextStyle(
+                                color: AppColors.textPrimary(isDark),
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _cycleLengthController,
@@ -849,15 +1136,17 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                       hint: 'Average days between periods',
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter cycle length';
+                        if (value == null || value.isEmpty)
+                          return 'Please enter cycle length';
                         final length = int.tryParse(value);
-                        if (length == null || length < 21 || length > 35) return 'Please enter a valid cycle length (21-35 days)';
+                        if (length == null || length < 21 || length > 35)
+                          return 'Please enter a valid cycle length (21-35 days)';
                         return null;
                       },
                       isDark: isDark,
                       isRequired: true,
                     ),
-                    
+
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _periodLengthController,
@@ -865,14 +1154,16 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                       hint: 'How many days does your period typically last',
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter period length';
+                        if (value == null || value.isEmpty)
+                          return 'Please enter period length';
                         final length = int.tryParse(value);
-                        if (length == null || length < 1 || length > 10) return 'Please enter a valid period length (1-10 days)';
+                        if (length == null || length < 1 || length > 10)
+                          return 'Please enter a valid period length (1-10 days)';
                         return null;
                       },
                       isDark: isDark,
                     ),
-                    
+
                     const SizedBox(height: 24),
                     _buildCustomDataSection(isDark),
                     const SizedBox(height: 32),
@@ -883,10 +1174,20 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                             onPressed: () => Navigator.pop(context),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              side: BorderSide(color: AppColors.textSecondary(isDark)),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              side: BorderSide(
+                                color: AppColors.textSecondary(isDark),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
-                            child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary(isDark), fontWeight: FontWeight.w600)),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: AppColors.textSecondary(isDark),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -896,11 +1197,28 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary(isDark),
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: _isLoading
-                                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                                : const Text('Save Entry', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : const Text(
+                                    'Save Entry',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -929,8 +1247,19 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
       children: [
         Row(
           children: [
-            Text(label, style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 16, fontWeight: FontWeight.w600)),
-            if (isRequired) Text(' *', style: TextStyle(color: AppColors.errorColor, fontSize: 16)),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (isRequired)
+              Text(
+                ' *',
+                style: TextStyle(color: AppColors.errorColor, fontSize: 16),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -944,9 +1273,25 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
             hintStyle: TextStyle(color: AppColors.textSecondary(isDark)),
             filled: true,
             fillColor: AppColors.cardBackground(isDark),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3))),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark).withOpacity(0.3))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.primary(isDark), width: 2)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: AppColors.primary(isDark),
+                width: 2,
+              ),
+            ),
           ),
         ),
       ],
@@ -960,15 +1305,31 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Custom Data', style: TextStyle(color: AppColors.textPrimary(isDark), fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Custom Data',
+              style: TextStyle(
+                color: AppColors.textPrimary(isDark),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             TextButton.icon(
               onPressed: () {
                 setState(() {
-                  _customFields.add({'key': TextEditingController(), 'value': TextEditingController()});
+                  _customFields.add({
+                    'key': TextEditingController(),
+                    'value': TextEditingController(),
+                  });
                 });
               },
               icon: Icon(Icons.add, color: AppColors.primary(isDark), size: 16),
-              label: Text('Add Custom Field', style: TextStyle(color: AppColors.primary(isDark), fontSize: 14)),
+              label: Text(
+                'Add Custom Field',
+                style: TextStyle(
+                  color: AppColors.primary(isDark),
+                  fontSize: 14,
+                ),
+              ),
             ),
           ],
         ),
@@ -981,13 +1342,22 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
             decoration: BoxDecoration(
               color: AppColors.cardBackground(isDark),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary(isDark).withOpacity(0.3)),
+              border: Border.all(
+                color: AppColors.primary(isDark).withOpacity(0.3),
+              ),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    Expanded(child: _buildTextField(controller: field['key']!, label: 'Field Name', hint: 'e.g., Symptoms', isDark: isDark)),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: field['key']!,
+                        label: 'Field Name',
+                        hint: 'e.g., Symptoms',
+                        isDark: isDark,
+                      ),
+                    ),
                     IconButton(
                       onPressed: () {
                         setState(() {
@@ -1001,7 +1371,12 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                _buildTextField(controller: field['value']!, label: 'Field Value', hint: 'e.g., Cramps, headache', isDark: isDark),
+                _buildTextField(
+                  controller: field['value']!,
+                  label: 'Field Value',
+                  hint: 'e.g., Cramps, headache',
+                  isDark: isDark,
+                ),
               ],
             ),
           );
@@ -1012,8 +1387,27 @@ class _MenstrualTrackerScreenState extends State<MenstrualTrackerScreen> {
 }
 
 // Import statements for all tracker screens
-class AlcoholTrackerScreen extends StatelessWidget { @override Widget build(context) => Container(); }
-class StudyTrackerScreen extends StatelessWidget { @override Widget build(context) => Container(); }  
-class MentalWellbeingTrackerScreen extends StatelessWidget { @override Widget build(context) => Container(); }
-class WorkoutTrackerScreen extends StatelessWidget { @override Widget build(context) => Container(); }
-class WeightTrackerScreen extends StatelessWidget { @override Widget build(context) => Container(); }
+class AlcoholTrackerScreen extends StatelessWidget {
+  @override
+  Widget build(context) => Container();
+}
+
+class StudyTrackerScreen extends StatelessWidget {
+  @override
+  Widget build(context) => Container();
+}
+
+class MentalWellbeingTrackerScreen extends StatelessWidget {
+  @override
+  Widget build(context) => Container();
+}
+
+class WorkoutTrackerScreen extends StatelessWidget {
+  @override
+  Widget build(context) => Container();
+}
+
+class WeightTrackerScreen extends StatelessWidget {
+  @override
+  Widget build(context) => Container();
+}

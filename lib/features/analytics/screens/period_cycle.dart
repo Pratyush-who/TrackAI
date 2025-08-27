@@ -28,7 +28,7 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
     return Consumer<AnalyticsProvider>(
       builder: (context, provider, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -120,10 +120,7 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
               ),
               child: const Text(
                 'Log Your Cycle',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -181,7 +178,11 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
               _buildHormoneLegend('FSH', const Color(0xFF4CAF50), isDark),
               _buildHormoneLegend('LH', const Color(0xFF2196F3), isDark),
               _buildHormoneLegend('Estrogen', const Color(0xFFFF9800), isDark),
-              _buildHormoneLegend('Progesterone', const Color(0xFF9C27B0), isDark),
+              _buildHormoneLegend(
+                'Progesterone',
+                const Color(0xFF9C27B0),
+                isDark,
+              ),
             ],
           ),
         ],
@@ -242,57 +243,113 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
             LineChartBarData(
               spots: [
                 FlSpot(0, 4),
+                FlSpot(3, 3.5),
                 FlSpot(7, 2),
+                FlSpot(10, 2.5),
                 FlSpot(14, 6),
+                FlSpot(17, 4.5),
                 FlSpot(21, 3),
+                FlSpot(24, 3.5),
                 FlSpot(28, 4),
               ],
               isCurved: true,
               color: const Color(0xFF4CAF50),
-              barWidth: 2,
-              dotData: FlDotData(show: false),
+              barWidth: 3,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 3,
+                    color: const Color(0xFF4CAF50),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  );
+                },
+              ),
             ),
             // LH
             LineChartBarData(
               spots: [
                 FlSpot(0, 2),
+                FlSpot(3, 1.8),
                 FlSpot(7, 1.5),
+                FlSpot(10, 2),
                 FlSpot(14, 8),
+                FlSpot(17, 4),
                 FlSpot(21, 2),
+                FlSpot(24, 2.2),
                 FlSpot(28, 2),
               ],
               isCurved: true,
               color: const Color(0xFF2196F3),
-              barWidth: 2,
-              dotData: FlDotData(show: false),
+              barWidth: 3,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 3,
+                    color: const Color(0xFF2196F3),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  );
+                },
+              ),
             ),
             // Estrogen
             LineChartBarData(
               spots: [
                 FlSpot(0, 1),
+                FlSpot(3, 1.5),
                 FlSpot(7, 3),
+                FlSpot(10, 4.5),
                 FlSpot(14, 7),
+                FlSpot(17, 5.5),
                 FlSpot(21, 4),
+                FlSpot(24, 2.5),
                 FlSpot(28, 1.5),
               ],
               isCurved: true,
               color: const Color(0xFFFF9800),
-              barWidth: 2,
-              dotData: FlDotData(show: false),
+              barWidth: 3,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 3,
+                    color: const Color(0xFFFF9800),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  );
+                },
+              ),
             ),
             // Progesterone
             LineChartBarData(
               spots: [
                 FlSpot(0, 1),
+                FlSpot(3, 1),
                 FlSpot(7, 1),
+                FlSpot(10, 1.2),
                 FlSpot(14, 2),
+                FlSpot(17, 4),
                 FlSpot(21, 6),
+                FlSpot(24, 3.5),
                 FlSpot(28, 1.5),
               ],
               isCurved: true,
               color: const Color(0xFF9C27B0),
-              barWidth: 2,
-              dotData: FlDotData(show: false),
+              barWidth: 3,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 3,
+                    color: const Color(0xFF9C27B0),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -365,23 +422,49 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildHormoneInfo('FSH', 'Follicle Stimulating Hormone', 
-              'Stimulates follicle development in ovaries', const Color(0xFF4CAF50), isDark),
+          _buildHormoneInfo(
+            'FSH',
+            'Follicle Stimulating Hormone',
+            'Stimulates follicle development in ovaries',
+            const Color(0xFF4CAF50),
+            isDark,
+          ),
           const SizedBox(height: 12),
-          _buildHormoneInfo('LH', 'Luteinizing Hormone', 
-              'Triggers ovulation around day 14', const Color(0xFF2196F3), isDark),
+          _buildHormoneInfo(
+            'LH',
+            'Luteinizing Hormone',
+            'Triggers ovulation around day 14',
+            const Color(0xFF2196F3),
+            isDark,
+          ),
           const SizedBox(height: 12),
-          _buildHormoneInfo('Estrogen', 'Primary Female Sex Hormone', 
-              'Peaks before ovulation, affects mood and energy', const Color(0xFFFF9800), isDark),
+          _buildHormoneInfo(
+            'Estrogen',
+            'Primary Female Sex Hormone',
+            'Peaks before ovulation, affects mood and energy',
+            const Color(0xFFFF9800),
+            isDark,
+          ),
           const SizedBox(height: 12),
-          _buildHormoneInfo('Progesterone', 'Pregnancy Hormone', 
-              'Rises after ovulation, prepares uterus for pregnancy', const Color(0xFF9C27B0), isDark),
+          _buildHormoneInfo(
+            'Progesterone',
+            'Pregnancy Hormone',
+            'Rises after ovulation, prepares uterus for pregnancy',
+            const Color(0xFF9C27B0),
+            isDark,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildHormoneInfo(String shortName, String fullName, String description, Color color, bool isDark) {
+  Widget _buildHormoneInfo(
+    String shortName,
+    String fullName,
+    String description,
+    Color color,
+    bool isDark,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -389,10 +472,7 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
           width: 4,
           height: 4,
           margin: const EdgeInsets.only(top: 6),
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -512,16 +592,19 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
     );
   }
 
-  Widget _buildPhaseCard(String phase, String days, String description, Color color, bool isDark) {
+  Widget _buildPhaseCard(
+    String phase,
+    String days,
+    String description,
+    Color color,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceColor(isDark),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,7 +644,10 @@ class _PeriodCyclePageState extends State<PeriodCyclePage> {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: color.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),

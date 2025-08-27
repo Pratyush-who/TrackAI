@@ -13,16 +13,9 @@ class DashboardSummaryPage extends StatefulWidget {
 }
 
 class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
-  bool _showConfigureDialog = false;
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<AnalyticsProvider>();
-      provider.loadTrackerData();
-      provider.generateOverallSummary();
-    });
   }
 
   @override
@@ -30,7 +23,7 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     return Consumer<AnalyticsProvider>(
       builder: (context, provider, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -55,7 +48,11 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     );
   }
 
-  Widget _buildConfigureButton(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  Widget _buildConfigureButton(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -80,11 +77,7 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(
-                Icons.tune,
-                color: AppColors.primary(isDark),
-                size: 24,
-              ),
+              Icon(Icons.tune, color: AppColors.primary(isDark), size: 24),
               const SizedBox(width: 12),
               Text(
                 'Configure Dashboard',
@@ -149,17 +142,17 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     );
   }
 
-  Widget _buildCustomDashboardSection(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  Widget _buildCustomDashboardSection(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(
-              Icons.dashboard,
-              color: AppColors.primary(isDark),
-              size: 20,
-            ),
+            Icon(Icons.dashboard, color: AppColors.primary(isDark), size: 20),
             const SizedBox(width: 8),
             Text(
               'Custom Dashboard Trackers',
@@ -190,14 +183,24 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
         ...provider.selectedTrackers.take(4).map((tracker) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
-            child: _buildTrackerChart(context, tracker, provider.trackerData[tracker] ?? [], isDark),
+            child: _buildTrackerChart(
+              context,
+              tracker,
+              provider.trackerData[tracker] ?? [],
+              isDark,
+            ),
           );
         }).toList(),
       ],
     );
   }
 
-  Widget _buildTrackerChart(BuildContext context, String trackerName, List<Map<String, dynamic>> data, bool isDark) {
+  Widget _buildTrackerChart(
+    BuildContext context,
+    String trackerName,
+    List<Map<String, dynamic>> data,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -318,13 +321,13 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
 
   List<FlSpot> _generateChartData(List<Map<String, dynamic>> data) {
     if (data.isEmpty) return [];
-    
+
     final spots = <FlSpot>[];
     for (int i = 0; i < data.length && i < 7; i++) {
       final value = double.tryParse(data[i]['value']?.toString() ?? '0') ?? 0.0;
       spots.add(FlSpot(i.toDouble(), value));
     }
-    return spots.reversed.toList();
+    return spots;
   }
 
   String _getTrackerUnit(String trackerName) {
@@ -344,7 +347,11 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     }
   }
 
-  Widget _buildOverallSummaryCard(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  Widget _buildOverallSummaryCard(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -368,11 +375,7 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.summarize,
-                color: AppColors.primary(isDark),
-                size: 20,
-              ),
+              Icon(Icons.summarize, color: AppColors.primary(isDark), size: 20),
               const SizedBox(width: 8),
               Text(
                 'Overall Summary',
@@ -451,7 +454,12 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     );
   }
 
-  Widget _buildSummaryInsight(String title, String description, Color color, bool isDark) {
+  Widget _buildSummaryInsight(
+    String title,
+    String description,
+    Color color,
+    bool isDark,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -459,10 +467,7 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
           width: 4,
           height: 4,
           margin: const EdgeInsets.only(top: 6),
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -493,7 +498,11 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     );
   }
 
-  Widget _buildBMICalculator(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  Widget _buildBMICalculator(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -542,15 +551,15 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildBMIScale(isDark),
+          _buildBMIScale(provider.currentBMI, isDark),
           const SizedBox(height: 20),
-          _buildBMICalculatorForm(isDark),
+          _buildBMICalculatorForm(provider, isDark),
         ],
       ),
     );
   }
 
-  Widget _buildBMIScale(bool isDark) {
+  Widget _buildBMIScale(double? currentBMI, bool isDark) {
     return Column(
       children: [
         Container(
@@ -558,14 +567,10 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             gradient: const LinearGradient(
-              colors: [
-                Colors.blue,
-                Colors.green,
-                Colors.orange,
-                Colors.red,
-              ],
+              colors: [Colors.blue, Colors.green, Colors.orange, Colors.red],
             ),
           ),
+          child: currentBMI != null ? _buildBMIIndicator(currentBMI) : null,
         ),
         const SizedBox(height: 12),
         Row(
@@ -577,7 +582,56 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
             _buildBMICategory('Obese', isDark),
           ],
         ),
+        if (currentBMI != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Your BMI: ${currentBMI.toStringAsFixed(1)}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary(isDark),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildBMIIndicator(double bmi) {
+    double position = 0.0;
+    Color indicatorColor = Colors.blue;
+
+    if (bmi < 18.5) {
+      position = (bmi / 18.5) * 0.25; // Underweight range
+      indicatorColor = Colors.blue;
+    } else if (bmi < 25) {
+      position = 0.25 + ((bmi - 18.5) / 6.5) * 0.25; // Healthy range
+      indicatorColor = Colors.green;
+    } else if (bmi < 30) {
+      position = 0.5 + ((bmi - 25) / 5) * 0.25; // Overweight range
+      indicatorColor = Colors.orange;
+    } else {
+      position = 0.75 + ((bmi - 30) / 10) * 0.25; // Obese range
+      indicatorColor = Colors.red;
+    }
+
+    return Align(
+      alignment: Alignment(position * 2 - 1, 0), // Convert to -1 to 1 range
+      child: Container(
+        width: 4,
+        height: 20,
+        decoration: BoxDecoration(
+          color: indicatorColor,
+          borderRadius: BorderRadius.circular(2),
+          boxShadow: [
+            BoxShadow(
+              color: indicatorColor.withOpacity(0.5),
+              blurRadius: 4,
+              offset: const Offset(0, 0),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -592,344 +646,529 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
     );
   }
 
-  Widget _buildBMICalculatorForm(bool isDark) {
-    return Column(
-      children: [
-        Row(
+  Widget _buildBMICalculatorForm(AnalyticsProvider provider, bool isDark) {
+    return Consumer<AnalyticsProvider>(
+      builder: (context, provider, child) {
+        return Column(
           children: [
-            Icon(
-              Icons.calculate,
-              color: AppColors.primary(isDark),
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Calculate Your BMI',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary(isDark),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Height Unit',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary(isDark),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.inputFill(isDark),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.primary(isDark).withOpacity(0.3),
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: 'Centimeters (cm)',
-                        isExpanded: true,
-                        style: TextStyle(
-                          color: AppColors.textPrimary(isDark),
-                          fontSize: 12,
-                        ),
-                        items: ['Centimeters (cm)'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {},
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Your Height (cm)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary(isDark),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'E.g., 170',
-                      hintStyle: TextStyle(
-                        color: AppColors.textSecondary(isDark),
-                        fontSize: 12,
-                      ),
-                      filled: true,
-                      fillColor: AppColors.inputFill(isDark),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: AppColors.primary(isDark).withOpacity(0.3),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: AppColors.primary(isDark).withOpacity(0.3),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: AppColors.primary(isDark),
-                        ),
-                      ),
-                    ),
-                    style: TextStyle(
-                      color: AppColors.textPrimary(isDark),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Weight Unit',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary(isDark),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.inputFill(isDark),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.primary(isDark).withOpacity(0.3),
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: 'Kilograms (kg)',
-                        isExpanded: true,
-                        style: TextStyle(
-                          color: AppColors.textPrimary(isDark),
-                          fontSize: 12,
-                        ),
-                        items: ['Kilograms (kg)'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {},
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Your Weight (kg)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary(isDark),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'E.g., 65',
-                      hintStyle: TextStyle(
-                        color: AppColors.textSecondary(isDark),
-                        fontSize: 12,
-                      ),
-                      filled: true,
-                      fillColor: AppColors.inputFill(isDark),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: AppColors.primary(isDark).withOpacity(0.3),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: AppColors.primary(isDark).withOpacity(0.3),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: AppColors.primary(isDark),
-                        ),
-                      ),
-                    ),
-                    style: TextStyle(
-                      color: AppColors.textPrimary(isDark),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              // BMI calculation logic would go here
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('BMI calculation feature coming soon!'),
-                  backgroundColor: AppColors.primary(isDark),
+            Row(
+              children: [
+                Icon(
+                  Icons.calculate,
+                  color: AppColors.primary(isDark),
+                  size: 20,
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary(isDark),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                const SizedBox(width: 8),
+                Text(
+                  'Calculate Your BMI',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary(isDark),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Height Unit',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary(isDark),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.inputFill(isDark),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.primary(isDark).withOpacity(0.3),
+                          ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: provider.heightUnit,
+                            isExpanded: true,
+                            style: TextStyle(
+                              color: AppColors.textPrimary(isDark),
+                              fontSize: 12,
+                            ),
+                            items: ['Centimeters (cm)', 'Feet & Inches (ft/in)']
+                                .map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                })
+                                .toList(),
+                            onChanged: (String? newValue) {
+                              if (newValue != null) {
+                                provider.setHeightUnit(newValue);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                if (provider.heightUnit == 'Centimeters (cm)')
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Your Height (cm)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary(isDark),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        TextFormField(
+                          controller: provider.heightCmController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: 'E.g., 170',
+                            hintStyle: TextStyle(
+                              color: AppColors.textSecondary(isDark),
+                              fontSize: 12,
+                            ),
+                            filled: true,
+                            fillColor: AppColors.inputFill(isDark),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: AppColors.primary(
+                                  isDark,
+                                ).withOpacity(0.3),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: AppColors.primary(
+                                  isDark,
+                                ).withOpacity(0.3),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: AppColors.primary(isDark),
+                              ),
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: AppColors.textPrimary(isDark),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Feet',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary(isDark),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              TextFormField(
+                                controller: provider.heightFeetController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: '5',
+                                  hintStyle: TextStyle(
+                                    color: AppColors.textSecondary(isDark),
+                                    fontSize: 12,
+                                  ),
+                                  filled: true,
+                                  fillColor: AppColors.inputFill(isDark),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.primary(
+                                        isDark,
+                                      ).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.primary(
+                                        isDark,
+                                      ).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.primary(isDark),
+                                    ),
+                                  ),
+                                ),
+                                style: TextStyle(
+                                  color: AppColors.textPrimary(isDark),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Inches',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary(isDark),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              TextFormField(
+                                controller: provider.heightInchesController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: '6',
+                                  hintStyle: TextStyle(
+                                    color: AppColors.textSecondary(isDark),
+                                    fontSize: 12,
+                                  ),
+                                  filled: true,
+                                  fillColor: AppColors.inputFill(isDark),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.primary(
+                                        isDark,
+                                      ).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.primary(
+                                        isDark,
+                                      ).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: AppColors.primary(isDark),
+                                    ),
+                                  ),
+                                ),
+                                style: TextStyle(
+                                  color: AppColors.textPrimary(isDark),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Weight Unit',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary(isDark),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.inputFill(isDark),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.primary(isDark).withOpacity(0.3),
+                          ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: provider.weightUnit,
+                            isExpanded: true,
+                            style: TextStyle(
+                              color: AppColors.textPrimary(isDark),
+                              fontSize: 12,
+                            ),
+                            items: ['Kilograms (kg)', 'Pounds (lbs)'].map((
+                              String value,
+                            ) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              if (newValue != null) {
+                                provider.setWeightUnit(newValue);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Your Weight (${provider.weightUnit == 'Kilograms (kg)' ? 'kg' : 'lbs'})',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary(isDark),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: provider.weightController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: provider.weightUnit == 'Kilograms (kg)'
+                              ? 'E.g., 65'
+                              : 'E.g., 143',
+                          hintStyle: TextStyle(
+                            color: AppColors.textSecondary(isDark),
+                            fontSize: 12,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.inputFill(isDark),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: AppColors.primary(isDark).withOpacity(0.3),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: AppColors.primary(isDark).withOpacity(0.3),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: AppColors.primary(isDark),
+                            ),
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: AppColors.textPrimary(isDark),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final result = await provider.calculateBMI();
+                  if (result != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'BMI calculated: ${result.toStringAsFixed(1)}',
+                        ),
+                        backgroundColor: AppColors.successColor,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          'Please enter valid height and weight values',
+                        ),
+                        backgroundColor: AppColors.errorColor,
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary(isDark),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Calculate My BMI',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-            child: const Text(
-              'Calculate My BMI',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
-  void _showConfigureDashboard(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  void _showConfigureDashboard(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground(isDark),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.textSecondary(isDark),
-                borderRadius: BorderRadius.circular(2),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          height: MediaQuery.of(context).size.height * 0.7,
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground(isDark),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.textSecondary(isDark),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Text(
-                    'Configure Dashboard',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary(isDark),
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Done',
-                      style: TextStyle(
-                        color: AppColors.primary(isDark),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: provider.availableTrackers.length,
-                itemBuilder: (context, index) {
-                  final tracker = provider.availableTrackers[index];
-                  final isSelected = provider.selectedTrackers.contains(tracker);
-                  
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected 
-                          ? AppColors.primary(isDark).withOpacity(0.1)
-                          : AppColors.surfaceColor(isDark),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected 
-                            ? AppColors.primary(isDark)
-                            : AppColors.primary(isDark).withOpacity(0.2),
-                        width: isSelected ? 2 : 1,
+                child: Row(
+                  children: [
+                    Text(
+                      'Configure Dashboard',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(isDark),
                       ),
                     ),
-                    child: CheckboxListTile(
-                      title: Text(
-                        tracker,
+                    const Spacer(),
+                    Text(
+                      '${provider.selectedTrackers.length} selected',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary(isDark),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        // Reload data after configuration changes
+                        if (provider.selectedTrackers.isNotEmpty) {
+                          provider.loadTrackerData();
+                          provider.generateOverallSummary();
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Done',
                         style: TextStyle(
-                          color: AppColors.textPrimary(isDark),
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          color: AppColors.primary(isDark),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      value: isSelected,
-                      onChanged: (bool? value) {
-                        provider.toggleTrackerSelection(tracker);
-                      },
-                      activeColor: AppColors.primary(isDark),
-                      checkColor: Colors.white,
-                      controlAffinity: ListTileControlAffinity.trailing,
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
-          ],
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: provider.availableTrackers.length,
+                  itemBuilder: (context, index) {
+                    final tracker = provider.availableTrackers[index];
+                    final isSelected = provider.selectedTrackers.contains(
+                      tracker,
+                    );
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.primary(isDark).withOpacity(0.1)
+                            : AppColors.surfaceColor(isDark),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColors.primary(isDark)
+                              : AppColors.primary(isDark).withOpacity(0.2),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: CheckboxListTile(
+                        title: Text(
+                          tracker,
+                          style: TextStyle(
+                            color: AppColors.textPrimary(isDark),
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          provider.toggleTrackerSelection(tracker);
+                          setState(() {}); // Update the UI immediately
+                        },
+                        activeColor: AppColors.primary(isDark),
+                        checkColor: Colors.white,
+                        controlAffinity: ListTileControlAffinity.trailing,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

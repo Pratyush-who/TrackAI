@@ -26,7 +26,7 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     return Consumer<AnalyticsProvider>(
       builder: (context, provider, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -205,7 +205,9 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('Goal setting feature coming soon!'),
+                          content: const Text(
+                            'Goal setting feature coming soon!',
+                          ),
                           backgroundColor: AppColors.primary(isDark),
                         ),
                       );
@@ -239,12 +241,12 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isSelected 
+        color: isSelected
             ? AppColors.primary(isDark)
             : AppColors.surfaceColor(isDark),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isSelected 
+          color: isSelected
               ? AppColors.primary(isDark)
               : AppColors.primary(isDark).withOpacity(0.3),
         ),
@@ -254,9 +256,7 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: isSelected 
-              ? Colors.white
-              : AppColors.textSecondary(isDark),
+          color: isSelected ? Colors.white : AppColors.textSecondary(isDark),
         ),
       ),
     );
@@ -287,7 +287,7 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
           child: Container(
             width: 20,
             decoration: BoxDecoration(
-              color: value > 0 
+              color: value > 0
                   ? AppColors.primary(isDark)
                   : AppColors.surfaceColor(isDark),
               borderRadius: BorderRadius.circular(4),
@@ -355,7 +355,11 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     );
   }
 
-  Widget _buildTrackerProgressCard(String tracker, AnalyticsProvider provider, bool isDark) {
+  Widget _buildTrackerProgressCard(
+    String tracker,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     final progressData = provider.progressData[tracker];
     final thisWeekData = progressData?['thisWeek'] ?? [];
     final lastWeekData = progressData?['lastWeek'] ?? [];
@@ -460,7 +464,12 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     );
   }
 
-  Widget _buildProgressStat(String label, String value, String unit, bool isDark) {
+  Widget _buildProgressStat(
+    String label,
+    String value,
+    String unit,
+    bool isDark,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -496,7 +505,11 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     );
   }
 
-  Widget _buildProgressChart(List<dynamic> thisWeekData, List<dynamic> lastWeekData, bool isDark) {
+  Widget _buildProgressChart(
+    List<dynamic> thisWeekData,
+    List<dynamic> lastWeekData,
+    bool isDark,
+  ) {
     return Container(
       height: 100,
       child: BarChart(
@@ -549,11 +562,7 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.trending_up,
-            color: AppColors.primary(isDark),
-            size: 64,
-          ),
+          Icon(Icons.trending_up, color: AppColors.primary(isDark), size: 64),
           const SizedBox(height: 16),
           Text(
             'No Progress Data',

@@ -21,43 +21,46 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AnalyticsProvider>().loadDashboardConfig();
+      final provider = context.read<AnalyticsProvider>();
+      provider.loadDashboardConfig();
+      provider.loadBMIData();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AnalyticsProvider(),
-      child: Consumer2<AnalyticsProvider, ThemeProvider>(
-        builder: (context, analyticsProvider, themeProvider, child) {
-          final isDark = themeProvider.isDarkMode;
-          
-          return Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Container(
-              decoration: BoxDecoration(
-                gradient: AppColors.backgroundLinearGradient(isDark),
-              ),
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(context, analyticsProvider, isDark),
-                    Expanded(
-                      child: _buildCurrentPage(context, analyticsProvider),
-                    ),
-                  ],
-                ),
+    return Consumer2<AnalyticsProvider, ThemeProvider>(
+      builder: (context, analyticsProvider, themeProvider, child) {
+        final isDark = themeProvider.isDarkMode;
+
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: AppColors.backgroundLinearGradient(isDark),
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context, analyticsProvider, isDark),
+                  Expanded(
+                    child: _buildCurrentPage(context, analyticsProvider),
+                  ),
+                ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  Widget _buildHeader(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -88,7 +91,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Widget _buildAnalyticsTypeDropdown(BuildContext context, AnalyticsProvider provider, bool isDark) {
+  Widget _buildAnalyticsTypeDropdown(
+    BuildContext context,
+    AnalyticsProvider provider,
+    bool isDark,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
