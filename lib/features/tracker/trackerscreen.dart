@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
+import 'package:trackai/core/provider/favourite_provider.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
+import 'package:trackai/features/tracker/edit_screen.dart';
 import 'package:trackai/features/tracker/tracker_screens/expense_saving_alcohol_money_etc.dart';
 import 'package:trackai/features/tracker/tracker_screens/meditation.dart';
 import 'package:trackai/features/tracker/tracker_screens/mood_tracker.dart';
@@ -19,7 +21,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
   bool showFavoritesOnly = false;
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
-  final Set<String> _favoriteTrackers = <String>{};
 
   final List<TrackerItem> allTrackers = [
     TrackerItem(
@@ -28,7 +29,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Track your sleep duration and quality.',
       unit: 'hours',
       icon: Icons.bedtime,
-      color: Color(0xFF6B73FF),
       screen: SleepTrackerScreen(),
     ),
     TrackerItem(
@@ -37,7 +37,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Log your daily mood and notes.',
       unit: '1-10 scale',
       icon: Icons.sentiment_satisfied,
-      color: Color(0xFFFF9500),
       screen: MoodTrackerScreen(),
     ),
     TrackerItem(
@@ -46,7 +45,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Log your meditation sessions and duration.',
       unit: 'minutes',
       icon: Icons.self_improvement,
-      color: Color(0xFF34C759),
       screen: MeditationTrackerScreen(),
     ),
     TrackerItem(
@@ -55,7 +53,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Monitor your spending and budget.',
       unit: 'currency',
       icon: Icons.attach_money,
-      color: Color(0xFFFF3B30),
       screen: ExpenseTrackerScreen(),
     ),
     TrackerItem(
@@ -64,7 +61,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Keep track of your savings goals.',
       unit: 'currency',
       icon: Icons.savings,
-      color: Color(0xFF007AFF),
       screen: SavingsTrackerScreen(),
     ),
     TrackerItem(
@@ -73,7 +69,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Track your alcohol consumption.',
       unit: 'drinks',
       icon: Icons.local_bar,
-      color: Color(0xFF8E4EC6),
       screen: AlcoholTrackerScreen(),
     ),
     TrackerItem(
@@ -82,7 +77,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Log your study sessions and focus periods.',
       unit: 'hours',
       icon: Icons.school,
-      color: Color(0xFF5856D6),
       screen: StudyTrackerScreen(),
     ),
     TrackerItem(
@@ -91,7 +85,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Reflect on your mental state and well-being.',
       unit: '1-5 scale',
       icon: Icons.psychology,
-      color: Color(0xFFAF52DE),
       screen: MentalWellbeingTrackerScreen(),
     ),
     TrackerItem(
@@ -100,7 +93,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Log your workouts, sets, reps, and duration.',
       unit: 'details',
       icon: Icons.fitness_center,
-      color: Color(0xFFFF6B35),
       screen: WorkoutTrackerScreen(),
     ),
     TrackerItem(
@@ -109,7 +101,6 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Monitor your body weight.',
       unit: 'kg / lbs',
       icon: Icons.monitor_weight,
-      color: Color(0xFF32D74B),
       screen: WeightTrackerScreen(),
     ),
     TrackerItem(
@@ -118,16 +109,15 @@ class _TrackerscreenState extends State<Trackerscreen> {
       description: 'Log your period start date to predict the next one.',
       unit: 'date',
       icon: Icons.favorite,
-      color: Color(0xFFFF2D92),
       screen: MenstrualTrackerScreen(),
     ),
   ];
 
-  List<TrackerItem> get filteredTrackers {
+  List<TrackerItem> getFilteredTrackers(Set<String> favoriteTrackers) {
     List<TrackerItem> filtered = allTrackers;
 
     if (showFavoritesOnly) {
-      filtered = filtered.where((tracker) => _favoriteTrackers.contains(tracker.id)).toList();
+      filtered = filtered.where((tracker) => favoriteTrackers.contains(tracker.id)).toList();
     }
 
     if (searchQuery.isNotEmpty) {
@@ -141,66 +131,32 @@ class _TrackerscreenState extends State<Trackerscreen> {
   }
 
   BoxDecoration _getCardDecoration(bool isDarkTheme) {
-    if (isDarkTheme) {
-      return BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color.fromRGBO(40, 50, 49, 0.85),
-            const Color.fromARGB(215, 14, 14, 14),
-            Color.fromRGBO(33, 43, 42, 0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0],
+    return BoxDecoration(
+      color: AppColors.cardBackground(isDarkTheme),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: AppColors.primary(isDarkTheme).withOpacity(0.2),
+        width: 0.5,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.primary(isDarkTheme).withOpacity(0.08),
+          blurRadius: 12,
+          spreadRadius: 2,
+          offset: const Offset(0, 4),
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.darkPrimary.withOpacity(0.8),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkPrimary.withOpacity(0.08),
-            blurRadius: 8,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      );
-    } else {
-      return BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.lightSecondary.withOpacity(0.85),
-            AppColors.lightSecondary.withOpacity(0.85),
-            AppColors.lightSecondary.withOpacity(0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.lightPrimary.withOpacity(0.6),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.lightPrimary.withOpacity(0.05),
-            blurRadius: 6,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      );
-    }
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer2<ThemeProvider, FavoritesProvider>(
+      builder: (context, themeProvider, favoritesProvider, child) {
         final isDark = themeProvider.isDarkMode;
+        final favoriteTrackers = favoritesProvider.favoriteTrackers;
+        final filteredTrackers = getFilteredTrackers(favoriteTrackers);
+        final favoritesCount = favoritesProvider.favoritesCount;
         
         return Scaffold(
           backgroundColor: AppColors.background(isDark),
@@ -213,7 +169,7 @@ class _TrackerscreenState extends State<Trackerscreen> {
                 gradient: AppColors.backgroundLinearGradient(isDark),
                 boxShadow: [
                   BoxShadow(
-                    color: (isDark ? AppColors.black : AppColors.lightGrey).withOpacity(0.1),
+                    color: AppColors.primary(isDark).withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -226,39 +182,71 @@ class _TrackerscreenState extends State<Trackerscreen> {
                   'Your Trackers (${filteredTrackers.length})',
                   style: TextStyle(
                     color: AppColors.textPrimary(isDark),
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
             actions: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    showFavoritesOnly = !showFavoritesOnly;
-                  });
-                  HapticFeedback.lightImpact();
-                },
-                icon: Icon(
-                  showFavoritesOnly ? Icons.star : Icons.star_outline,
-                  color: showFavoritesOnly 
-                      ? AppColors.primary(isDark)
-                      : AppColors.textSecondary(isDark),
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          showFavoritesOnly = !showFavoritesOnly;
+                        });
+                        HapticFeedback.lightImpact();
+                      },
+                      icon: Icon(
+                        showFavoritesOnly ? Icons.star_rounded : Icons.star_outline_rounded,
+                        color: showFavoritesOnly 
+                            ? AppColors.primary(isDark)
+                            : AppColors.textSecondary(isDark),
+                        size: 26,
+                      ),
+                      tooltip: showFavoritesOnly ? 'Show All Trackers' : 'Show Favorites Only',
+                    ),
+                    if (favoritesCount > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary(isDark),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$favoritesCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                tooltip: showFavoritesOnly ? 'Show All Trackers' : 'Show Favorites Only',
               ),
               PopupMenuButton<String>(
                 icon: Icon(
-                  Icons.more_vert,
+                  Icons.more_vert_rounded,
                   color: AppColors.textPrimary(isDark),
                 ),
                 onSelected: (value) {
                   if (value == 'create_custom') {
-                    // Handle create custom tracker
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Create Custom Tracker feature coming soon!')),
+                      SnackBar(
+                        content: const Text('Create Custom Tracker feature coming soon!'),
+                        backgroundColor: AppColors.primary(isDark),
+                      ),
                     );
+                  } else if (value == 'clear_favorites') {
+                    _showClearFavoritesDialog(context, favoritesProvider, isDark);
                   }
                 },
                 itemBuilder: (context) => [
@@ -266,17 +254,40 @@ class _TrackerscreenState extends State<Trackerscreen> {
                     value: 'create_custom',
                     child: Row(
                       children: [
-                        Icon(Icons.add, color: AppColors.textPrimary(isDark)),
-                        const SizedBox(width: 8),
+                        Icon(Icons.add_rounded, color: AppColors.primary(isDark)),
+                        const SizedBox(width: 12),
                         Text(
                           'Create Custom Tracker',
-                          style: TextStyle(color: AppColors.textPrimary(isDark)),
+                          style: TextStyle(
+                            color: AppColors.textPrimary(isDark),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  if (favoritesCount > 0)
+                    PopupMenuItem(
+                      value: 'clear_favorites',
+                      child: Row(
+                        children: [
+                          Icon(Icons.clear_all_rounded, color: Colors.red.withOpacity(0.8)),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Clear All Favorites',
+                            style: TextStyle(
+                              color: Colors.red.withOpacity(0.8),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
                 color: AppColors.cardBackground(isDark),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ],
           ),
@@ -288,7 +299,7 @@ class _TrackerscreenState extends State<Trackerscreen> {
               children: [
                 // Search Bar
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: TextField(
                     controller: _searchController,
                     onChanged: (value) {
@@ -298,10 +309,14 @@ class _TrackerscreenState extends State<Trackerscreen> {
                     },
                     decoration: InputDecoration(
                       hintText: 'Search all trackers...',
-                      hintStyle: TextStyle(color: AppColors.textSecondary(isDark)),
-                      prefixIcon: Icon(
-                        Icons.search,
+                      hintStyle: TextStyle(
                         color: AppColors.textSecondary(isDark),
+                        fontSize: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: AppColors.textSecondary(isDark),
+                        size: 22,
                       ),
                       suffixIcon: searchQuery.isNotEmpty
                           ? IconButton(
@@ -312,7 +327,7 @@ class _TrackerscreenState extends State<Trackerscreen> {
                                 });
                               },
                               icon: Icon(
-                                Icons.clear,
+                                Icons.clear_rounded,
                                 color: AppColors.textSecondary(isDark),
                               ),
                             )
@@ -320,26 +335,33 @@ class _TrackerscreenState extends State<Trackerscreen> {
                       filled: true,
                       fillColor: AppColors.cardBackground(isDark),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: AppColors.primary(isDark).withOpacity(0.3),
+                          color: AppColors.primary(isDark).withOpacity(0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: AppColors.primary(isDark).withOpacity(0.3),
+                          color: AppColors.primary(isDark).withOpacity(0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
                           color: AppColors.primary(isDark),
                           width: 2,
                         ),
                       ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
                     ),
-                    style: TextStyle(color: AppColors.textPrimary(isDark)),
+                    style: TextStyle(
+                      color: AppColors.textPrimary(isDark),
+                      fontSize: 16,
+                    ),
                   ),
                 ),
 
@@ -350,20 +372,27 @@ class _TrackerscreenState extends State<Trackerscreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                showFavoritesOnly ? Icons.star_outline : Icons.search_off,
-                                size: 64,
-                                color: AppColors.textSecondary(isDark),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary(isDark).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  showFavoritesOnly ? Icons.star_outline_rounded : Icons.search_off_rounded,
+                                  size: 48,
+                                  color: AppColors.primary(isDark).withOpacity(0.7),
+                                ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 24),
                               Text(
                                 showFavoritesOnly
                                     ? 'No favorite trackers yet'
                                     : 'No trackers found',
                                 style: TextStyle(
-                                  color: AppColors.textSecondary(isDark),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary(isDark),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -373,21 +402,21 @@ class _TrackerscreenState extends State<Trackerscreen> {
                                     : 'Try adjusting your search query',
                                 style: TextStyle(
                                   color: AppColors.textSecondary(isDark),
-                                  fontSize: 14,
+                                  fontSize: 16,
                                 ),
                               ),
                             ],
                           ),
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           itemCount: filteredTrackers.length,
                           itemBuilder: (context, index) {
                             final tracker = filteredTrackers[index];
-                            final isFavorite = _favoriteTrackers.contains(tracker.id);
+                            final isFavorite = favoritesProvider.isFavorite(tracker.id);
                             
                             return Container(
-                              margin: const EdgeInsets.only(bottom: 16),
+                              margin: const EdgeInsets.only(bottom: 20),
                               decoration: _getCardDecoration(isDark),
                               child: InkWell(
                                 onTap: () {
@@ -399,27 +428,27 @@ class _TrackerscreenState extends State<Trackerscreen> {
                                     ),
                                   );
                                 },
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(20),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.all(8),
+                                            padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: tracker.color.withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: AppColors.primary(isDark).withOpacity(0.15),
+                                              borderRadius: BorderRadius.circular(12),
                                             ),
                                             child: Icon(
                                               tracker.icon,
-                                              color: tracker.color,
-                                              size: 24,
+                                              color: AppColors.primary(isDark),
+                                              size: 28,
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
+                                          const SizedBox(width: 16),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +458,7 @@ class _TrackerscreenState extends State<Trackerscreen> {
                                                   style: TextStyle(
                                                     color: AppColors.textPrimary(isDark),
                                                     fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
+                                                    fontWeight: FontWeight.w700,
                                                   ),
                                                 ),
                                                 const SizedBox(height: 4),
@@ -437,7 +466,8 @@ class _TrackerscreenState extends State<Trackerscreen> {
                                                   'Unit: ${tracker.unit}',
                                                   style: TextStyle(
                                                     color: AppColors.textSecondary(isDark),
-                                                    fontSize: 12,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
                                               ],
@@ -445,62 +475,116 @@ class _TrackerscreenState extends State<Trackerscreen> {
                                           ),
                                           IconButton(
                                             onPressed: () {
-                                              setState(() {
-                                                if (isFavorite) {
-                                                  _favoriteTrackers.remove(tracker.id);
-                                                } else {
-                                                  _favoriteTrackers.add(tracker.id);
-                                                }
-                                              });
+                                              favoritesProvider.toggleFavorite(tracker.id);
                                               HapticFeedback.lightImpact();
                                             },
-                                            icon: Icon(
-                                              isFavorite ? Icons.star : Icons.star_outline,
-                                              color: isFavorite 
-                                                  ? AppColors.primary(isDark)
-                                                  : AppColors.textSecondary(isDark),
+                                            icon: AnimatedSwitcher(
+                                              duration: const Duration(milliseconds: 200),
+                                              child: Icon(
+                                                isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                                                key: ValueKey(isFavorite),
+                                                color: isFavorite 
+                                                    ? AppColors.primary(isDark)
+                                                    : AppColors.textSecondary(isDark),
+                                                size: 24,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 12),
+                                      const SizedBox(height: 16),
                                       Text(
                                         tracker.description,
                                         style: TextStyle(
                                           color: AppColors.textSecondary(isDark),
-                                          fontSize: 14,
-                                          height: 1.4,
+                                          fontSize: 15,
+                                          height: 1.5,
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
-                                      const SizedBox(height: 16),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            HapticFeedback.lightImpact();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => tracker.screen,
+                                      const SizedBox(height: 20),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: ElevatedButton.icon(
+                                              onPressed: () {
+                                                HapticFeedback.lightImpact();
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => tracker.screen,
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(
+                                                Icons.add_rounded,
+                                                color: Colors.white,
+                                                size: 20,
                                               ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.add, color: Colors.white),
-                                          label: const Text(
-                                            'Log Data',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
+                                              label: const Text(
+                                                'Log Data',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppColors.primary(isDark),
+                                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                elevation: 0,
+                                              ),
                                             ),
                                           ),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.primary(isDark),
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: ElevatedButton.icon(
+                                              onPressed: () {
+                                                HapticFeedback.lightImpact();
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => EditLogsScreen(
+                                                      trackerId: tracker.id,
+                                                      trackerTitle: tracker.title,
+                                                      trackerColor: AppColors.primary(isDark),
+                                                      trackerIcon: tracker.icon,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              icon: Icon(
+                                                Icons.edit_rounded,
+                                                color: AppColors.primary(isDark),
+                                                size: 18,
+                                              ),
+                                              label: Text(
+                                                'Edit',
+                                                style: TextStyle(
+                                                  color: AppColors.primary(isDark),
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppColors.primary(isDark).withOpacity(0.1),
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  side: BorderSide(
+                                                    color: AppColors.primary(isDark).withOpacity(0.2),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -517,6 +601,67 @@ class _TrackerscreenState extends State<Trackerscreen> {
       },
     );
   }
+
+  // Show dialog to confirm clearing all favorites
+  void _showClearFavoritesDialog(BuildContext context, FavoritesProvider favoritesProvider, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground(isDark),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          'Clear All Favorites?',
+          style: TextStyle(
+            color: AppColors.textPrimary(isDark),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          'This will remove all trackers from your favorites list. This action cannot be undone.',
+          style: TextStyle(
+            color: AppColors.textSecondary(isDark),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textSecondary(isDark),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              favoritesProvider.clearAllFavorites();
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('All favorites cleared'),
+                  backgroundColor: AppColors.primary(isDark).withOpacity(0.8),
+                  behavior: SnackBarBehavior.floating,
+                  margin: const EdgeInsets.all(16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'Clear All',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class TrackerItem {
@@ -525,7 +670,6 @@ class TrackerItem {
   final String description;
   final String unit;
   final IconData icon;
-  final Color color;
   final Widget screen;
 
   TrackerItem({
@@ -534,7 +678,6 @@ class TrackerItem {
     required this.description,
     required this.unit,
     required this.icon,
-    required this.color,
     required this.screen,
   });
 }

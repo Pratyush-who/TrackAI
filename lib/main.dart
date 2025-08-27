@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:trackai/core/provider/favourite_provider.dart';
 import 'package:trackai/core/routes/routes.dart';
 import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/services/auth_services.dart';
-import 'package:trackai/features/home/ai-options/service/filedownload.dart';
+import 'package:trackai/features/home/ai-options/service/filedownload.dart';  
 import 'firebase_options.dart';
 import 'package:trackai/core/wrappers/authwrapper.dart';
 
@@ -22,21 +23,21 @@ void main() async {
     await FirebaseService.initializeFirebase();
     print('Firebase services initialized successfully');
 
-    // Initialize storage permissions for file downloads
     await FileDownloadService.requestStoragePermission();
     print('Storage permissions checked');
-    
-    // Initialize streak system by recording today's login
+
     await StreakService.recordDailyLogin();
     print('Daily login recorded');
-    
   } catch (e) {
     print('Initialization error: $e');
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => FavoritesProvider()),
+      ],
       child: const MyApp(),
     ),
   );
