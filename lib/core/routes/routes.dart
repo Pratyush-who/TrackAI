@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:trackai/features/auth/views/login_page.dart';
 import 'package:trackai/features/auth/views/signup_page.dart';
 import 'package:trackai/features/onboarding/onboardingflow.dart';
-import 'package:trackai/features/home/homepage.dart';
+import 'package:trackai/features/home/homepage/homepage.dart';
 import 'package:trackai/features/home/homescreen.dart';
 import 'package:trackai/features/home/ai-options/bodyAnalyzer.dart';
 import 'package:trackai/features/home/ai-options/smartGymkit.dart';

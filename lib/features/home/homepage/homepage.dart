@@ -7,6 +7,7 @@ import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/analytics/analyticsscreen.dart';
 import 'package:trackai/features/home/homescreen.dart';
+import 'package:trackai/features/settings/service/cam_Screen.dart';
 import 'package:trackai/features/settings/settingsscreen.dart';
 import 'package:trackai/features/tracker/trackerscreen.dart';
 
@@ -201,20 +202,38 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     HapticFeedback.lightImpact();
   }
 
-  void _onDescribeFood() {
+  void _onDescribeFood() async {
     _toggleFabExpansion();
-    // Add your describe food functionality here
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Describe Food feature coming soon!')),
-    );
+    
+    // Add slight delay for better UX
+    await Future.delayed(const Duration(milliseconds: 200));
+    
+    if (mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const ImageAnalysisScreen(
+            analysisType: 'describe',
+          ),
+        ),
+      );
+    }
   }
 
-  void _onScanNutrition() {
+  void _onScanNutrition() async {
     _toggleFabExpansion();
-    // Add your scan nutrition functionality here
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Scan Nutrition feature coming soon!')),
-    );
+    
+    // Add slight delay for better UX
+    await Future.delayed(const Duration(milliseconds: 200));
+    
+    if (mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const ImageAnalysisScreen(
+            analysisType: 'scan',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _handleLogout() async {
@@ -428,87 +447,88 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ],
       ),
       actions: [
-        // Streak Indicator
-        // Streak Indicator
-Container(
-  margin: const EdgeInsets.only(right: 8),
-  decoration: BoxDecoration(
-    color: AppColors.cardBackground(isDark).withOpacity(0.8),
-    borderRadius: BorderRadius.circular(12),
-    border: Border.all(
-      color: AppColors.darkPrimary.withOpacity(0.3), // Red border for streak indicator
-      width: 1.5,
-    ),
-  ),
-  child: _isLoadingStreak
-      ? Container(
-          padding: const EdgeInsets.all(12),
-          child: SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Colors.red, // Red progress indicator
+        // Streak Indicator - Made clickable
+        GestureDetector(
+          onTap: () => _showStreakDialog(isDark),
+          child: Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground(isDark).withOpacity(0.8),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.darkPrimary.withOpacity(0.3),
+                width: 1.5,
               ),
             ),
-          ),
-        )
-      : Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.local_fire_department,
-                color: Colors.red, // Red fire icon
-                size: 20,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                _currentStreak > 99 ? '99+' : _currentStreak.toString(),
-                style: TextStyle(
-                  color: isDark? Colors.white : Colors.black, // White text always
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            child: _isLoadingStreak
+                ? Container(
+                    padding: const EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.red,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.local_fire_department,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _currentStreak > 99 ? '99+' : _currentStreak.toString(),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
           ),
         ),
-),
 
-// Theme Switch Button - made smaller while keeping border radius
-Container(
-  margin: const EdgeInsets.only(right: 12),
-  decoration: BoxDecoration(
-    color: AppColors.cardBackground(isDark).withOpacity(0.8),
-    borderRadius: BorderRadius.circular(52), // Keep original border radius
-    border: Border.all(
-      color: AppColors.primary(isDark).withOpacity(0.3),
-      width: 1,
-    ),
-  ),
-  // Add a container to constrain the size
-  child: Container(
-    width: 40, // Smaller width
-    height: 40, // Smaller height
-    child: IconButton(
-      onPressed: () {
-        HapticFeedback.lightImpact();
-        themeProvider.toggleTheme();
-      },
-      icon: Icon(
-        isDark ? Icons.light_mode : Icons.dark_mode,
-        color: AppColors.primary(isDark),
-        size: 20, // Slightly smaller icon
-      ),
-      iconSize: 20, // Smaller button
-      padding: EdgeInsets.zero, // Remove extra padding
-      constraints: const BoxConstraints(), // Remove constraints
-    ),
-  ),
-),
+        // Theme Switch Button - made smaller while keeping border radius
+        Container(
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground(isDark).withOpacity(0.8),
+            borderRadius: BorderRadius.circular(52),
+            border: Border.all(
+              color: AppColors.primary(isDark).withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Container(
+            width: 40,
+            height: 40,
+            child: IconButton(
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                themeProvider.toggleTheme();
+              },
+              icon: Icon(
+                isDark ? Icons.light_mode : Icons.dark_mode,
+                color: AppColors.primary(isDark),
+                size: 20,
+              ),
+              iconSize: 20,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -840,4 +860,4 @@ class BottomNavItem {
     required this.activeIcon,
     required this.label,
   });
-}  
+}

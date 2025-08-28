@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:trackai/core/constants/appcolors.dart';
-import 'package:trackai/core/provider/analytics_provider.dart';
+import 'package:trackai/features/analytics/analytics_provider.dart';
 
 class DashboardSummaryPage extends StatefulWidget {
   const DashboardSummaryPage({Key? key}) : super(key: key);

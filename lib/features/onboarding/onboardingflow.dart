@@ -15,7 +15,7 @@ import 'package:trackai/features/onboarding/workoutfrequency.dart';
 import 'package:trackai/features/onboarding/otherapps.dart';
 import 'package:trackai/features/onboarding/accomplishment.dart';
 import 'package:trackai/features/onboarding/bmiresults.dart';
-import 'package:trackai/features/home/homepage.dart';
+import 'package:trackai/features/home/homepage/homepage.dart';
 
 class OnboardingFlow extends StatefulWidget {
   const OnboardingFlow({Key? key}) : super(key: key);

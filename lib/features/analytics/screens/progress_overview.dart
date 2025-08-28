@@ -1,9 +1,8 @@
-// progress_overview_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:trackai/core/constants/appcolors.dart';
-import 'package:trackai/core/provider/analytics_provider.dart';
+import 'package:trackai/features/analytics/analytics_provider.dart';
 
 class ProgressOverviewPage extends StatefulWidget {
   const ProgressOverviewPage({Key? key}) : super(key: key);
@@ -13,12 +12,38 @@ class ProgressOverviewPage extends StatefulWidget {
 }
 
 class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
+  String _selectedNutritionTimeframe = 'This Week';
+  Map<String, dynamic> _nutritionData = {};
+  bool _isLoadingNutrition = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadNutritionData();
       context.read<AnalyticsProvider>().loadProgressData();
     });
+  }
+
+  Future<void> _loadNutritionData() async {
+    setState(() => _isLoadingNutrition = true);
+    try {
+      final provider = context.read<AnalyticsProvider>();
+      final data = await provider.getNutritionData(_selectedNutritionTimeframe);
+      if (mounted) {
+        setState(() {
+          _nutritionData = data;
+          _isLoadingNutrition = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _nutritionData = {};
+          _isLoadingNutrition = false;
+        });
+      }
+    }
   }
 
   @override
@@ -32,7 +57,7 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildNutritionCard(isDark),
+              _buildNutritionCard(provider, isDark),
               const SizedBox(height: 20),
               _buildTimeframeSelector(provider, isDark),
               const SizedBox(height: 20),
@@ -54,7 +79,12 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     );
   }
 
-  Widget _buildNutritionCard(bool isDark) {
+  Widget _buildNutritionCard(AnalyticsProvider provider, bool isDark) {
+    final totalCalories = _nutritionData['totalCalories']?.toDouble() ?? 0;
+    final dailyAverage = _nutritionData['dailyAverage']?.toDouble() ?? 0;
+    final dailyCalories = _nutritionData['dailyCalories'] ?? <String, double>{};
+    final entries = _nutritionData['entries'] ?? 0;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -112,186 +142,182 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildTimeFrameChip('This Week', true, isDark),
+              _buildTimeFrameChip(
+                'This Week',
+                _selectedNutritionTimeframe == 'This Week',
+                isDark,
+                () {
+                  setState(() => _selectedNutritionTimeframe = 'This Week');
+                  _loadNutritionData();
+                },
+              ),
               const SizedBox(width: 8),
-              _buildTimeFrameChip('Last Week', false, isDark),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '0',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary(isDark),
-                      ),
-                    ),
-                    Text(
-                      'Total calories',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary(isDark),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '0',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary(isDark),
-                      ),
-                    ),
-                    Text(
-                      'Daily avg.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary(isDark),
-                      ),
-                    ),
-                  ],
-                ),
+              _buildTimeFrameChip(
+                'Last Week',
+                _selectedNutritionTimeframe == 'Last Week',
+                isDark,
+                () {
+                  setState(() => _selectedNutritionTimeframe = 'Last Week');
+                  _loadNutritionData();
+                },
               ),
             ],
           ),
           const SizedBox(height: 20),
-          _buildWeeklyChart(isDark),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceColor(isDark),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.warningColor.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'No macro goals set.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary(isDark),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Set your goals to see your daily targets here.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary(isDark),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text(
-                            'Goal setting feature coming soon!',
+          _isLoadingNutrition
+              ? _buildNutritionLoading(isDark)
+              : Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                totalCalories.toInt().toString(),
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary(isDark),
+                                ),
+                              ),
+                              Text(
+                                'Total calories',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary(isDark),
+                                ),
+                              ),
+                            ],
                           ),
-                          backgroundColor: AppColors.primary(isDark),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary(isDark),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                dailyAverage.toInt().toString(),
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary(isDark),
+                                ),
+                              ),
+                              Text(
+                                'Daily avg.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary(isDark),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    child: const Text(
-                      'Set Goals Now',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                    const SizedBox(height: 20),
+                    _buildWeeklyChart(dailyCalories, isDark),
+                    const SizedBox(height: 20),
+                    if (entries == 0) _buildNoNutritionData(isDark),
+                  ],
                 ),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildTimeFrameChip(String label, bool isSelected, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? AppColors.primary(isDark)
-            : AppColors.surfaceColor(isDark),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
+  Widget _buildTimeFrameChip(
+    String label,
+    bool isSelected,
+    bool isDark,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary(isDark)
-              : AppColors.primary(isDark).withOpacity(0.3),
+              : AppColors.surfaceColor(isDark),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary(isDark)
+                : AppColors.primary(isDark).withOpacity(0.3),
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: isSelected ? Colors.white : AppColors.textSecondary(isDark),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? Colors.white : AppColors.textSecondary(isDark),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildWeeklyChart(bool isDark) {
-    return Container(
-      height: 60,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildDayColumn('S', 0, isDark),
-          _buildDayColumn('M', 0, isDark),
-          _buildDayColumn('T', 0, isDark),
-          _buildDayColumn('W', 0, isDark),
-          _buildDayColumn('T', 0, isDark),
-          _buildDayColumn('F', 0, isDark),
-          _buildDayColumn('S', 0, isDark),
-        ],
+  Widget _buildNutritionLoading(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary(isDark),
+        ),
       ),
     );
   }
 
-  Widget _buildDayColumn(String day, double value, bool isDark) {
+  Widget _buildWeeklyChart(Map<String, double> dailyCalories, bool isDark) {
+  final now = DateTime.now();
+  final startOfWeek = _selectedNutritionTimeframe == 'This Week'
+      ? now.subtract(Duration(days: now.weekday - 1))
+      : now.subtract(Duration(days: now.weekday + 6));
+
+  final days = List.generate(7, (index) {
+    final date = startOfWeek.add(Duration(days: index));
+    return date.toIso8601String().split('T')[0];
+  });
+
+  final values = days.map((date) => dailyCalories[date] ?? 0.0).toList();
+  final maxValue = values.isEmpty ? 1.0 : values.reduce((a, b) => a > b ? a : b);
+  final chartMaxValue = maxValue == 0 ? 1.0 : maxValue * 1.2;
+
+  return Container(
+    height: 80,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: days.asMap().entries.map((entry) {
+        final index = entry.key;
+        final value = values[index];
+        final height = chartMaxValue > 0 ? (value / chartMaxValue) * 50 : 0;
+
+        return _buildDayColumn(
+          ['S', 'M', 'T', 'W', 'T', 'F', 'S'][index],
+          value,
+          height.clamp(0, 50).toDouble(), // Use the calculated height with clamp
+          isDark,
+        );
+      }).toList(),
+    ),
+  );
+}
+
+  Widget _buildDayColumn(String day, double value, double height, bool isDark) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Expanded(
-          child: Container(
-            width: 20,
-            decoration: BoxDecoration(
-              color: value > 0
-                  ? AppColors.primary(isDark)
-                  : AppColors.surfaceColor(isDark),
-              borderRadius: BorderRadius.circular(4),
-            ),
+        Container(
+          width: 20,
+          height: height,
+          decoration: BoxDecoration(
+            color: value > 0
+                ? AppColors.primary(isDark)
+                : AppColors.surfaceColor(isDark),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         const SizedBox(height: 4),
@@ -303,7 +329,7 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
           ),
         ),
         Text(
-          value.toInt().toString(),
+          value > 0 ? value.toInt().toString() : '0',
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,
@@ -311,6 +337,41 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildNoNutritionData(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceColor(isDark),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.warningColor.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'No nutrition data found.',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary(isDark),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Log your meals to see nutrition insights here.',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary(isDark),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -360,107 +421,166 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     AnalyticsProvider provider,
     bool isDark,
   ) {
-    final progressData = provider.progressData[tracker];
-    final thisWeekData = progressData?['thisWeek'] ?? [];
-    final lastWeekData = progressData?['lastWeek'] ?? [];
-    final average = progressData?['average'] ?? 0.0;
-    final total = progressData?['total'] ?? 0;
+    return FutureBuilder<Map<String, dynamic>>(
+      future: provider.getEnhancedProgressData(tracker),
+      builder: (context, snapshot) {
+        final progressData = snapshot.data ?? provider.progressData[tracker] ?? {};
+        final thisWeekData = progressData['thisWeek'] ?? [];
+        final lastWeekData = progressData['lastWeek'] ?? [];
+        final average = (progressData['average'] ?? 0.0).toDouble();
+        final total = progressData['total'] ?? 0;
+        final insights = progressData['insights'] ?? '';
+        final trend = progressData['trend'] ?? 'stable';
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground(isDark),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary(isDark).withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary(isDark).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  _getTrackerIcon(tracker),
-                  color: AppColors.primary(isDark),
-                  size: 20,
-                ),
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground(isDark),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary(isDark).withOpacity(0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  tracker,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary(isDark),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary(isDark).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      _getTrackerIcon(tracker),
+                      color: AppColors.primary(isDark),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      tracker,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(isDark),
+                      ),
+                    ),
+                  ),
+                  if (trend != 'stable') ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: trend == 'improving'
+                            ? Colors.green.withOpacity(0.1)
+                            : Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        trend == 'improving' ? '↗ Improving' : '↘ Declining',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: trend == 'improving' ? Colors.green : Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildProgressStat(
+                      'This Week',
+                      thisWeekData.length.toString(),
+                      'entries',
+                      isDark,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildProgressStat(
+                      'Last Week',
+                      lastWeekData.length.toString(),
+                      'entries',
+                      isDark,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildProgressStat(
+                      'Total',
+                      total.toString(),
+                      'entries',
+                      isDark,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildProgressStat(
+                      'Average',
+                      average.toStringAsFixed(1),
+                      _getTrackerUnit(tracker),
+                      isDark,
+                    ),
+                  ),
+                ],
+              ),
+              if (thisWeekData.isNotEmpty || lastWeekData.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                _buildProgressChart(thisWeekData, lastWeekData, isDark),
+              ],
+              if (insights.isNotEmpty && snapshot.connectionState == ConnectionState.done) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary(isDark).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.primary(isDark).withOpacity(0.1),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline,
+                        size: 16,
+                        color: AppColors.primary(isDark),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          insights,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary(isDark),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildProgressStat(
-                  'This Week',
-                  thisWeekData.length.toString(),
-                  'entries',
-                  isDark,
-                ),
-              ),
-              Expanded(
-                child: _buildProgressStat(
-                  'Last Week',
-                  lastWeekData.length.toString(),
-                  'entries',
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildProgressStat(
-                  'Total',
-                  total.toString(),
-                  'entries',
-                  isDark,
-                ),
-              ),
-              Expanded(
-                child: _buildProgressStat(
-                  'Average',
-                  average.toStringAsFixed(1),
-                  _getTrackerUnit(tracker),
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-          if (thisWeekData.isNotEmpty || lastWeekData.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _buildProgressChart(thisWeekData, lastWeekData, isDark),
-          ],
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -510,14 +630,48 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
     List<dynamic> lastWeekData,
     bool isDark,
   ) {
+    final maxY = [thisWeekData.length, lastWeekData.length, 10].reduce((a, b) => a > b ? a : b).toDouble();
+
     return Container(
       height: 100,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: 10,
+          maxY: maxY,
           barTouchData: BarTouchData(enabled: false),
-          titlesData: FlTitlesData(show: false),
+          titlesData: FlTitlesData(
+            show: true,
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  switch (value.toInt()) {
+                    case 0:
+                      return Text(
+                        'Last Week',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textSecondary(isDark),
+                        ),
+                      );
+                    case 1:
+                      return Text(
+                        'This Week',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textSecondary(isDark),
+                        ),
+                      );
+                    default:
+                      return const Text('');
+                  }
+                },
+              ),
+            ),
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
           borderData: FlBorderData(show: false),
           barGroups: [
             BarChartGroupData(
@@ -562,7 +716,11 @@ class _ProgressOverviewPageState extends State<ProgressOverviewPage> {
       ),
       child: Column(
         children: [
-          Icon(Icons.trending_up, color: AppColors.primary(isDark), size: 64),
+          Icon(
+            Icons.trending_up,
+            color: AppColors.primary(isDark),
+            size: 64,
+          ),
           const SizedBox(height: 16),
           Text(
             'No Progress Data',
