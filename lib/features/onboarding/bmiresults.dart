@@ -80,22 +80,24 @@ class _BmiResultsPageState extends State<BmiResultsPage>
     try {
       // Use the new OnboardingData model to calculate BMI and health score
       final healthData = widget.onboardingData.getHealthScore();
-      
+
       bmi = healthData['bmi'];
       healthScore = healthData['healthScore'];
       bmiCategory = healthData['category'];
       healthMessage = healthData['message'];
 
-      print('BMI calculated: $bmi, Health Score: $healthScore, Category: $bmiCategory');
-      
+      print(
+        'BMI calculated: $bmi, Health Score: $healthScore, Category: $bmiCategory',
+      );
     } catch (e) {
       print('Error calculating BMI: $e');
-      
+
       // Set default values if calculation fails
       bmi = 22.0;
       healthScore = 8.0;
       bmiCategory = 'Normal Weight';
-      healthMessage = 'Unable to calculate BMI. Please check your height and weight inputs.';
+      healthMessage =
+          'Unable to calculate BMI. Please check your height and weight inputs.';
     }
   }
 
@@ -245,8 +247,6 @@ class _BmiResultsPageState extends State<BmiResultsPage>
     );
   }
 
-
-
   Widget _buildResultsCard() {
     return Container(
       width: double.infinity,
@@ -373,7 +373,7 @@ class _BmiResultsPageState extends State<BmiResultsPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: AppColors.primaryLinearGradient(true),
+        color: AppColors.lightPrimary,
       ),
       child: ElevatedButton(
         onPressed: widget.onNext,

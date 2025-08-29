@@ -265,10 +265,8 @@ class _OtherAppsPageState extends State<OtherAppsPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedOption != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedOption == null ? AppColors.darkGrey : null,
+        
+        color: selectedOption == null ? AppColors.darkGrey : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedOption != null ? _continue : null,
@@ -283,9 +281,7 @@ class _OtherAppsPageState extends State<OtherAppsPage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedOption != null
-                ? AppColors.textPrimary(true)
-                : AppColors.textSecondary(true),
+            color: selectedOption != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

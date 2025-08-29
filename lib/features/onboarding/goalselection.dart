@@ -277,11 +277,11 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.successColor.withOpacity(0.1)
+              ? AppColors.darkPrimary.withOpacity(0.1)
               : AppColors.cardBackground(true).withOpacity(0.8),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.successColor : AppColors.darkGrey,
+            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -348,10 +348,8 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedGoal != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedGoal == null ? AppColors.darkGrey : null,
+        
+        color: selectedGoal == null ? AppColors.darkGrey : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedGoal != null ? _continue : null,

@@ -607,7 +607,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: AppColors.primaryLinearGradient(true),
+        color: AppColors.lightPrimary,
       ),
       child: ElevatedButton(
         onPressed: _continue,

@@ -83,22 +83,34 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
               ),
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.06,
+                    vertical: screenHeight * 0.02,
+                  ),
                   child: Column(
-                    children: [
-                      // Main content - centered
+                    children: [                      
+                      // Main content - scrollable
                       Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildIcon(),
-                            const SizedBox(height: 40),
-                            _buildTitle(),
-                            const SizedBox(height: 24),
-                            _buildSubtitle(),
-                            const SizedBox(height: 48),
-                            _buildGenderOptions(),
-                          ],
+                        child: SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: screenHeight * 0.7,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: screenHeight * 0.05),
+                                _buildIcon(),
+                                SizedBox(height: screenHeight * 0.05),
+                                _buildTitle(),
+                                SizedBox(height: screenHeight * 0.03),
+                                _buildSubtitle(),
+                                SizedBox(height: screenHeight * 0.06),
+                                _buildGenderOptions(),
+                                SizedBox(height: screenHeight * 0.05),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                       
@@ -115,42 +127,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
     );
   }
 
-  Widget _buildProgressIndicator() {
-    return Row(
-      children: [
-        const Text(
-          'Step 1 / 14',
-          style: TextStyle(
-            color: Colors.white54,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Container(
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.darkGrey,
-              borderRadius: BorderRadius.circular(2),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: 1 / 14, // 1 out of 14 steps
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary(true),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIcon() {
+ Widget _buildIcon() {
     return Container(
       width: 80,
       height: 80,
@@ -282,13 +259,11 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
   Widget _buildNextButton() {
     return Container(
       width: double.infinity,
-      height: 64, // Increased height to match the image
+      height: 64,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32), // More rounded
-        gradient: selectedGender != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedGender == null ? AppColors.darkGrey : null,
+        borderRadius: BorderRadius.circular(32),
+        
+        color: selectedGender == null ? AppColors.darkGrey : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedGender != null ? _continue : null,
@@ -297,24 +272,16 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
           shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32), // Match container radius
+            borderRadius: BorderRadius.circular(32),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (selectedGender == null)
-              
-            if (selectedGender == null) const SizedBox(width: 8),
-            Text(
-              'Next',
-              style: TextStyle(
-                color: selectedGender != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+        child: Text(
+          'Next',
+          style: TextStyle(
+            color: selectedGender != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

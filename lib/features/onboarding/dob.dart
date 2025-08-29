@@ -68,7 +68,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.dark(
-              primary: AppColors.successColor,
+              primary: AppColors.darkPrimary,
               onPrimary: Colors.white,
               surface: AppColors.cardBackground(true),
               onSurface: Colors.white,
@@ -191,7 +191,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary(true), width: 0.5),
       ),
-      child: Icon(Icons.cake, color: AppColors.primary(true), size: 28),
+      child: Icon(Icons.calendar_month, color: AppColors.primary(true), size: 28),
     );
   }
 
@@ -255,7 +255,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selectedDate != null
-                      ? AppColors.successColor
+                      ? AppColors.darkPrimary
                       : AppColors.darkGrey,
                   width: selectedDate != null ? 2 : 1,
                 ),
@@ -266,7 +266,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                     Icons.calendar_today_outlined,
                     size: 48,
                     color: selectedDate != null
-                        ? AppColors.successColor
+                        ? AppColors.darkPrimary
                         : AppColors.textSecondary(true),
                   ),
                   const SizedBox(height: 16),
@@ -278,7 +278,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: selectedDate != null
-                          ? AppColors.successColor
+                          ? AppColors.darkPrimary
                           : Colors.white,
                     ),
                   ),
@@ -312,16 +312,16 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.successColor.withOpacity(0.1),
+              color: AppColors.darkPrimary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.successColor.withOpacity(0.3),
+                color: AppColors.darkPrimary.withOpacity(0.3),
                 width: 1,
               ),
             ),
             child: Row(
               children: [
-                Icon(Icons.security, color: AppColors.successColor, size: 20),
+                Icon(Icons.security, color: AppColors.darkPrimary, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -347,10 +347,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedDate != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedDate == null ? AppColors.darkGrey : null,
+        color: selectedDate == null ? AppColors.darkGrey : AppColors.lightPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedDate != null ? _continue : null,

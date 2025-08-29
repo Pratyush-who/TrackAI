@@ -172,7 +172,7 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
         border: Border.all(color: AppColors.primary(true), width: 0.5),
       ),
       child: Icon(
-        FontAwesomeIcons.dumbbell,
+        FontAwesomeIcons.heartPulse,
         color: AppColors.primary(true),
         size: 28,
       ),
@@ -257,11 +257,11 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.successColor.withOpacity(0.1)
+              ? AppColors.darkPrimary.withOpacity(0.1)
               : AppColors.cardBackground(true).withOpacity(0.8),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.successColor : AppColors.darkGrey,
+            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -272,13 +272,13 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
               height: 56,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.successColor.withOpacity(0.2)
+                    ? AppColors.darkPrimary.withOpacity(0.2)
                     : AppColors.darkGrey.withOpacity(0.3),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppColors.successColor : Colors.white70,
+                color: isSelected ? AppColors.darkPrimary : Colors.white70,
                 size: 24,
               ),
             ),
@@ -292,7 +292,7 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? AppColors.successColor : Colors.white,
+                      color: isSelected ? AppColors.darkPrimary : Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -308,7 +308,7 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
               ),
             ),
             if (isSelected)
-              Icon(Icons.check_circle, color: AppColors.successColor, size: 24),
+              Icon(Icons.check_circle, color: AppColors.darkPrimary, size: 24),
           ],
         ),
       ),
@@ -321,10 +321,10 @@ class _WorkoutFrequencyPageState extends State<WorkoutFrequencyPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedFrequency != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedFrequency == null ? AppColors.darkGrey : null,
+
+        color: selectedFrequency == null
+            ? AppColors.darkGrey
+            : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedFrequency != null ? _continue : null,

@@ -178,7 +178,7 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
         border: Border.all(color: AppColors.primary(true), width: 0.5),
       ),
       child: Icon(
-        FontAwesomeIcons.bullseye,
+        FontAwesomeIcons.rocket,
         color: AppColors.primary(true),
         size: 28,
       ),
@@ -334,10 +334,8 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedAccomplishment != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedAccomplishment == null ? AppColors.darkGrey : null,
+        
+        color: selectedAccomplishment == null ? AppColors.darkGrey : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedAccomplishment != null ? _continue : null,
@@ -352,9 +350,7 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedAccomplishment != null
-                ? AppColors.textPrimary(true)
-                : AppColors.textSecondary(true),
+            color: selectedAccomplishment != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

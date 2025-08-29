@@ -40,7 +40,7 @@ class _GoalPacePageState extends State<GoalPacePage>
       'icon': FontAwesomeIcons.kiwiBird,
       'value': 'moderate',
       'duration': '3-6 months',
-      'color': AppColors.successColor,
+      'color': AppColors.darkPrimary,
     },
     {
       'title': 'Fast Track',
@@ -283,17 +283,17 @@ class _GoalPacePageState extends State<GoalPacePage>
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.successColor.withOpacity(0.1)
+              ? AppColors.darkPrimary.withOpacity(0.1)
               : AppColors.cardBackground(true).withOpacity(0.8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.successColor : AppColors.darkGrey,
+            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.successColor.withOpacity(0.3),
+                    color: AppColors.darkPrimary.withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -334,7 +334,7 @@ class _GoalPacePageState extends State<GoalPacePage>
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                           color: isSelected
-                              ? AppColors.successColor
+                              ? AppColors.darkPrimary
                               : Colors.white,
                         ),
                       ),
@@ -355,7 +355,7 @@ class _GoalPacePageState extends State<GoalPacePage>
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     Icons.check_circle,
-                    color: AppColors.successColor,
+                    color: AppColors.darkPrimary,
                     size: 28,
                   ),
                 ),
@@ -405,10 +405,8 @@ class _GoalPacePageState extends State<GoalPacePage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedPace != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedPace == null ? AppColors.darkGrey : null,
+        
+        color: selectedPace == null ? AppColors.darkGrey : AppColors.lightPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedPace != null ? _continue : null,
