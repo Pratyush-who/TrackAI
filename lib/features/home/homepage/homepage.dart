@@ -6,9 +6,9 @@ import 'package:trackai/core/services/auth_services.dart';
 import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/analytics/analyticsscreen.dart';
-import 'package:trackai/features/home/homescreen.dart';
+import 'package:trackai/features/home/presentation/homescreen.dart';
 import 'package:trackai/features/settings/service/cam_Screen.dart';
-import 'package:trackai/features/settings/settingsscreen.dart';
+import 'package:trackai/features/settings/presentation/settingsscreen.dart';
 import 'package:trackai/features/tracker/trackerscreen.dart';
 
 class HomePage extends StatefulWidget {

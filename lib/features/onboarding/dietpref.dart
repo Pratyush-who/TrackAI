@@ -31,7 +31,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
       'subtitle': 'Balanced diet with all food groups',
       'icon': FontAwesomeIcons.utensils,
       'value': 'classic',
-      'color': AppColors.successColor,
+      'color': AppColors.darkPrimary,
       'description': 'Includes all food groups for balanced nutrition',
     },
     {
@@ -290,11 +290,11 @@ class _DietPreferencePageState extends State<DietPreferencePage>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.successColor.withOpacity(0.1)
+              ? AppColors.darkPrimary.withOpacity(0.1)
               : AppColors.cardBackground(true).withOpacity(0.8),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.successColor : AppColors.darkGrey,
+            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -328,7 +328,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: isSelected
-                              ? AppColors.successColor
+                              ? AppColors.darkPrimary
                               : Colors.white,
                         ),
                       ),
@@ -349,7 +349,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     Icons.check_circle,
-                    color: AppColors.successColor,
+                    color: AppColors.darkPrimary,
                     size: 28,
                   ),
                 ),
@@ -390,10 +390,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: selectedDiet != null
-            ? AppColors.primaryLinearGradient(true)
-            : null,
-        color: selectedDiet == null ? AppColors.darkGrey : null,
+        color: selectedDiet == null ? AppColors.darkGrey : AppColors.darkAccent,
       ),
       child: ElevatedButton(
         onPressed: selectedDiet != null ? _continue : null,

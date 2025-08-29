@@ -37,7 +37,7 @@ class _GoalPacePageState extends State<GoalPacePage>
     {
       'title': 'Balanced Approach',
       'subtitle': 'Steady progress with flexibility',
-      'icon': FontAwesomeIcons.kiwiBird,
+      'icon': FontAwesomeIcons.scaleBalanced,
       'value': 'moderate',
       'duration': '3-6 months',
       'color': AppColors.darkPrimary,
@@ -48,7 +48,7 @@ class _GoalPacePageState extends State<GoalPacePage>
       'icon': FontAwesomeIcons.bolt,
       'value': 'fast',
       'duration': '1-3 months',
-      'color': const Color(0xFFF39C12),
+      'color': AppColors.darkPrimary,
     },
   ];
 
@@ -279,7 +279,6 @@ class _GoalPacePageState extends State<GoalPacePage>
       onTap: () => _selectPace(value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        transform: Matrix4.identity()..scale(isSelected ? 1.02 : 1.0),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: isSelected

@@ -269,7 +269,7 @@ class _HomescreenState extends State<Homescreen> {
 
             // Calendar Widget
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(screenWidth * 0.02),
               child: Column(
                 children: [
                   // Month/Year Header with navigation
@@ -281,7 +281,7 @@ class _HomescreenState extends State<Homescreen> {
                         icon: Icon(
                           Icons.chevron_left,
                           color: isDarkTheme ? Colors.white : Colors.black87,
-                          size: 24,
+                          size: screenWidth * 0.06,
                         ),
                       ),
                       Flexible(
@@ -289,7 +289,7 @@ class _HomescreenState extends State<Homescreen> {
                           _getMonthYear(_currentDate),
                           style: TextStyle(
                             color: isDarkTheme ? Colors.white : Colors.black87,
-                            fontSize: 18,
+                            fontSize: screenWidth * 0.045,
                             fontWeight: FontWeight.w600,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -300,13 +300,13 @@ class _HomescreenState extends State<Homescreen> {
                         icon: Icon(
                           Icons.chevron_right,
                           color: isDarkTheme ? Colors.white : Colors.black87,
-                          size: 24,
+                          size: screenWidth * 0.06,
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: screenHeight * 0.02),
 
                   // Week days header
                   Row(
@@ -320,7 +320,7 @@ class _HomescreenState extends State<Homescreen> {
                               color: isDarkTheme
                                   ? Colors.white70
                                   : Colors.black54,
-                              fontSize: 14,
+                              fontSize: screenWidth * 0.035,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -329,7 +329,7 @@ class _HomescreenState extends State<Homescreen> {
                     }).toList(),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: screenHeight * 0.015),
 
                   // Dates row with streak coloring
                   Row(
@@ -337,8 +337,8 @@ class _HomescreenState extends State<Homescreen> {
                     children: weekDates.map((date) {
                       return Expanded(
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          height: 40,
+                          margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.005),
+                          height: screenWidth * 0.1,
                           decoration: BoxDecoration(
                             color: _getDateColor(date, isDarkTheme),
                             shape: BoxShape.circle,
@@ -355,8 +355,8 @@ class _HomescreenState extends State<Homescreen> {
                               // Loading indicator for streak data
                               if (_isLoadingStreaks)
                                 SizedBox(
-                                  width: 12,
-                                  height: 12,
+                                  width: screenWidth * 0.03,
+                                  height: screenWidth * 0.03,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 1,
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -370,7 +370,7 @@ class _HomescreenState extends State<Homescreen> {
                                   '${date.day}',
                                   style: TextStyle(
                                     color: _getDateTextColor(date, isDarkTheme),
-                                    fontSize: 16,
+                                    fontSize: screenWidth * 0.04,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -384,14 +384,14 @@ class _HomescreenState extends State<Homescreen> {
                   // Streak legend
                   if (!_isLoadingStreaks)
                     Padding(
-                      padding: const EdgeInsets.only(top: 12),
+                      padding: EdgeInsets.only(top: screenHeight * 0.015),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildLegendItem(Colors.green.withOpacity(0.3), 'Logged in', isDarkTheme),
-                          const SizedBox(width: 16),
+                          SizedBox(width: screenWidth * 0.04),
                           _buildLegendItem(Colors.red.withOpacity(0.3), 'Missed', isDarkTheme),
-                          const SizedBox(width: 16),
+                          SizedBox(width: screenWidth * 0.04),
                           _buildLegendItem(AppColors.accent(isDarkTheme), 'Today', isDarkTheme),
                         ],
                       ),
@@ -405,7 +405,7 @@ class _HomescreenState extends State<Homescreen> {
             // Cards Section - Responsive height
             ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: 180,
+                minHeight: screenHeight * 0.2,
                 maxHeight: screenHeight * 0.25,
               ),
               child: PageView(
@@ -435,9 +435,9 @@ class _HomescreenState extends State<Homescreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(3, (index) {
                 return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPageIndex == index ? 12 : 8,
-                  height: 8,
+                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
+                  width: _currentPageIndex == index ? screenWidth * 0.03 : screenWidth * 0.02,
+                  height: screenWidth * 0.02,
                   decoration: BoxDecoration(
                     color: _currentPageIndex == index
                         ? AppColors.primary(isDarkTheme)
@@ -476,23 +476,24 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildLegendItem(Color color, String label, bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: screenWidth * 0.03,
+          height: screenWidth * 0.03,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: screenWidth * 0.01),
         Text(
           label,
           style: TextStyle(
             color: isDarkTheme ? Colors.white70 : Colors.black54,
-            fontSize: 10,
+            fontSize: screenWidth * 0.025,
           ),
         ),
       ],
@@ -500,9 +501,12 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildNewFeaturesCard(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -510,15 +514,15 @@ class _HomescreenState extends State<Homescreen> {
           Icon(
             Icons.auto_awesome,
             color: AppColors.primary(isDarkTheme),
-            size: 32,
+            size: screenWidth * 0.08,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           Flexible(
             child: Text(
               'New Features Coming Soon!',
               style: TextStyle(
                 color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: 18,
+                fontSize: screenWidth * 0.045,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -526,13 +530,13 @@ class _HomescreenState extends State<Homescreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: screenHeight * 0.01),
           Flexible(
             child: Text(
               "We're always working on new ways to help you on your wellness journey. Stay tuned!",
               style: TextStyle(
                 color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: 12,
+                fontSize: screenWidth * 0.03,
                 height: 1.3,
               ),
               textAlign: TextAlign.center,
@@ -546,11 +550,14 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildMainContentCard(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     // Show loading state
     if (_isLoadingGoals) {
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(20),
+        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -560,12 +567,12 @@ class _HomescreenState extends State<Homescreen> {
                 AppColors.primary(isDarkTheme),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: screenHeight * 0.02),
             Text(
               'Loading your targets...',
               style: TextStyle(
                 color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: 14,
+                fontSize: screenWidth * 0.035,
               ),
             ),
           ],
@@ -576,8 +583,8 @@ class _HomescreenState extends State<Homescreen> {
     // Show error state
     if (_goalsError != null) {
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(20),
+        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -585,74 +592,82 @@ class _HomescreenState extends State<Homescreen> {
             Icon(
               Icons.error_outline,
               color: AppColors.primary(isDarkTheme),
-              size: 32,
+              size: screenWidth * 0.08,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: screenHeight * 0.015),
             Text(
               'Unable to load targets',
               style: TextStyle(
                 color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: 16,
+                fontSize: screenWidth * 0.04,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap to retry',
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: 12,
+            SizedBox(height: screenHeight * 0.01),
+            GestureDetector(
+              onTap: _loadGoalsData,
+              child: Text(
+                'Tap to retry',
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.white70 : Colors.black54,
+                  fontSize: screenWidth * 0.03,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
       );
     }
 
-    // Show no data state
+    // Show no data state with navigation to adjust goals
     if (_goalsData == null) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(20),
-        decoration: _getCardDecoration(isDarkTheme),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.track_changes,
-              color: AppColors.primary(isDarkTheme),
-              size: 32,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Set Your Daily Targets',
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+      return GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, AppRoutes.adjustGoals);
+        },
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+          padding: EdgeInsets.all(screenWidth * 0.05),
+          decoration: _getCardDecoration(isDarkTheme),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.track_changes,
+                color: AppColors.primary(isDarkTheme),
+                size: screenWidth * 0.08,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Calculate your personalized nutrition goals',
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: 12,
+              SizedBox(height: screenHeight * 0.015),
+              Text(
+                'Set Your Daily Targets',
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.white : Colors.black87,
+                  fontSize: screenWidth * 0.04,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              SizedBox(height: screenHeight * 0.01),
+              Text(
+                'Calculate your personalized nutrition goals',
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.white70 : Colors.black54,
+                  fontSize: screenWidth * 0.03,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }
 
     // Show data from Firebase
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -663,15 +678,15 @@ class _HomescreenState extends State<Homescreen> {
               Icon(
                 Icons.track_changes,
                 color: AppColors.primary(isDarkTheme),
-                size: 20,
+                size: screenWidth * 0.05,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: screenWidth * 0.02),
               Expanded(
                 child: Text(
                   'Your Daily Macro Targets',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white : Colors.black87,
-                    fontSize: 16,
+                    fontSize: screenWidth * 0.04,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
@@ -680,19 +695,19 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: screenHeight * 0.005),
           Text(
             'Personalized goals based on your profile.',
             style: TextStyle(
               color: isDarkTheme ? Colors.white70 : Colors.black54,
-              fontSize: 12,
+              fontSize: screenWidth * 0.03,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: screenHeight * 0.008),
           Divider(),
-          const SizedBox(height: 6),
+          SizedBox(height: screenHeight * 0.008),
 
           // Calories Section with Firebase data
           Expanded(
@@ -710,10 +725,10 @@ class _HomescreenState extends State<Homescreen> {
                         'Calories Remaining',
                         style: TextStyle(
                           color: isDarkTheme ? Colors.white70 : Colors.black54,
-                          fontSize: 14,
+                          fontSize: screenWidth * 0.035,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: screenHeight * 0.008),
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: RichText(
@@ -723,7 +738,7 @@ class _HomescreenState extends State<Homescreen> {
                                 text: '${_goalsData!['calories'] ?? 0} ',
                                 style: TextStyle(
                                   color: isDarkTheme ? Colors.white : Colors.black,
-                                  fontSize: 28,
+                                  fontSize: screenWidth * 0.07,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -733,7 +748,7 @@ class _HomescreenState extends State<Homescreen> {
                                   color: isDarkTheme
                                       ? Colors.white70
                                       : Colors.black54,
-                                  fontSize: 16,
+                                  fontSize: screenWidth * 0.04,
                                 ),
                               ),
                             ],
@@ -744,17 +759,21 @@ class _HomescreenState extends State<Homescreen> {
                   ),
                 ),
 
-                // Right Side Icon
+                // Right Side Icon with circle outline
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(screenWidth * 0.03),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isDarkTheme ? Colors.white10 : Colors.black12,
+                    border: Border.all(
+                      color: AppColors.primary(isDarkTheme).withOpacity(0.3),
+                      width: 5,
+                    ),
                   ),
                   child: Icon(
                     Icons.local_fire_department,
                     color: AppColors.primary(isDarkTheme),
-                    size: 28,
+                    size: screenWidth * 0.075,
                   ),
                 ),
               ],
@@ -766,9 +785,12 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildLogActivitiesCard(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -776,15 +798,15 @@ class _HomescreenState extends State<Homescreen> {
           Icon(
             Icons.fitness_center,
             color: AppColors.primary(isDarkTheme),
-            size: 32,
+            size: screenWidth * 0.08,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           Flexible(
             child: Text(
               'Log Your Activities',
               style: TextStyle(
                 color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: 18,
+                fontSize: screenWidth * 0.045,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -792,13 +814,13 @@ class _HomescreenState extends State<Homescreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: screenHeight * 0.01),
           Flexible(
             child: Text(
               'Go to tracker to log your meals, workouts, and daily activities.',
               style: TextStyle(
                 color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: 12,
+                fontSize: screenWidth * 0.03,
                 height: 1.3,
               ),
               textAlign: TextAlign.center,
@@ -811,11 +833,15 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 
+  // Update the _buildMacroTrackingSection method to pass custom colors
   Widget _buildMacroTrackingSection(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     // Show loading or error states
     if (_isLoadingGoals) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Center(
           child: CircularProgressIndicator(
@@ -829,7 +855,7 @@ class _HomescreenState extends State<Homescreen> {
 
     if (_goalsError != null || _goalsData == null) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -837,35 +863,38 @@ class _HomescreenState extends State<Homescreen> {
             Icon(
               Icons.error_outline,
               color: AppColors.primary(isDarkTheme),
-              size: 32,
+              size: screenWidth * 0.08,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: screenHeight * 0.015),
             Text(
               _goalsData == null
                   ? 'No macro targets set'
                   : 'Failed to load macros',
               style: TextStyle(
                 color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: 16,
+                fontSize: screenWidth * 0.04,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 0.01),
             ElevatedButton(
               onPressed: _loadGoalsData,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary(isDarkTheme),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.04,
+                  vertical: screenHeight * 0.01,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Text(_goalsData == null ? 'Set Goals' : 'Retry'),
+              child: Text(
+                _goalsData == null ? 'Set Goals' : 'Retry',
+                style: TextStyle(fontSize: screenWidth * 0.035),
+              ),
             ),
           ],
         ),
@@ -883,26 +912,29 @@ class _HomescreenState extends State<Homescreen> {
                 '${_goalsData!['protein'] ?? 0}',
                 'g left',
                 Icons.flash_on,
+                Colors.amber, // Yellow color for protein
                 isDarkTheme,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: screenWidth * 0.03),
             Expanded(
               child: _buildMacroCard(
                 'Carbs',
                 '${_goalsData!['carbs'] ?? 0}',
                 'g left',
                 Icons.grain,
+                Colors.green, // Green color for carbs
                 isDarkTheme,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: screenWidth * 0.03),
             Expanded(
               child: _buildMacroCard(
                 'Fats',
                 '${_goalsData!['fat'] ?? 0}',
                 'g left',
                 Icons.water_drop,
+                Colors.blue, // Blue color for fats
                 isDarkTheme,
               ),
             ),
@@ -912,15 +944,20 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 
+  // Update the _buildMacroCard method to accept a color parameter and be responsive
   Widget _buildMacroCard(
     String title,
     String value,
     String unit,
     IconData icon,
+    Color iconColor, // New color parameter
     bool isDarkTheme,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(screenWidth * 0.04),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -930,24 +967,26 @@ class _HomescreenState extends State<Homescreen> {
             title,
             style: TextStyle(
               color: isDarkTheme ? Colors.white70 : Colors.black54,
-              fontSize: 14,
+              fontSize: screenWidth * 0.035,
               fontWeight: FontWeight.w500,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(screenWidth * 0.02),
             decoration: BoxDecoration(
-              color: (isDarkTheme ? Colors.white : Colors.black).withOpacity(
-                0.1,
-              ),
+              color: iconColor.withOpacity(0.1), // Use custom color with opacity
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.primary(isDarkTheme), size: 24),
+            child: Icon(
+              icon, 
+              color: iconColor, // Use the custom color
+              size: screenWidth * 0.06,
+            ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: RichText(
@@ -957,7 +996,7 @@ class _HomescreenState extends State<Homescreen> {
                     text: value,
                     style: TextStyle(
                       color: isDarkTheme ? Colors.white : Colors.black87,
-                      fontSize: 24,
+                      fontSize: screenWidth * 0.06,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -965,7 +1004,7 @@ class _HomescreenState extends State<Homescreen> {
                     text: ' $unit',
                     style: TextStyle(
                       color: isDarkTheme ? Colors.white70 : Colors.black54,
-                      fontSize: 14,
+                      fontSize: screenWidth * 0.035,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -979,10 +1018,13 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildFiberSection(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     // Show loading or error states
     if (_isLoadingGoals) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -994,11 +1036,11 @@ class _HomescreenState extends State<Homescreen> {
                   'Fiber Remaining',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white70 : Colors.black54,
-                    fontSize: 14,
+                    fontSize: screenWidth * 0.035,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: screenHeight * 0.01),
                 CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -1008,7 +1050,7 @@ class _HomescreenState extends State<Homescreen> {
               ],
             ),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(screenWidth * 0.03),
               decoration: BoxDecoration(
                 color: AppColors.primary(isDarkTheme).withOpacity(0.2),
                 shape: BoxShape.circle,
@@ -1016,7 +1058,7 @@ class _HomescreenState extends State<Homescreen> {
               child: Icon(
                 Icons.eco,
                 color: AppColors.primary(isDarkTheme),
-                size: 24,
+                size: screenWidth * 0.06,
               ),
             ),
           ],
@@ -1025,7 +1067,7 @@ class _HomescreenState extends State<Homescreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1039,11 +1081,11 @@ class _HomescreenState extends State<Homescreen> {
                   'Fiber Remaining',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white70 : Colors.black54,
-                    fontSize: 14,
+                    fontSize: screenWidth * 0.035,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: screenHeight * 0.01),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: RichText(
@@ -1053,7 +1095,7 @@ class _HomescreenState extends State<Homescreen> {
                           text: '${_goalsData?['fiber'] ?? 0}',
                           style: TextStyle(
                             color: isDarkTheme ? Colors.white : Colors.black87,
-                            fontSize: 32,
+                            fontSize: screenWidth * 0.08,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -1061,7 +1103,7 @@ class _HomescreenState extends State<Homescreen> {
                           text: ' g',
                           style: TextStyle(
                             color: isDarkTheme ? Colors.white70 : Colors.black54,
-                            fontSize: 16,
+                            fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1073,7 +1115,7 @@ class _HomescreenState extends State<Homescreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(screenWidth * 0.03),
             decoration: BoxDecoration(
               color: AppColors.primary(isDarkTheme).withOpacity(0.2),
               shape: BoxShape.circle,
@@ -1081,7 +1123,7 @@ class _HomescreenState extends State<Homescreen> {
             child: Icon(
               Icons.eco,
               color: AppColors.primary(isDarkTheme),
-              size: 24,
+              size: screenWidth * 0.06,
             ),
           ),
         ],
@@ -1090,9 +1132,12 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildFullAILabSection(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1102,37 +1147,37 @@ class _HomescreenState extends State<Homescreen> {
               Icon(
                 Icons.auto_awesome,
                 color: AppColors.primary(isDarkTheme),
-                size: 24,
+                size: screenWidth * 0.06,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: screenWidth * 0.03),
               Expanded(
                 child: Text(
                   'AI Lab Quick Actions',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white : Colors.black87,
-                    fontSize: 18,
+                    fontSize: screenWidth * 0.045,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: screenHeight * 0.01),
           Text(
             'Launch powerful AI assistance with a single tap.',
             style: TextStyle(
               color: isDarkTheme ? Colors.white70 : Colors.black54,
-              fontSize: 14,
+              fontSize: screenWidth * 0.035,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 0.025),
 
           // Body Composition Analyzer - Full width
           GestureDetector(
             onTap: () => _handleAILabAction('body-analyzer'),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(screenWidth * 0.04),
               decoration: BoxDecoration(
                 color: (isDarkTheme ? Colors.white : Colors.black)
                     .withOpacity(0.05),
@@ -1146,7 +1191,7 @@ class _HomescreenState extends State<Homescreen> {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(screenWidth * 0.02),
                     decoration: BoxDecoration(
                       color: AppColors.primary(
                         isDarkTheme,
@@ -1156,10 +1201,10 @@ class _HomescreenState extends State<Homescreen> {
                     child: Icon(
                       Icons.analytics_outlined,
                       color: AppColors.primary(isDarkTheme),
-                      size: 20,
+                      size: screenWidth * 0.075,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: screenWidth * 0.03),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1171,20 +1216,20 @@ class _HomescreenState extends State<Homescreen> {
                             color: isDarkTheme
                                 ? Colors.white
                                 : Colors.black87,
-                            fontSize: 16,
+                            fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: screenHeight * 0.005),
                         Text(
                           'Get 18 detailed body composition metrics from our AI.',
                           style: TextStyle(
                             color: isDarkTheme
                                 ? Colors.white70
                                 : Colors.black54,
-                            fontSize: 12,
+                            fontSize: screenWidth * 0.03,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -1197,7 +1242,7 @@ class _HomescreenState extends State<Homescreen> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: screenHeight * 0.02),
 
           // Grid of 4 smaller cards - Responsive layout
           LayoutBuilder(
@@ -1215,19 +1260,19 @@ class _HomescreenState extends State<Homescreen> {
                           isDarkTheme,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: screenWidth * 0.03),
                       Expanded(
                         child: _buildAILabCard(
                           'Calorie Burn Calc',
                           'Estimate burned calories.',
-                          Icons.water_drop,
+                          Icons.local_fire_department_sharp,
                           'calorie_calc',
                           isDarkTheme,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: screenHeight * 0.015),
                   Row(
                     children: [
                       Expanded(
@@ -1239,7 +1284,7 @@ class _HomescreenState extends State<Homescreen> {
                           isDarkTheme,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: screenWidth * 0.03),
                       Expanded(
                         child: _buildAILabCard(
                           'AI Recipe Generator',
@@ -1267,11 +1312,14 @@ class _HomescreenState extends State<Homescreen> {
     String action,
     bool isDarkTheme,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return GestureDetector(
       onTap: () => _handleAILabAction(action),
       child: Container(
-        height: 110, // Fixed height for consistency
-        padding: const EdgeInsets.all(14),
+        height: screenHeight * 0.13, // Responsive height
+        padding: EdgeInsets.all(screenWidth * 0.035),
         decoration: BoxDecoration(
           color: (isDarkTheme ? Colors.white : Colors.black)
               .withOpacity(0.05),
@@ -1288,7 +1336,7 @@ class _HomescreenState extends State<Homescreen> {
           children: [
             // Icon at top
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: EdgeInsets.all(screenWidth * 0.015),
               decoration: BoxDecoration(
                 color: AppColors.primary(
                   isDarkTheme,
@@ -1298,7 +1346,7 @@ class _HomescreenState extends State<Homescreen> {
               child: Icon(
                 icon,
                 color: AppColors.primary(isDarkTheme),
-                size: 16,
+                size: screenWidth * 0.045,
               ),
             ),
             
@@ -1314,21 +1362,21 @@ class _HomescreenState extends State<Homescreen> {
                       color: isDarkTheme
                           ? Colors.white
                           : Colors.black87,
-                      fontSize: 13,
+                      fontSize: screenWidth * 0.0325,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: screenHeight * 0.002),
                   Text(
                     description,
                     style: TextStyle(
                       color: isDarkTheme
                           ? Colors.white70
                           : Colors.black54,
-                      fontSize: 10,
+                      fontSize: screenWidth * 0.025,
                       height: 1.2,
                     ),
                     maxLines: 2,
@@ -1344,9 +1392,12 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildWellnessTipsSection(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1356,42 +1407,42 @@ class _HomescreenState extends State<Homescreen> {
               Icon(
                 Icons.lightbulb_outline,
                 color: AppColors.primary(isDarkTheme),
-                size: 24,
+                size: screenWidth * 0.06,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: screenWidth * 0.03),
               Expanded(
                 child: Text(
                   'Wellness Tips',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white : Colors.black87,
-                    fontSize: 18,
+                    fontSize: screenWidth * 0.045,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: screenHeight * 0.01),
           Text(
             'Personalized advice to help you reach your goals (future AI enhancement).',
             style: TextStyle(
               color: isDarkTheme ? Colors.white70 : Colors.black54,
-              fontSize: 14,
+              fontSize: screenWidth * 0.035,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 0.025),
 
           // Wellness Tips with greyish background
           _buildWellnessTip(
             'Aim for 7-9 hours of quality sleep per night to improve mood and energy.',
             isDarkTheme,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           _buildWellnessTip(
             'Stay hydrated by drinking at least 8 glasses of water throughout the day.',
             isDarkTheme,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           _buildWellnessTip(
             'Consistent exercise, even 30 minutes daily, can significantly boost your overall well-being.',
             isDarkTheme,
@@ -1402,8 +1453,11 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Widget _buildWellnessTip(String tip, bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(screenWidth * 0.03),
       decoration: BoxDecoration(
         color: (isDarkTheme ? Colors.white : Colors.black).withOpacity(0.05),
         borderRadius: BorderRadius.circular(8),
@@ -1416,9 +1470,9 @@ class _HomescreenState extends State<Homescreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.only(top: 2),
-            width: 20,
-            height: 20,
+            margin: EdgeInsets.only(top: screenHeight * 0.002),
+            width: screenWidth * 0.05,
+            height: screenWidth * 0.05,
             decoration: BoxDecoration(
               color: AppColors.primary(isDarkTheme).withOpacity(0.2),
               shape: BoxShape.circle,
@@ -1426,16 +1480,16 @@ class _HomescreenState extends State<Homescreen> {
             child: Icon(
               Icons.check,
               color: AppColors.primary(isDarkTheme),
-              size: 14,
+              size: screenWidth * 0.035,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: screenWidth * 0.03),
           Expanded(
             child: Text(
               tip,
               style: TextStyle(
                 color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: 14,
+                fontSize: screenWidth * 0.035,
                 height: 1.4,
               ),
             ),
