@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:trackai/core/services/auth_services.dart';
 
 class OnboardingService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;

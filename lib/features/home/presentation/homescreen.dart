@@ -71,7 +71,7 @@ class _HomescreenState extends State<Homescreen> {
 
       final streakData = await StreakService.getMonthStreakData(_currentDate);
       final currentStreak = await StreakService.getCurrentStreakCount();
-      
+
       setState(() {
         _streakData = streakData;
         _currentStreakCount = currentStreak;
@@ -127,13 +127,14 @@ class _HomescreenState extends State<Homescreen> {
 
   Color _getDateColor(DateTime date, bool isDarkTheme) {
     final today = DateTime.now();
-    final isToday = date.day == today.day &&
+    final isToday =
+        date.day == today.day &&
         date.month == today.month &&
         date.year == today.year;
-    
+
     final dateString = StreakService.formatDateStatic(date);
     final isLoggedIn = _streakData[dateString] ?? false;
-    
+
     if (isToday) {
       return AppColors.accent(isDarkTheme); // Current green for today
     } else if (date.isAfter(today)) {
@@ -148,10 +149,11 @@ class _HomescreenState extends State<Homescreen> {
 
   Color _getDateTextColor(DateTime date, bool isDarkTheme) {
     final today = DateTime.now();
-    final isToday = date.day == today.day &&
+    final isToday =
+        date.day == today.day &&
         date.month == today.month &&
         date.year == today.year;
-    
+
     if (isToday) {
       return Colors.white; // White text for today's highlighted date
     } else {
@@ -337,17 +339,23 @@ class _HomescreenState extends State<Homescreen> {
                     children: weekDates.map((date) {
                       return Expanded(
                         child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.005),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.005,
+                          ),
                           height: screenWidth * 0.1,
                           decoration: BoxDecoration(
                             color: _getDateColor(date, isDarkTheme),
                             shape: BoxShape.circle,
-                            border: _isLoadingStreaks ? null : Border.all(
-                              color: _getDateColor(date, isDarkTheme) == Colors.transparent
-                                  ? Colors.transparent
-                                  : _getDateColor(date, isDarkTheme),
-                              width: 1,
-                            ),
+                            border: _isLoadingStreaks
+                                ? null
+                                : Border.all(
+                                    color:
+                                        _getDateColor(date, isDarkTheme) ==
+                                            Colors.transparent
+                                        ? Colors.transparent
+                                        : _getDateColor(date, isDarkTheme),
+                                    width: 1,
+                                  ),
                           ),
                           child: Stack(
                             alignment: Alignment.center,
@@ -388,11 +396,23 @@ class _HomescreenState extends State<Homescreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildLegendItem(Colors.green.withOpacity(0.3), 'Logged in', isDarkTheme),
+                          _buildLegendItem(
+                            Colors.green.withOpacity(0.3),
+                            'Logged in',
+                            isDarkTheme,
+                          ),
                           SizedBox(width: screenWidth * 0.04),
-                          _buildLegendItem(Colors.red.withOpacity(0.3), 'Missed', isDarkTheme),
+                          _buildLegendItem(
+                            Colors.red.withOpacity(0.3),
+                            'Missed',
+                            isDarkTheme,
+                          ),
                           SizedBox(width: screenWidth * 0.04),
-                          _buildLegendItem(AppColors.accent(isDarkTheme), 'Today', isDarkTheme),
+                          _buildLegendItem(
+                            AppColors.accent(isDarkTheme),
+                            'Today',
+                            isDarkTheme,
+                          ),
                         ],
                       ),
                     ),
@@ -436,7 +456,9 @@ class _HomescreenState extends State<Homescreen> {
               children: List.generate(3, (index) {
                 return Container(
                   margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-                  width: _currentPageIndex == index ? screenWidth * 0.03 : screenWidth * 0.02,
+                  width: _currentPageIndex == index
+                      ? screenWidth * 0.03
+                      : screenWidth * 0.02,
                   height: screenWidth * 0.02,
                   decoration: BoxDecoration(
                     color: _currentPageIndex == index
@@ -483,10 +505,7 @@ class _HomescreenState extends State<Homescreen> {
         Container(
           width: screenWidth * 0.03,
           height: screenWidth * 0.03,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: screenWidth * 0.01),
         Text(
@@ -503,7 +522,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildNewFeaturesCard(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
       padding: EdgeInsets.all(screenWidth * 0.05),
@@ -552,7 +571,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildMainContentCard(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     // Show loading state
     if (_isLoadingGoals) {
       return Container(
@@ -737,7 +756,9 @@ class _HomescreenState extends State<Homescreen> {
                               TextSpan(
                                 text: '${_goalsData!['calories'] ?? 0} ',
                                 style: TextStyle(
-                                  color: isDarkTheme ? Colors.white : Colors.black,
+                                  color: isDarkTheme
+                                      ? Colors.white
+                                      : Colors.black,
                                   fontSize: screenWidth * 0.07,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -787,7 +808,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildLogActivitiesCard(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
       padding: EdgeInsets.all(screenWidth * 0.05),
@@ -837,7 +858,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildMacroTrackingSection(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     // Show loading or error states
     if (_isLoadingGoals) {
       return Container(
@@ -955,7 +976,7 @@ class _HomescreenState extends State<Homescreen> {
   ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       padding: EdgeInsets.all(screenWidth * 0.04),
       decoration: _getCardDecoration(isDarkTheme),
@@ -977,11 +998,13 @@ class _HomescreenState extends State<Homescreen> {
           Container(
             padding: EdgeInsets.all(screenWidth * 0.02),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1), // Use custom color with opacity
+              color: iconColor.withOpacity(
+                0.1,
+              ), // Use custom color with opacity
               shape: BoxShape.circle,
             ),
             child: Icon(
-              icon, 
+              icon,
               color: iconColor, // Use the custom color
               size: screenWidth * 0.06,
             ),
@@ -1020,7 +1043,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildFiberSection(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     // Show loading or error states
     if (_isLoadingGoals) {
       return Container(
@@ -1102,7 +1125,9 @@ class _HomescreenState extends State<Homescreen> {
                         TextSpan(
                           text: ' g',
                           style: TextStyle(
-                            color: isDarkTheme ? Colors.white70 : Colors.black54,
+                            color: isDarkTheme
+                                ? Colors.white70
+                                : Colors.black54,
                             fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1134,7 +1159,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildFullAILabSection(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(screenWidth * 0.05),
@@ -1179,8 +1204,9 @@ class _HomescreenState extends State<Homescreen> {
               width: double.infinity,
               padding: EdgeInsets.all(screenWidth * 0.04),
               decoration: BoxDecoration(
-                color: (isDarkTheme ? Colors.white : Colors.black)
-                    .withOpacity(0.05),
+                color: (isDarkTheme ? Colors.white : Colors.black).withOpacity(
+                  0.05,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: (isDarkTheme ? Colors.white : Colors.black)
@@ -1193,9 +1219,7 @@ class _HomescreenState extends State<Homescreen> {
                   Container(
                     padding: EdgeInsets.all(screenWidth * 0.02),
                     decoration: BoxDecoration(
-                      color: AppColors.primary(
-                        isDarkTheme,
-                      ).withOpacity(0.2),
+                      color: AppColors.primary(isDarkTheme).withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -1213,9 +1237,7 @@ class _HomescreenState extends State<Homescreen> {
                         Text(
                           'Body Composition Analyzer',
                           style: TextStyle(
-                            color: isDarkTheme
-                                ? Colors.white
-                                : Colors.black87,
+                            color: isDarkTheme ? Colors.white : Colors.black87,
                             fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1314,19 +1336,17 @@ class _HomescreenState extends State<Homescreen> {
   ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return GestureDetector(
       onTap: () => _handleAILabAction(action),
       child: Container(
         height: screenHeight * 0.13, // Responsive height
         padding: EdgeInsets.all(screenWidth * 0.035),
         decoration: BoxDecoration(
-          color: (isDarkTheme ? Colors.white : Colors.black)
-              .withOpacity(0.05),
+          color: (isDarkTheme ? Colors.white : Colors.black).withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: (isDarkTheme ? Colors.white : Colors.black)
-                .withOpacity(0.1),
+            color: (isDarkTheme ? Colors.white : Colors.black).withOpacity(0.1),
             width: 0.5,
           ),
         ),
@@ -1338,9 +1358,7 @@ class _HomescreenState extends State<Homescreen> {
             Container(
               padding: EdgeInsets.all(screenWidth * 0.015),
               decoration: BoxDecoration(
-                color: AppColors.primary(
-                  isDarkTheme,
-                ).withOpacity(0.2),
+                color: AppColors.primary(isDarkTheme).withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -1349,7 +1367,7 @@ class _HomescreenState extends State<Homescreen> {
                 size: screenWidth * 0.045,
               ),
             ),
-            
+
             // Text content at bottom
             Expanded(
               child: Column(
@@ -1359,9 +1377,7 @@ class _HomescreenState extends State<Homescreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: isDarkTheme
-                          ? Colors.white
-                          : Colors.black87,
+                      color: isDarkTheme ? Colors.white : Colors.black87,
                       fontSize: screenWidth * 0.0325,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
@@ -1373,9 +1389,7 @@ class _HomescreenState extends State<Homescreen> {
                   Text(
                     description,
                     style: TextStyle(
-                      color: isDarkTheme
-                          ? Colors.white70
-                          : Colors.black54,
+                      color: isDarkTheme ? Colors.white70 : Colors.black54,
                       fontSize: screenWidth * 0.025,
                       height: 1.2,
                     ),
@@ -1394,7 +1408,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildWellnessTipsSection(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(screenWidth * 0.05),
@@ -1455,7 +1469,7 @@ class _HomescreenState extends State<Homescreen> {
   Widget _buildWellnessTip(String tip, bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       padding: EdgeInsets.all(screenWidth * 0.03),
       decoration: BoxDecoration(

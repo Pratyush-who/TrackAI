@@ -190,22 +190,21 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = false; // Force light theme
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDark),
+      backgroundColor: const Color(0xFFF8FAFB), // Light background
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.1, 0.85, 1.0],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 1.0],
             colors: [
-              AppColors.black,
-              AppColors.darkCardBackground,
-              AppColors.darkPrimary,
+              Color(0xFFF8FAFB), // Very light gray
+              Color(0xFFEDF5F3), // Very light mint
             ],
           ),
         ),
@@ -237,8 +236,8 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                             ShaderMask(
                               shaderCallback: (bounds) => LinearGradient(
                                 colors: [
-                                  const Color.fromARGB(255, 84, 164, 152),
-                                  const Color.fromARGB(255, 110, 239, 155),
+                                  AppColors.darkPrimary,
+                                  AppColors.darkPrimary.withOpacity(0.8),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -279,7 +278,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: Color(0xFF1F2937), // Dark gray
             letterSpacing: -0.5,
           ),
         ),
@@ -288,7 +287,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
           'Join TrackAI to start your wellness journey',
           style: TextStyle(
             fontSize: 16,
-            color: AppColors.textSecondary(true),
+            color: Color(0xFF6B7280), // Medium gray
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -300,9 +299,22 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground(true).withOpacity(0.8),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkPrimary, width: 0.3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
       ),
       child: Form(
         key: _formKey,
@@ -315,7 +327,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Color(0xFF1F2937),
                 ),
               ),
             ),
@@ -325,7 +337,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                 'Create your account to get started',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary(true),
+                  color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -342,7 +354,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                       const Text(
                         'First name',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFF374151),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -370,7 +382,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                       const Text(
                         'Last name',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFF374151),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -398,7 +410,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
             const Text(
               'Email',
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF374151),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -427,7 +439,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
             const Text(
               'Password',
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF374151),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -450,7 +462,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
               suffixIcon: IconButton(
                 icon: Icon(
                   obscurePassword ? Icons.visibility_off : Icons.visibility,
-                  color: AppColors.textSecondary(true),
+                  color: Color(0xFF9CA3AF),
                   size: 20,
                 ),
                 onPressed: () {
@@ -466,7 +478,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
             const Text(
               'Confirm password',
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF374151),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -491,7 +503,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                   obscureConfirmPassword
                       ? Icons.visibility_off
                       : Icons.visibility,
-                  color: AppColors.textSecondary(true),
+                  color: Color(0xFF9CA3AF),
                   size: 20,
                 ),
                 onPressed: () {
@@ -514,10 +526,10 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                       agreeToTerms = value ?? false;
                     });
                   },
-                  activeColor: AppColors.successColor,
+                  activeColor: AppColors.darkPrimary,
                   checkColor: Colors.white,
                   side: BorderSide(
-                    color: AppColors.textSecondary(true),
+                    color: Color(0xFFD1D5DB),
                     width: 1.5,
                   ),
                 ),
@@ -528,14 +540,14 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                       text: TextSpan(
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textSecondary(true),
+                          color: Color(0xFF6B7280),
                         ),
                         children: [
                           const TextSpan(text: 'I agree to the '),
                           TextSpan(
                             text: 'Terms of Service',
                             style: TextStyle(
-                              color: AppColors.successColor,
+                              color: AppColors.darkPrimary,
                               decoration: TextDecoration.underline,
                             ),
                           ),
@@ -543,7 +555,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                           TextSpan(
                             text: 'Privacy Policy',
                             style: TextStyle(
-                              color: AppColors.successColor,
+                              color: AppColors.darkPrimary,
                               decoration: TextDecoration.underline,
                             ),
                           ),
@@ -591,33 +603,33 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(
-        color: Colors.white,
+        color: Color(0xFF1F2937),
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
-          color: AppColors.textSecondary(true).withOpacity(0.7),
+          color: Color(0xFF9CA3AF),
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-        prefixIcon: Icon(icon, color: AppColors.textSecondary(true), size: 20),
+        prefixIcon: Icon(icon, color: Color(0xFF9CA3AF), size: 20),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.inputFill(true),
+        fillColor: Color(0xFFF9FAFB),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
+          borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
+          borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.inputFocusedBorder, width: 2),
+          borderSide: BorderSide(color: AppColors.darkPrimary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -641,8 +653,15 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.darkPrimary, AppColors.darkPrimary],
+          colors: [AppColors.darkPrimary, AppColors.darkPrimary.withOpacity(0.9)],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.darkPrimary.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: ElevatedButton(
         onPressed: isLoading ? null : _handleEmailSignup,
@@ -676,19 +695,19 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
   Widget _buildDivider() {
     return Row(
       children: [
-        Expanded(child: Container(height: 1, color: AppColors.darkGrey)),
+        Expanded(child: Container(height: 1, color: Color(0xFFE5E7EB))),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'OR',
             style: TextStyle(
-              color: AppColors.textSecondary(true),
+              color: Color(0xFF9CA3AF),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        Expanded(child: Container(height: 1, color: AppColors.darkGrey)),
+        Expanded(child: Container(height: 1, color: Color(0xFFE5E7EB))),
       ],
     );
   }
@@ -699,8 +718,8 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
       height: 48,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.darkGrey, width: 1),
-        color: AppColors.inputFill(true),
+        border: Border.all(color: Color(0xFFE5E7EB), width: 1),
+        color: Colors.white,
       ),
       child: OutlinedButton.icon(
         onPressed: isGoogleLoading ? null : _handleGoogleSignIn,
@@ -714,14 +733,13 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
-                  color: AppColors.successColor,
+                  color: AppColors.darkPrimary,
                   strokeWidth: 2,
                 ),
               )
             : Container(
                 width: 36,
                 height: 36,
-
                 child: Center(
                   child: Image.asset(
                     'assets/images/google.png',
@@ -733,7 +751,7 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
         label: Text(
           'Continue with Google',
           style: TextStyle(
-            color: AppColors.textPrimary(true),
+            color: Color(0xFF374151),
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -758,14 +776,14 @@ class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
           text: TextSpan(
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary(true),
+              color: Color(0xFF6B7280),
             ),
             children: [
               const TextSpan(text: "Already have an account? "),
               TextSpan(
                 text: 'Sign in',
                 style: TextStyle(
-                  color: AppColors.successColor,
+                  color: AppColors.darkPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),

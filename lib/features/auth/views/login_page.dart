@@ -198,24 +198,15 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = false; // Force light theme
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDark),
+      backgroundColor: Colors.grey[50], // Clean light background
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.1, 0.85, 1.0],
-            colors: [
-              AppColors.black,
-              AppColors.darkCardBackground,
-              AppColors.darkPrimary,
-            ],
-          ),
+        decoration: const BoxDecoration(
+          color: Colors.white, // Clean white background
         ),
         child: SafeArea(
           child: AnimatedBuilder(
@@ -266,8 +257,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ShaderMask(
           shaderCallback: (bounds) => LinearGradient(
             colors: [
-              const Color.fromARGB(255, 84, 164, 152),
-              const Color.fromARGB(255, 110, 239, 155),
+              AppColors.darkPrimary,
+              AppColors.darkPrimary.withOpacity(0.8),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -288,16 +279,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: Color(0xFF1a1a1a), // Dark text for light theme
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Sign in to your TrackAI account',
           style: TextStyle(
             fontSize: 16,
-            color: AppColors.textSecondary(true),
+            color: Color(0xFF6B7280), // Light grey text
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -309,32 +300,39 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground(true).withOpacity(0.8),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkPrimary, width: 0.2),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: const Text(
+            const Center(
+              child: Text(
                 'Sign in',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Color(0xFF1a1a1a),
                 ),
               ),
             ),
             const SizedBox(height: 4),
-            Center(
+            const Center(
               child: Text(
                 'Enter your credentials to access your account',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary(true),
+                  color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -345,7 +343,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             const Text(
               'Email',
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF374151),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -374,7 +372,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             const Text(
               'Password',
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF374151),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -394,7 +392,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               suffixIcon: IconButton(
                 icon: Icon(
                   obscurePassword ? Icons.visibility_off : Icons.visibility,
-                  color: AppColors.textSecondary(true),
+                  color: const Color(0xFF9CA3AF),
                   size: 20,
                 ),
                 onPressed: () {
@@ -406,28 +404,28 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 20),
 
-            // // Forgot Password Link
-            // Align(
-            //   alignment: Alignment.centerRight,
-            //   child: TextButton(
-            //     onPressed: _handleForgotPassword,
-            //     style: TextButton.styleFrom(
-            //       padding: const EdgeInsets.symmetric(
-            //         horizontal: 0,
-            //         vertical: 4,
-            //       ),
-            //     ),
-            //     child: Text(
-            //       'Forgot password?',
-            //       style: TextStyle(
-            //         color: AppColors.darkPrimary,
-            //         fontSize: 14,
-            //         fontWeight: FontWeight.w500,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            // const SizedBox(height: 24),
+            // Forgot Password Link (uncommented for light theme)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _handleForgotPassword,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: 4,
+                  ),
+                ),
+                child: Text(
+                  'Forgot password?',
+                  style: TextStyle(
+                    color: AppColors.darkPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Sign In Button
             _buildSubmitButton(),
@@ -464,33 +462,33 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       keyboardType: keyboardType,
       validator: validator,
       style: const TextStyle(
-        color: Colors.white,
+        color: Color(0xFF1a1a1a),
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: AppColors.textSecondary(true).withOpacity(0.7),
+        hintStyle: const TextStyle(
+          color: Color(0xFF9CA3AF),
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-        prefixIcon: Icon(icon, color: AppColors.textSecondary(true), size: 20),
+        prefixIcon: Icon(icon, color: const Color(0xFF9CA3AF), size: 20),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.inputFill(true),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        fillColor: const Color(0xFFF9FAFB),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
+          borderSide: const BorderSide(color: Color(0xFFD1D5DB), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.darkGrey, width: 1),
+          borderSide: const BorderSide(color: Color(0xFFD1D5DB), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.inputFocusedBorder, width: 2),
+          borderSide: BorderSide(color: AppColors.darkPrimary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -514,8 +512,15 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.darkPrimary, AppColors.darkPrimary],
+          colors: [AppColors.darkPrimary, AppColors.darkPrimary.withOpacity(0.9)],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.darkPrimary.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: ElevatedButton(
         onPressed: isLoading ? null : _handleEmailLogin,
@@ -549,19 +554,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Widget _buildDivider() {
     return Row(
       children: [
-        Expanded(child: Container(height: 1, color: AppColors.darkGrey)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        Expanded(child: Container(height: 1, color: const Color(0xFFE5E7EB))),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'OR',
             style: TextStyle(
-              color: AppColors.textSecondary(true),
+              color: Color(0xFF9CA3AF),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        Expanded(child: Container(height: 1, color: AppColors.darkGrey)),
+        Expanded(child: Container(height: 1, color: const Color(0xFFE5E7EB))),
       ],
     );
   }
@@ -572,8 +577,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       height: 48,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.darkGrey, width: 1),
-        color: AppColors.inputFill(true),
+        border: Border.all(color: const Color(0xFFD1D5DB), width: 1),
+        color: Colors.white,
       ),
       child: OutlinedButton.icon(
         onPressed: isGoogleLoading ? null : _handleGoogleSignIn,
@@ -587,25 +592,23 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
-                  color: AppColors.successColor,
+                  color: AppColors.darkPrimary,
                   strokeWidth: 2,
                 ),
               )
-            : Container(
+            : SizedBox(
                 width: 20,
                 height: 20,
-                child: Center(
-                  child: Image.asset(
-                    'assets/images/google.png',
-                    width: 24,
-                    height: 24,
-                  ),
+                child: Image.asset(
+                  'assets/images/google.png',
+                  width: 24,
+                  height: 24,
                 ),
               ),
-        label: Text(
+        label: const Text(
           'Continue with Google',
           style: TextStyle(
-            color: AppColors.textPrimary(true),
+            color: Color(0xFF374151),
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -628,9 +631,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ),
         child: RichText(
           text: TextSpan(
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary(true),
+              color: Color(0xFF6B7280),
             ),
             children: [
               const TextSpan(text: "Don't have an account? "),
