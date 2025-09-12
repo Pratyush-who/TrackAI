@@ -5,7 +5,6 @@ class OnboardingService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// Save onboarding data to Firestore
   static Future<void> saveOnboardingData(
     Map<String, dynamic> onboardingData,
   ) async {

@@ -27,6 +27,7 @@ class _HomescreenState extends State<Homescreen> {
   Map<String, bool> _streakData = {};
   bool _isLoadingStreaks = true;
   int _currentStreakCount = 0;
+  DateTime? _accountCreationDate;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _HomescreenState extends State<Homescreen> {
     _loadGoalsData();
     _loadStreakData();
     _recordDailyLogin();
+    _loadAccountCreationDate();
   }
 
   @override
@@ -62,6 +64,19 @@ class _HomescreenState extends State<Homescreen> {
       });
     }
   }
+
+  Future<void> _loadAccountCreationDate() async {
+    try {
+      // Replace with your actual service call to get account creation date
+      _accountCreationDate = await StreakService.getAccountCreationDate();
+      setState(() {});
+    } catch (e) {
+      print('Error loading account creation date: $e');
+      // Set a default date if unable to load (e.g., first app launch)
+      _accountCreationDate = DateTime.now();
+    }
+  }
+
 
   Future<void> _loadStreakData() async {
     try {
@@ -135,6 +150,20 @@ class _HomescreenState extends State<Homescreen> {
     final dateString = StreakService.formatDateStatic(date);
     final isLoggedIn = _streakData[dateString] ?? false;
 
+    // Check if date is before account creation
+    if (_accountCreationDate != null) {
+      final accountCreationDateOnly = DateTime(
+        _accountCreationDate!.year,
+        _accountCreationDate!.month,
+        _accountCreationDate!.day,
+      );
+      final currentDateOnly = DateTime(date.year, date.month, date.day);
+
+      if (currentDateOnly.isBefore(accountCreationDateOnly)) {
+        return Colors.transparent; // Blank for dates before account creation
+      }
+    }
+
     if (isToday) {
       return AppColors.accent(isDarkTheme); // Current green for today
     } else if (date.isAfter(today)) {
@@ -143,7 +172,9 @@ class _HomescreenState extends State<Homescreen> {
     } else if (isLoggedIn) {
       return Colors.green.withOpacity(0.3); // Light green for logged in
     } else {
-      return Colors.red.withOpacity(0.3); // Light red for not logged in
+      return Colors.red.withOpacity(
+        0.3,
+      ); // Light red for not logged in (only after account creation)
     }
   }
 
@@ -422,11 +453,11 @@ class _HomescreenState extends State<Homescreen> {
 
             SizedBox(height: screenHeight * 0.03),
 
-            // Cards Section - Responsive height
+            // Combined PageView with all cards - Responsive height
             ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: screenHeight * 0.2,
-                maxHeight: screenHeight * 0.25,
+                minHeight: screenHeight * 0.45,
+                maxHeight: screenHeight * 0.55,
               ),
               child: PageView(
                 controller: _pageController,
@@ -436,14 +467,14 @@ class _HomescreenState extends State<Homescreen> {
                   });
                 },
                 children: [
-                  // Left Card - New Features Coming Soon
-                  _buildNewFeaturesCard(isDarkTheme),
+                  // Left Page - New Features Coming Soon
+                  _buildNewFeaturesPage(isDarkTheme),
 
-                  // Center Card - Main Content
-                  _buildMainContentCard(isDarkTheme),
+                  // Center Page - Main Content with Macro Cards
+                  _buildMainContentPage(isDarkTheme),
 
-                  // Right Card - Log Activities
-                  _buildLogActivitiesCard(isDarkTheme),
+                  // Right Page - Log Activities
+                  _buildLogActivitiesPage(isDarkTheme),
                 ],
               ),
             ),
@@ -469,16 +500,6 @@ class _HomescreenState extends State<Homescreen> {
                 );
               }),
             ),
-
-            SizedBox(height: screenHeight * 0.03),
-
-            // Macro tracking section (now with Firebase data)
-            _buildMacroTrackingSection(isDarkTheme),
-
-            SizedBox(height: screenHeight * 0.03),
-
-            // Fiber Remaining section (now with Firebase data)
-            _buildFiberSection(isDarkTheme),
 
             SizedBox(height: screenHeight * 0.03),
 
@@ -519,49 +540,154 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 
-  Widget _buildNewFeaturesCard(bool isDarkTheme) {
+  Widget _buildNewFeaturesPage(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-      padding: EdgeInsets.all(screenWidth * 0.05),
-      decoration: _getCardDecoration(isDarkTheme),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.auto_awesome,
-            color: AppColors.primary(isDarkTheme),
-            size: screenWidth * 0.08,
-          ),
-          SizedBox(height: screenHeight * 0.015),
-          Flexible(
-            child: Text(
-              'New Features Coming Soon!',
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: screenWidth * 0.045,
-                fontWeight: FontWeight.w600,
+          // Main card
+          Expanded(
+            flex: 3,
+            child: Container(
+              padding: EdgeInsets.all(screenWidth * 0.05),
+              decoration: _getCardDecoration(isDarkTheme),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.auto_awesome,
+                    color: AppColors.primary(isDarkTheme),
+                    size: screenWidth * 0.08,
+                  ),
+                  SizedBox(height: screenHeight * 0.015),
+                  Text(
+                    'New Features Coming Soon!',
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.white : Colors.black87,
+                      fontSize: screenWidth * 0.045,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Text(
+                    "We're always working on new ways to help you on your wellness journey. Stay tuned!",
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.white70 : Colors.black54,
+                      fontSize: screenWidth * 0.03,
+                      height: 1.3,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(height: screenHeight * 0.01),
-          Flexible(
-            child: Text(
-              "We're always working on new ways to help you on your wellness journey. Stay tuned!",
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: screenWidth * 0.03,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+          SizedBox(height: screenHeight * 0.02),
+          // Empty space for consistency
+          Expanded(
+            flex: 2,
+            child: Container(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContentPage(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      child: Column(
+        children: [
+          // Main content card
+          Expanded(
+            flex: 3,
+            child: _buildMainContentCard(isDarkTheme),
+          ),
+          
+          SizedBox(height: screenHeight * 0.02),
+          
+          // Macro tracking section
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: [
+                // Protein, Carbs, Fats row
+                Expanded(
+                  child: _buildMacroTrackingSection(isDarkTheme),
+                ),
+                
+                SizedBox(height: screenHeight * 0.015),
+                
+                // Fiber section
+                Expanded(
+                  child: _buildFiberSection(isDarkTheme),
+                ),
+              ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogActivitiesPage(bool isDarkTheme) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      child: Column(
+        children: [
+          // Main card
+          Expanded(
+            flex: 3,
+            child: Container(
+              padding: EdgeInsets.all(screenWidth * 0.05),
+              decoration: _getCardDecoration(isDarkTheme),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.fitness_center,
+                    color: AppColors.primary(isDarkTheme),
+                    size: screenWidth * 0.08,
+                  ),
+                  SizedBox(height: screenHeight * 0.015),
+                  Text(
+                    'Log Your Activities',
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.white : Colors.black87,
+                      fontSize: screenWidth * 0.045,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Text(
+                    'Go to tracker to log your meals, workouts, and daily activities.',
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.white70 : Colors.black54,
+                      fontSize: screenWidth * 0.03,
+                      height: 1.3,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: screenHeight * 0.02),
+          // Empty space for consistency
+          Expanded(
+            flex: 2,
+            child: Container(),
           ),
         ],
       ),
@@ -575,7 +701,6 @@ class _HomescreenState extends State<Homescreen> {
     // Show loading state
     if (_isLoadingGoals) {
       return Container(
-        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
         padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Column(
@@ -602,7 +727,6 @@ class _HomescreenState extends State<Homescreen> {
     // Show error state
     if (_goalsError != null) {
       return Container(
-        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
         padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: _getCardDecoration(isDarkTheme),
         child: Column(
@@ -647,7 +771,6 @@ class _HomescreenState extends State<Homescreen> {
           Navigator.pushNamed(context, AppRoutes.adjustGoals);
         },
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
           padding: EdgeInsets.all(screenWidth * 0.05),
           decoration: _getCardDecoration(isDarkTheme),
           child: Column(
@@ -685,7 +808,6 @@ class _HomescreenState extends State<Homescreen> {
 
     // Show data from Firebase
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
       padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
@@ -708,8 +830,6 @@ class _HomescreenState extends State<Homescreen> {
                     fontSize: screenWidth * 0.04,
                     fontWeight: FontWeight.w600,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -721,8 +841,6 @@ class _HomescreenState extends State<Homescreen> {
               color: isDarkTheme ? Colors.white70 : Colors.black54,
               fontSize: screenWidth * 0.03,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: screenHeight * 0.008),
           Divider(),
@@ -798,55 +916,6 @@ class _HomescreenState extends State<Homescreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogActivitiesCard(bool isDarkTheme) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-      padding: EdgeInsets.all(screenWidth * 0.05),
-      decoration: _getCardDecoration(isDarkTheme),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.fitness_center,
-            color: AppColors.primary(isDarkTheme),
-            size: screenWidth * 0.08,
-          ),
-          SizedBox(height: screenHeight * 0.015),
-          Flexible(
-            child: Text(
-              'Log Your Activities',
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white : Colors.black87,
-                fontSize: screenWidth * 0.045,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          SizedBox(height: screenHeight * 0.01),
-          Flexible(
-            child: Text(
-              'Go to tracker to log your meals, workouts, and daily activities.',
-              style: TextStyle(
-                color: isDarkTheme ? Colors.white70 : Colors.black54,
-                fontSize: screenWidth * 0.03,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

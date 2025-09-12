@@ -227,6 +227,54 @@ class StreakService {
     );
   }
 
+  static Future<DateTime> getAccountCreationDate() async {
+  if (_userId.isEmpty) return DateTime.now();
+
+  try {
+    // Check if creation date is already stored in user document
+    final userDoc = await _firestore.collection('users').doc(_userId).get();
+    
+    if (userDoc.exists) {
+      final data = userDoc.data() as Map<String, dynamic>;
+      if (data['accountCreatedAt'] != null) {
+        return (data['accountCreatedAt'] as Timestamp).toDate();
+      }
+    }
+
+    // If not stored, check Firebase Auth user creation time as fallback
+    final user = _auth.currentUser;
+    if (user?.metadata.creationTime != null) {
+      final creationDate = user!.metadata.creationTime!;
+      // Store it in user document for faster future access
+      await setAccountCreationDate(creationDate);
+      return creationDate;
+    }
+
+    // Ultimate fallback - use current date
+    final now = DateTime.now();
+    await setAccountCreationDate(now);
+    return now;
+  } catch (e) {
+    print('Error getting account creation date: $e');
+    // Fallback to current date if error occurs
+    return DateTime.now();
+  }
+}
+
+// Set/store account creation date in Firebase
+static Future<void> setAccountCreationDate(DateTime date) async {
+  if (_userId.isEmpty) return;
+
+  try {
+    await _firestore.collection('users').doc(_userId).set({
+      'accountCreatedAt': Timestamp.fromDate(date),
+    }, SetOptions(merge: true));
+  } catch (e) {
+    print('Error setting account creation date: $e');
+  }
+}
+
+
   // Force refresh streak data (useful for testing)
   static Future<void> refreshStreakData() async {
     // This method can be called to ensure streak data is up to date
