@@ -112,9 +112,9 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 10),
                               _buildIcon(),
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 20),
                               _buildTitle(),
                               const SizedBox(height: 24),
                               _buildSubtitle(),
@@ -152,13 +152,13 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.cardBackground(true).withOpacity(0.8),
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.darkGrey, width: 1),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
-          color: Colors.white,
+          color: Colors.black87,
           size: 20,
         ),
       ),
@@ -167,17 +167,10 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
 
   Widget _buildIcon() {
     return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppColors.primary(true).withOpacity(0.1),
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.primary(true), width: 0.5),
-      ),
       child: Icon(
         FontAwesomeIcons.bullseye,
         color: AppColors.primary(true),
-        size: 28,
+        size: 58,
       ),
     );
   }
@@ -188,7 +181,7 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -278,10 +271,10 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.darkPrimary.withOpacity(0.1)
-              : AppColors.cardBackground(true).withOpacity(0.8),
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
+            color: isSelected ? AppColors.darkPrimary : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -293,12 +286,12 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
               decoration: BoxDecoration(
                 color: isSelected
                     ? iconColor.withOpacity(0.2)
-                    : AppColors.darkGrey.withOpacity(0.3),
+                    : Colors.grey[100],
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? iconColor : Colors.white70,
+                color: isSelected ? iconColor : Colors.grey[600],
                 size: 28,
               ),
             ),
@@ -312,7 +305,9 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? AppColors.successColor : Colors.white,
+                      color: isSelected
+                          ? AppColors.successColor
+                          : Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -320,7 +315,7 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
                     subtitle,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary(true),
+                      color: isSelected ? Colors.grey[600] : Colors.grey[500],
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -348,8 +343,10 @@ class _GoalSelectionPageState extends State<GoalSelectionPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        
-        color: selectedGoal == null ? AppColors.darkGrey : AppColors.darkPrimary,
+
+        color: selectedGoal == null
+            ? Colors.grey[300]
+            : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedGoal != null ? _continue : null,

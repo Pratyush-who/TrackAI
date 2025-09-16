@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:trackai/core/constants/appcolors.dart';
-import 'package:trackai/features/onboarding/completion.dart';
-import 'package:trackai/features/onboarding/desiredweight.dart';
+import 'package:trackai/features/onboarding/alldone.dart';
 import 'package:trackai/features/onboarding/dietpref.dart';
 import 'package:trackai/features/onboarding/dob.dart';
 import 'package:trackai/features/onboarding/genderselection.dart';
 import 'package:trackai/features/onboarding/goalpace.dart';
 import 'package:trackai/features/onboarding/goalselection.dart';
 import 'package:trackai/features/onboarding/heightweight.dart';
+import 'package:trackai/features/onboarding/obcomplete.dart';
+import 'package:trackai/features/onboarding/plan.dart';
 import 'package:trackai/features/onboarding/service/observices.dart';
 import 'package:trackai/features/onboarding/onboarding_data.dart';
-
+import 'package:trackai/features/onboarding/seturtarget.dart';
+import 'package:trackai/features/onboarding/targetanalysis.dart';
+import 'package:trackai/features/onboarding/track_long_term.dart';
 import 'package:trackai/features/onboarding/workoutfrequency.dart';
 import 'package:trackai/features/onboarding/otherapps.dart';
 import 'package:trackai/features/onboarding/accomplishment.dart';
@@ -36,7 +38,8 @@ class _OnboardingFlowState extends State<OnboardingFlow>
   // Onboarding data
   OnboardingData onboardingData = OnboardingData();
 
-  final List<Widget> _pages = [];
+  List<Widget> _pages = [];
+  int _totalPages = 13; // Updated for maintain weight (13 pages now)
 
   @override
   void initState() {
@@ -55,62 +58,67 @@ class _OnboardingFlowState extends State<OnboardingFlow>
   }
 
   void _initializePages() {
-    _pages.addAll([
+    _pages = [
+      // Page 1: Gender Selection
       GenderSelectionPage(
         onNext: _nextPage,
         onDataUpdate: (data) => _updateData('gender', data),
       ),
-      OtherAppsPage(
-        onNext: _nextPage,
-        onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('otherApps', data),
-      ),
+      // Page 2: Workout Frequency
       WorkoutFrequencyPage(
         onNext: _nextPage,
         onBack: _previousPage,
         onDataUpdate: (data) => _updateData('workoutFrequency', data),
       ),
+      // Page 3: Other Apps
+      OtherAppsPage(
+        onNext: _nextPage,
+        onBack: _previousPage,
+        onDataUpdate: (data) => _updateData('otherApps', data),
+      ),
+      // Page 4: Goal Selection
+      GoalSelectionPage(
+        onNext: _handleGoalSelectionNext,
+        onBack: _previousPage,
+        onDataUpdate: (data) => _updateData('goal', data),
+      ),
+      // Page 5: Long Term Results (for maintain weight) or Set Target (for gain/lose)
+      LongTermResultsPage(onNext: _nextPage, onBack: _previousPage),
+      // Page 6: Accomplishment
+      AccomplishmentPage(
+        onNext: _nextPage,
+        onBack: _previousPage,
+        onDataUpdate: (data) => _updateData('accomplishment', data),
+      ),
+      // Page 7: Date of Birth
+      DateOfBirthPage(
+        onNext: _nextPage,
+        onBack: _previousPage,
+        onDataUpdate: (data) => _updateData('dateOfBirth', data),
+      ),
+      // Page 8: Height/Weight
       HeightWeightPage(
         onNext: _nextPage,
         onBack: _previousPage,
         onDataUpdate: _updateHeightWeightData,
         initialData: onboardingData.toMap(),
       ),
-      // BMI page will be created dynamically with updated data
+      // Page 9: BMI Results
       _buildBmiPage(),
-      DateOfBirthPage(
+      // Page 10: All Done
+      AllDonePage(onComplete: _nextPage, onBack: _previousPage),
+      // Page 11: Personalized Plan (NEW)
+      PersonalizedPlanPage(
         onNext: _nextPage,
         onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('dateOfBirth', data),
+        onboardingData: onboardingData.toMap(),
       ),
-      GoalSelectionPage(
-        onNext: _nextPage,
+      // Page 13: Onboarding Completion (NEW)
+      OnboardingCompletionPage(
+        onComplete: _completeOnboarding,
         onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('goal', data),
       ),
-      AccomplishmentPage(
-        onNext: _nextPage,
-        onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('accomplishment', data),
-      ),
-      DesiredWeightPage(
-        onNext: _nextPage,
-        onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('desiredWeight', data),
-        isMetric: onboardingData.isMetric,
-      ),
-      GoalPacePage(
-        onNext: _nextPage,
-        onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('goalPace', data),
-      ),
-      DietPreferencePage(
-        onNext: _nextPage,
-        onBack: _previousPage,
-        onDataUpdate: (data) => _updateData('dietPreference', data),
-      ),
-      CompletionPage(onComplete: _completeOnboarding, onBack: _previousPage),
-    ]);
+    ];
   }
 
   Widget _buildBmiPage() {
@@ -119,6 +127,114 @@ class _OnboardingFlowState extends State<OnboardingFlow>
       onBack: _previousPage,
       onboardingData: onboardingData,
     );
+  }
+
+  void _handleGoalSelectionNext() {
+    // Rebuild pages based on the selected goal
+    _rebuildPagesAfterGoal();
+    _nextPage();
+  }
+
+  void _rebuildPagesAfterGoal() {
+    setState(() {
+      String goal = onboardingData.goal;
+
+      if (goal == 'lose_weight' || goal == 'gain_weight') {
+        // For weight loss/gain goals - 15 pages total (added 2 new pages)
+        _totalPages = 15;
+
+        // Rebuild the entire pages list with target pages inserted after goal selection
+        _pages = [
+          // Page 1: Gender Selection
+          GenderSelectionPage(
+            onNext: _nextPage,
+            onDataUpdate: (data) => _updateData('gender', data),
+          ),
+          // Page 2: Workout Frequency
+          WorkoutFrequencyPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: (data) => _updateData('workoutFrequency', data),
+          ),
+          // Page 3: Other Apps
+          OtherAppsPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: (data) => _updateData('otherApps', data),
+          ),
+          // Page 4: Goal Selection
+          GoalSelectionPage(
+            onNext: _handleGoalSelectionNext,
+            onBack: _previousPage,
+            onDataUpdate: (data) => _updateData('goal', data),
+          ),
+          // Page 5: Set Your Target (only for gain/lose weight)
+          SetYourTargetPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: _updateTargetData,
+            isMetric: onboardingData.isMetric,
+            goal: goal,
+          ),
+          // Page 6: Target Analysis (only for gain/lose weight)
+          TargetAnalysisPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            targetAmount: onboardingData.targetAmount ?? 0.0,
+            targetUnit: onboardingData.targetUnit ?? 'kg',
+            targetTimeframe: onboardingData.targetTimeframe ?? 0,
+            goal: goal,
+          ),
+          // Page 7: Long Term Results
+          LongTermResultsPage(onNext: _nextPage, onBack: _previousPage),
+          // Page 8: Accomplishment
+          AccomplishmentPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: (data) => _updateData('accomplishment', data),
+          ),
+          // Page 9: Date of Birth
+          DateOfBirthPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: (data) => _updateData('dateOfBirth', data),
+          ),
+          // Page 10: Height/Weight
+          HeightWeightPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: _updateHeightWeightData,
+            initialData: onboardingData.toMap(),
+          ),
+          // Page 11: BMI Results
+          _buildBmiPage(),
+          // Page 12: Diet Preference
+          DietPreferencePage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onDataUpdate: (data) => _updateData('dietPreference', data),
+          ),
+          // Page 13: All Done
+          AllDonePage(onComplete: _nextPage, onBack: _previousPage),
+          // Page 14: Personalized Plan (NEW)
+          PersonalizedPlanPage(
+            onNext: _nextPage,
+            onBack: _previousPage,
+            onboardingData: onboardingData.toMap(),
+          ),
+          // Page 15: Onboarding Completion (NEW)
+          OnboardingCompletionPage(
+            onComplete: _completeOnboarding,
+            onBack: _previousPage,
+          ),
+        ];
+      } else {
+        // For maintain weight goal - 13 pages total (added 2 new pages)
+        _totalPages = 13;
+        // Keep the original flow with new pages added at the end
+        _initializePages();
+      }
+    });
   }
 
   void _updateData(String key, dynamic value) {
@@ -159,15 +275,48 @@ class _OnboardingFlowState extends State<OnboardingFlow>
     print('Height/Weight data received: $data');
     setState(() {
       // Update the OnboardingData object with the new height/weight data
-      onboardingData.heightFeet = data['heightFeet'] ?? onboardingData.heightFeet;
-      onboardingData.heightInches = data['heightInches'] ?? onboardingData.heightInches;
-      onboardingData.weightLbs = (data['weightLbs'] ?? onboardingData.weightLbs).toDouble();
+      onboardingData.heightFeet =
+          data['heightFeet'] ?? onboardingData.heightFeet;
+      onboardingData.heightInches =
+          data['heightInches'] ?? onboardingData.heightInches;
+      onboardingData.weightLbs = (data['weightLbs'] ?? onboardingData.weightLbs)
+          .toDouble();
       onboardingData.isMetric = data['isMetric'] ?? onboardingData.isMetric;
-      
-      // Update the BMI page with new data
-      _pages[4] = _buildBmiPage();
+
+      // Update the BMI page with new data - calculate correct index
+      int bmiPageIndex;
+      if (onboardingData.goal == 'lose_weight' ||
+          onboardingData.goal == 'gain_weight') {
+        bmiPageIndex = 10; // Page 11 in 15-page flow
+      } else {
+        bmiPageIndex = 8; // Page 9 in 13-page flow
+      }
+
+      if (_pages.length > bmiPageIndex) {
+        _pages[bmiPageIndex] = _buildBmiPage();
+      }
     });
     print('Updated onboarding data: ${onboardingData.toMap()}');
+  }
+
+  void _updateTargetData(Map<String, dynamic> data) {
+    setState(() {
+      onboardingData.targetAmount = data['targetAmount'];
+      onboardingData.targetUnit = data['targetUnit'];
+      onboardingData.targetTimeframe = data['targetTimeframe'];
+
+      // Update the Target Analysis page with new data (index 5 in 15-page flow)
+      if (_pages.length > 5) {
+        _pages[5] = TargetAnalysisPage(
+          onNext: _nextPage,
+          onBack: _previousPage,
+          targetAmount: onboardingData.targetAmount ?? 0.0,
+          targetUnit: onboardingData.targetUnit ?? 'kg',
+          targetTimeframe: onboardingData.targetTimeframe ?? 0,
+          goal: onboardingData.goal,
+        );
+      }
+    });
   }
 
   void _nextPage() {
@@ -245,7 +394,7 @@ class _OnboardingFlowState extends State<OnboardingFlow>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppColors.errorColor,
+        backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -262,26 +411,12 @@ class _OnboardingFlowState extends State<OnboardingFlow>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: AppColors.background(isDark),
+      backgroundColor: Colors.white,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 0.15, 0.85, 1.0],
-            colors: [
-              AppColors.primary(true).withOpacity(0.3),
-              AppColors.black,
-              AppColors.black,
-              AppColors.primary(true).withOpacity(0.3),
-            ],
-          ),
-        ),
+        decoration: const BoxDecoration(color: Color(0xFFF8F9FA)),
         child: SafeArea(
           child: Stack(
             children: [
@@ -311,9 +446,7 @@ class _OnboardingFlowState extends State<OnboardingFlow>
                 Container(
                   color: Colors.black.withOpacity(0.7),
                   child: const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.successColor,
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
                   ),
                 ),
             ],
@@ -330,17 +463,17 @@ class _OnboardingFlowState extends State<OnboardingFlow>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Step ${_currentPageIndex + 1} of ${_pages.length}',
-              style: TextStyle(
-                color: AppColors.textSecondary(true),
+              'Step ${_currentPageIndex + 1} / $_totalPages',
+              style: const TextStyle(
+                color: Color(0xFF6B7280),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
             Text(
-              '${((_currentPageIndex + 1) / _pages.length * 100).round()}%',
-              style: TextStyle(
-                color: AppColors.textSecondary(true),
+              '${((_currentPageIndex + 1) / _totalPages * 100).round()}%',
+              style: const TextStyle(
+                color: Color(0xFF6B7280),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -349,9 +482,9 @@ class _OnboardingFlowState extends State<OnboardingFlow>
         ),
         const SizedBox(height: 8),
         LinearProgressIndicator(
-          value: (_currentPageIndex + 1) / _pages.length,
-          backgroundColor: AppColors.darkGrey,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.successColor),
+          value: (_currentPageIndex + 1) / _totalPages,
+          backgroundColor: const Color(0xFFE5E7EB),
+          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
           borderRadius: BorderRadius.circular(4),
           minHeight: 6,
         ),

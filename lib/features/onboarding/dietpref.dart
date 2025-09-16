@@ -163,13 +163,13 @@ class _DietPreferencePageState extends State<DietPreferencePage>
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.cardBackground(true).withOpacity(0.8),
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.darkGrey, width: 1),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
-          color: Colors.white,
+          color: Colors.black87,
           size: 20,
         ),
       ),
@@ -199,7 +199,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -290,11 +290,11 @@ class _DietPreferencePageState extends State<DietPreferencePage>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.darkPrimary.withOpacity(0.1)
-              : AppColors.cardBackground(true).withOpacity(0.8),
+              ? AppColors.primary(true).withOpacity(0.1)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
+            color: isSelected ? AppColors.primary(true) : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -308,12 +308,12 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                   decoration: BoxDecoration(
                     color: isSelected
                         ? iconColor.withOpacity(0.2)
-                        : AppColors.darkGrey.withOpacity(0.3),
+                        : Colors.grey[100],
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
-                    color: isSelected ? iconColor : Colors.white70,
+                    color: isSelected ? iconColor : Colors.grey[600],
                     size: 28,
                   ),
                 ),
@@ -328,8 +328,8 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: isSelected
-                              ? AppColors.darkPrimary
-                              : Colors.white,
+                              ? AppColors.primary(true)
+                              : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -337,7 +337,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                         subtitle,
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textSecondary(true),
+                          color: Colors.grey[600],
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -349,7 +349,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     Icons.check_circle,
-                    color: AppColors.darkPrimary,
+                    color: AppColors.primary(true),
                     size: 28,
                   ),
                 ),
@@ -372,7 +372,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
                   description,
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary(true),
+                    color: Colors.grey[600],
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -390,7 +390,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        color: selectedDiet == null ? AppColors.darkGrey : AppColors.darkAccent,
+        color: selectedDiet == null ? Colors.grey[300] : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedDiet != null ? _continue : null,
@@ -405,9 +405,7 @@ class _DietPreferencePageState extends State<DietPreferencePage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedDiet != null
-                ? AppColors.textPrimary(true)
-                : AppColors.textSecondary(true),
+            color: selectedDiet != null ? Colors.white : Colors.grey[600],
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

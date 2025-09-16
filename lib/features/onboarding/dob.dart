@@ -67,13 +67,15 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
+            colorScheme: ColorScheme.light(
               primary: AppColors.darkPrimary,
               onPrimary: Colors.white,
-              surface: AppColors.cardBackground(true),
-              onSurface: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+              background: Colors.white,
+              onBackground: Colors.black,
             ),
-            dialogBackgroundColor: AppColors.cardBackground(true),
+            dialogBackgroundColor: Colors.white,
           ),
           child: child!,
         );
@@ -191,7 +193,11 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary(true), width: 0.5),
       ),
-      child: Icon(Icons.calendar_month, color: AppColors.primary(true), size: 28),
+      child: Icon(
+        Icons.calendar_month,
+        color: AppColors.primary(true),
+        size: 28,
+      ),
     );
   }
 
@@ -201,7 +207,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -251,12 +257,12 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.cardBackground(true).withOpacity(0.8),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selectedDate != null
                       ? AppColors.darkPrimary
-                      : AppColors.darkGrey,
+                      : Colors.grey.shade300,
                   width: selectedDate != null ? 2 : 1,
                 ),
               ),
@@ -267,7 +273,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                     size: 48,
                     color: selectedDate != null
                         ? AppColors.darkPrimary
-                        : AppColors.textSecondary(true),
+                        : Colors.grey.shade600,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -279,7 +285,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                       fontWeight: FontWeight.w600,
                       color: selectedDate != null
                           ? AppColors.darkPrimary
-                          : Colors.white,
+                          : Colors.black,
                     ),
                   ),
                   if (selectedDate != null) ...[
@@ -288,7 +294,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                       '${_calculateAge(selectedDate!)} years old',
                       style: TextStyle(
                         fontSize: 16,
-                        color: AppColors.textSecondary(true),
+                        color: Colors.black54,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -299,7 +305,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                       'Tap to open calendar',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary(true),
+                        color: Colors.grey.shade600,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -328,7 +334,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
                     'Your personal information is securely stored and never shared',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary(true),
+                      color: Colors.black54,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -347,7 +353,9 @@ class _DateOfBirthPageState extends State<DateOfBirthPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        color: selectedDate == null ? AppColors.darkGrey : AppColors.lightPrimary,
+        color: selectedDate == null
+            ? Colors.grey[300]
+            : AppColors.lightPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedDate != null ? _continue : null,

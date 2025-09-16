@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:trackai/core/constants/appcolors.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
-import 'package:trackai/features/home/homepage/gemini.dart';
+import 'package:trackai/features/home/homepage/desc%20and%20scan/gemini.dart';
 
 class ImageAnalysisScreen extends StatefulWidget {
   final String analysisType; // 'scan' or 'describe'

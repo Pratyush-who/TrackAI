@@ -128,9 +128,9 @@ class _OtherAppsPageState extends State<OtherAppsPage>
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.cardBackground(true).withOpacity(0.8),
+          color: AppColors.darkPrimary,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.darkGrey, width: 1),
+          border: Border.all(color: AppColors.darkPrimary, width: 1),
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
@@ -164,7 +164,7 @@ class _OtherAppsPageState extends State<OtherAppsPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black87,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -226,10 +226,10 @@ class _OtherAppsPageState extends State<OtherAppsPage>
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary(true).withOpacity(0.1)
-              : AppColors.cardBackground(true),
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary(true) : AppColors.darkGrey,
+            color: isSelected ? AppColors.primary(true) : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -241,9 +241,7 @@ class _OtherAppsPageState extends State<OtherAppsPage>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isSelected
-                      ? AppColors.primary(true)
-                      : AppColors.textPrimary(true),
+                  color: isSelected ? AppColors.primary(true) : Colors.black87,
                 ),
               ),
             ),
@@ -265,8 +263,9 @@ class _OtherAppsPageState extends State<OtherAppsPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        
-        color: selectedOption == null ? AppColors.darkGrey : AppColors.darkPrimary,
+        color: selectedOption == null
+            ? Colors.grey[300]
+            : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedOption != null ? _continue : null,
@@ -281,7 +280,7 @@ class _OtherAppsPageState extends State<OtherAppsPage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedOption != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
+            color: selectedOption != null ? Colors.white : Colors.grey[600],
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

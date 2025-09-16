@@ -155,13 +155,13 @@ class _GoalPacePageState extends State<GoalPacePage>
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.cardBackground(true).withOpacity(0.8),
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.darkGrey, width: 1),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
-          color: Colors.white,
+          color: Colors.black87,
           size: 20,
         ),
       ),
@@ -191,7 +191,7 @@ class _GoalPacePageState extends State<GoalPacePage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -283,10 +283,10 @@ class _GoalPacePageState extends State<GoalPacePage>
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.darkPrimary.withOpacity(0.1)
-              : AppColors.cardBackground(true).withOpacity(0.8),
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.darkPrimary : AppColors.darkGrey,
+            color: isSelected ? AppColors.darkPrimary : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -404,8 +404,10 @@ class _GoalPacePageState extends State<GoalPacePage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        
-        color: selectedPace == null ? AppColors.darkGrey : AppColors.lightPrimary,
+
+        color: selectedPace == null
+            ? AppColors.darkGrey
+            : AppColors.lightPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedPace != null ? _continue : null,

@@ -67,16 +67,13 @@ class _HomescreenState extends State<Homescreen> {
 
   Future<void> _loadAccountCreationDate() async {
     try {
-      // Replace with your actual service call to get account creation date
       _accountCreationDate = await StreakService.getAccountCreationDate();
       setState(() {});
     } catch (e) {
       print('Error loading account creation date: $e');
-      // Set a default date if unable to load (e.g., first app launch)
       _accountCreationDate = DateTime.now();
     }
   }
-
 
   Future<void> _loadStreakData() async {
     try {
@@ -103,7 +100,6 @@ class _HomescreenState extends State<Homescreen> {
   Future<void> _recordDailyLogin() async {
     try {
       await StreakService.recordDailyLogin();
-      // Refresh streak data after recording login
       _loadStreakData();
     } catch (e) {
       print('Error recording daily login: $e');
@@ -114,7 +110,7 @@ class _HomescreenState extends State<Homescreen> {
     setState(() {
       _currentDate = _currentDate.add(Duration(days: 7 * direction));
     });
-    _loadStreakData(); // Reload streak data for new date range
+    _loadStreakData();
   }
 
   List<DateTime> _getWeekDates(DateTime date) {
@@ -146,11 +142,9 @@ class _HomescreenState extends State<Homescreen> {
         date.day == today.day &&
         date.month == today.month &&
         date.year == today.year;
-
     final dateString = StreakService.formatDateStatic(date);
     final isLoggedIn = _streakData[dateString] ?? false;
 
-    // Check if date is before account creation
     if (_accountCreationDate != null) {
       final accountCreationDateOnly = DateTime(
         _accountCreationDate!.year,
@@ -158,23 +152,19 @@ class _HomescreenState extends State<Homescreen> {
         _accountCreationDate!.day,
       );
       final currentDateOnly = DateTime(date.year, date.month, date.day);
-
       if (currentDateOnly.isBefore(accountCreationDateOnly)) {
-        return Colors.transparent; // Blank for dates before account creation
+        return Colors.transparent;
       }
     }
 
     if (isToday) {
-      return AppColors.accent(isDarkTheme); // Current green for today
+      return AppColors.accent(isDarkTheme);
     } else if (date.isAfter(today)) {
-      // Future dates - default color
       return Colors.transparent;
     } else if (isLoggedIn) {
-      return Colors.green.withOpacity(0.3); // Light green for logged in
+      return Colors.green.withOpacity(0.3);
     } else {
-      return Colors.red.withOpacity(
-        0.3,
-      ); // Light red for not logged in (only after account creation)
+      return Colors.red.withOpacity(0.3);
     }
   }
 
@@ -186,7 +176,7 @@ class _HomescreenState extends State<Homescreen> {
         date.year == today.year;
 
     if (isToday) {
-      return Colors.white; // White text for today's highlighted date
+      return Colors.white;
     } else {
       return isDarkTheme ? Colors.white : Colors.black87;
     }
@@ -203,7 +193,6 @@ class _HomescreenState extends State<Homescreen> {
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -229,7 +218,6 @@ class _HomescreenState extends State<Homescreen> {
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -291,228 +279,232 @@ class _HomescreenState extends State<Homescreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.04,
-          vertical: screenHeight * 0.02,
-        ),
-        child: Column(
-          children: [
-            SizedBox(height: screenHeight * 0.001),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.04,
+            vertical: screenHeight * 0.02,
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: screenHeight * 0.001),
 
-            // Calendar Widget
-            Container(
-              padding: EdgeInsets.all(screenWidth * 0.02),
-              child: Column(
-                children: [
-                  // Month/Year Header with navigation
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () => _navigateToWeek(-1),
-                        icon: Icon(
-                          Icons.chevron_left,
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                          size: screenWidth * 0.06,
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          _getMonthYear(_currentDate),
-                          style: TextStyle(
+              // Calendar Widget
+              Container(
+                padding: EdgeInsets.all(screenWidth * 0.02),
+                child: Column(
+                  children: [
+                    // Month/Year Header with navigation
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () => _navigateToWeek(-1),
+                          icon: Icon(
+                            Icons.chevron_left,
                             color: isDarkTheme ? Colors.white : Colors.black87,
-                            fontSize: screenWidth * 0.045,
-                            fontWeight: FontWeight.w600,
+                            size: screenWidth * 0.06,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () => _navigateToWeek(1),
-                        icon: Icon(
-                          Icons.chevron_right,
-                          color: isDarkTheme ? Colors.white : Colors.black87,
-                          size: screenWidth * 0.06,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: screenHeight * 0.02),
-
-                  // Week days header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day) {
-                      return Expanded(
-                        child: Center(
+                        Flexible(
                           child: Text(
-                            day,
+                            _getMonthYear(_currentDate),
                             style: TextStyle(
                               color: isDarkTheme
-                                  ? Colors.white70
-                                  : Colors.black54,
-                              fontSize: screenWidth * 0.035,
-                              fontWeight: FontWeight.w500,
+                                  ? Colors.white
+                                  : Colors.black87,
+                              fontSize: screenWidth * 0.045,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _navigateToWeek(1),
+                          icon: Icon(
+                            Icons.chevron_right,
+                            color: isDarkTheme ? Colors.white : Colors.black87,
+                            size: screenWidth * 0.06,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: screenHeight * 0.02),
+
+                    // Week days header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day) {
+                        return Expanded(
+                          child: Center(
+                            child: Text(
+                              day,
+                              style: TextStyle(
+                                color: isDarkTheme
+                                    ? Colors.white70
+                                    : Colors.black54,
+                                fontSize: screenWidth * 0.035,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                        );
+                      }).toList(),
+                    ),
 
-                  SizedBox(height: screenHeight * 0.015),
+                    SizedBox(height: screenHeight * 0.015),
 
-                  // Dates row with streak coloring
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: weekDates.map((date) {
-                      return Expanded(
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.005,
-                          ),
-                          height: screenWidth * 0.1,
-                          decoration: BoxDecoration(
-                            color: _getDateColor(date, isDarkTheme),
-                            shape: BoxShape.circle,
-                            border: _isLoadingStreaks
-                                ? null
-                                : Border.all(
-                                    color:
-                                        _getDateColor(date, isDarkTheme) ==
-                                            Colors.transparent
-                                        ? Colors.transparent
-                                        : _getDateColor(date, isDarkTheme),
-                                    width: 1,
-                                  ),
-                          ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Loading indicator for streak data
-                              if (_isLoadingStreaks)
-                                SizedBox(
-                                  width: screenWidth * 0.03,
-                                  height: screenWidth * 0.03,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.primary(isDarkTheme),
+                    // Dates row with streak coloring
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: weekDates.map((date) {
+                        return Expanded(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.005,
+                            ),
+                            height: screenWidth * 0.1,
+                            decoration: BoxDecoration(
+                              color: _getDateColor(date, isDarkTheme),
+                              shape: BoxShape.circle,
+                              border: _isLoadingStreaks
+                                  ? null
+                                  : Border.all(
+                                      color:
+                                          _getDateColor(date, isDarkTheme) ==
+                                              Colors.transparent
+                                          ? Colors.transparent
+                                          : _getDateColor(date, isDarkTheme),
+                                      width: 1,
+                                    ),
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Loading indicator for streak data
+                                if (_isLoadingStreaks)
+                                  SizedBox(
+                                    width: screenWidth * 0.03,
+                                    height: screenWidth * 0.03,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.primary(isDarkTheme),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              // Date text
-                              if (!_isLoadingStreaks)
-                                Text(
-                                  '${date.day}',
-                                  style: TextStyle(
-                                    color: _getDateTextColor(date, isDarkTheme),
-                                    fontSize: screenWidth * 0.04,
-                                    fontWeight: FontWeight.w600,
+                                // Date text
+                                if (!_isLoadingStreaks)
+                                  Text(
+                                    '${date.day}',
+                                    style: TextStyle(
+                                      color: _getDateTextColor(
+                                        date,
+                                        isDarkTheme,
+                                      ),
+                                      fontSize: screenWidth * 0.04,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-
-                  // Streak legend
-                  if (!_isLoadingStreaks)
-                    Padding(
-                      padding: EdgeInsets.only(top: screenHeight * 0.015),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildLegendItem(
-                            Colors.green.withOpacity(0.3),
-                            'Logged in',
-                            isDarkTheme,
-                          ),
-                          SizedBox(width: screenWidth * 0.04),
-                          _buildLegendItem(
-                            Colors.red.withOpacity(0.3),
-                            'Missed',
-                            isDarkTheme,
-                          ),
-                          SizedBox(width: screenWidth * 0.04),
-                          _buildLegendItem(
-                            AppColors.accent(isDarkTheme),
-                            'Today',
-                            isDarkTheme,
-                          ),
-                        ],
-                      ),
+                        );
+                      }).toList(),
                     ),
-                ],
+
+                    // Streak legend
+                    if (!_isLoadingStreaks)
+                      Padding(
+                        padding: EdgeInsets.only(top: screenHeight * 0.015),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildLegendItem(
+                              Colors.green.withOpacity(0.3),
+                              'Logged in',
+                              isDarkTheme,
+                            ),
+                            SizedBox(width: screenWidth * 0.04),
+                            _buildLegendItem(
+                              Colors.red.withOpacity(0.3),
+                              'Missed',
+                              isDarkTheme,
+                            ),
+                            SizedBox(width: screenWidth * 0.04),
+                            _buildLegendItem(
+                              AppColors.accent(isDarkTheme),
+                              'Today',
+                              isDarkTheme,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
 
-            SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: screenHeight * 0.03),
 
-            // Combined PageView with all cards - Responsive height
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: screenHeight * 0.45,
-                maxHeight: screenHeight * 0.55,
+              // Combined PageView with all cards - Fixed height
+              SizedBox(
+                height: screenHeight * 0.5,
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPageIndex = index;
+                    });
+                  },
+                  children: [
+                    // Left Page - New Features Coming Soon
+                    _buildNewFeaturesPage(isDarkTheme),
+                    // Center Page - Main Content with Macro Cards
+                    _buildMainContentPage(isDarkTheme),
+                    // Right Page - Log Activities
+                    _buildLogActivitiesPage(isDarkTheme),
+                  ],
+                ),
               ),
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPageIndex = index;
-                  });
-                },
-                children: [
-                  // Left Page - New Features Coming Soon
-                  _buildNewFeaturesPage(isDarkTheme),
 
-                  // Center Page - Main Content with Macro Cards
-                  _buildMainContentPage(isDarkTheme),
+              SizedBox(height: screenHeight * 0.02),
 
-                  // Right Page - Log Activities
-                  _buildLogActivitiesPage(isDarkTheme),
-                ],
+              // Page Indicator
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(3, (index) {
+                  return Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.01,
+                    ),
+                    width: _currentPageIndex == index
+                        ? screenWidth * 0.03
+                        : screenWidth * 0.02,
+                    height: screenWidth * 0.02,
+                    decoration: BoxDecoration(
+                      color: _currentPageIndex == index
+                          ? AppColors.primary(isDarkTheme)
+                          : (isDarkTheme ? Colors.white30 : Colors.black26),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  );
+                }),
               ),
-            ),
 
-            SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: screenHeight * 0.03),
 
-            // Page Indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(3, (index) {
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-                  width: _currentPageIndex == index
-                      ? screenWidth * 0.03
-                      : screenWidth * 0.02,
-                  height: screenWidth * 0.02,
-                  decoration: BoxDecoration(
-                    color: _currentPageIndex == index
-                        ? AppColors.primary(isDarkTheme)
-                        : (isDarkTheme ? Colors.white30 : Colors.black26),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                );
-              }),
-            ),
+              // AI Lab Quick Actions - Full section
+              _buildFullAILabSection(isDarkTheme),
 
-            SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: screenHeight * 0.03),
 
-            // AI Lab Quick Actions - Full section
-            _buildFullAILabSection(isDarkTheme),
+              // Wellness Tips Section
+              _buildWellnessTipsSection(isDarkTheme),
 
-            SizedBox(height: screenHeight * 0.03),
-
-            // Wellness Tips Section
-            _buildWellnessTipsSection(isDarkTheme),
-
-            SizedBox(height: screenHeight * 0.001),
-          ],
+              SizedBox(height: screenHeight * 0.001),
+            ],
+          ),
         ),
       ),
     );
@@ -546,53 +538,40 @@ class _HomescreenState extends State<Homescreen> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-      child: Column(
-        children: [
-          // Main card
-          Expanded(
-            flex: 3,
-            child: Container(
-              padding: EdgeInsets.all(screenWidth * 0.05),
-              decoration: _getCardDecoration(isDarkTheme),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.auto_awesome,
-                    color: AppColors.primary(isDarkTheme),
-                    size: screenWidth * 0.08,
-                  ),
-                  SizedBox(height: screenHeight * 0.015),
-                  Text(
-                    'New Features Coming Soon!',
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.white : Colors.black87,
-                      fontSize: screenWidth * 0.045,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  Text(
-                    "We're always working on new ways to help you on your wellness journey. Stay tuned!",
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.white70 : Colors.black54,
-                      fontSize: screenWidth * 0.03,
-                      height: 1.3,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+      height: double.infinity, // Full height
+      child: Container(
+        padding: EdgeInsets.all(screenWidth * 0.05),
+        decoration: _getCardDecoration(isDarkTheme),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.auto_awesome,
+              color: AppColors.primary(isDarkTheme),
+              size: screenWidth * 0.08,
             ),
-          ),
-          SizedBox(height: screenHeight * 0.02),
-          // Empty space for consistency
-          Expanded(
-            flex: 2,
-            child: Container(),
-          ),
-        ],
+            SizedBox(height: screenHeight * 0.015),
+            Text(
+              'New Features Coming Soon!',
+              style: TextStyle(
+                color: isDarkTheme ? Colors.white : Colors.black87,
+                fontSize: screenWidth * 0.045,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            Text(
+              "We're always working on new ways to help you on your wellness journey. Stay tuned!",
+              style: TextStyle(
+                color: isDarkTheme ? Colors.white70 : Colors.black54,
+                fontSize: screenWidth * 0.03,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -605,30 +584,28 @@ class _HomescreenState extends State<Homescreen> {
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
       child: Column(
         children: [
-          // Main content card
+          // Main content card - REDUCED HEIGHT
+          Expanded(flex: 2, child: _buildMainContentCard(isDarkTheme)),
+
+          SizedBox(height: screenHeight * 0.025),
+
+          // Macro tracking section - INCREASED HEIGHT
           Expanded(
             flex: 3,
-            child: _buildMainContentCard(isDarkTheme),
-          ),
-          
-          SizedBox(height: screenHeight * 0.02),
-          
-          // Macro tracking section
-          Expanded(
-            flex: 2,
             child: Column(
               children: [
-                // Protein, Carbs, Fats row
+                // Protein, Carbs, Fats row - Reduced height
                 Expanded(
+                  flex: 13,
                   child: _buildMacroTrackingSection(isDarkTheme),
                 ),
-                
-                SizedBox(height: screenHeight * 0.015),
-                
-                // Fiber section
+                SizedBox(height: screenHeight * 0.018),
+
+                // Fiber section - Increased height
                 Expanded(
+                  flex: 10,
                   child: _buildFiberSection(isDarkTheme),
-                ),
+                ), // Kept flex: 1 but will adjust padding
               ],
             ),
           ),
@@ -643,53 +620,40 @@ class _HomescreenState extends State<Homescreen> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-      child: Column(
-        children: [
-          // Main card
-          Expanded(
-            flex: 3,
-            child: Container(
-              padding: EdgeInsets.all(screenWidth * 0.05),
-              decoration: _getCardDecoration(isDarkTheme),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.fitness_center,
-                    color: AppColors.primary(isDarkTheme),
-                    size: screenWidth * 0.08,
-                  ),
-                  SizedBox(height: screenHeight * 0.015),
-                  Text(
-                    'Log Your Activities',
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.white : Colors.black87,
-                      fontSize: screenWidth * 0.045,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  Text(
-                    'Go to tracker to log your meals, workouts, and daily activities.',
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.white70 : Colors.black54,
-                      fontSize: screenWidth * 0.03,
-                      height: 1.3,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+      height: double.infinity, // Full height
+      child: Container(
+        padding: EdgeInsets.all(screenWidth * 0.05),
+        decoration: _getCardDecoration(isDarkTheme),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.fitness_center,
+              color: AppColors.primary(isDarkTheme),
+              size: screenWidth * 0.08,
             ),
-          ),
-          SizedBox(height: screenHeight * 0.02),
-          // Empty space for consistency
-          Expanded(
-            flex: 2,
-            child: Container(),
-          ),
-        ],
+            SizedBox(height: screenHeight * 0.015),
+            Text(
+              'Log Your Activities',
+              style: TextStyle(
+                color: isDarkTheme ? Colors.white : Colors.black87,
+                fontSize: screenWidth * 0.045,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            Text(
+              'Go to tracker to log your meals, workouts, and daily activities.',
+              style: TextStyle(
+                color: isDarkTheme ? Colors.white70 : Colors.black54,
+                fontSize: screenWidth * 0.03,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -806,7 +770,7 @@ class _HomescreenState extends State<Homescreen> {
       );
     }
 
-    // Show data from Firebase
+    // Show data from Firebase - FIXED VERSION
     return Container(
       padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: _getCardDecoration(isDarkTheme),
@@ -827,25 +791,21 @@ class _HomescreenState extends State<Homescreen> {
                   'Your Daily Macro Targets',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white : Colors.black87,
-                    fontSize: screenWidth * 0.04,
+                    fontSize: screenWidth * 0.045,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: screenHeight * 0.005),
           Text(
             'Personalized goals based on your profile.',
             style: TextStyle(
               color: isDarkTheme ? Colors.white70 : Colors.black54,
-              fontSize: screenWidth * 0.03,
+              fontSize: screenWidth * 0.032,
             ),
           ),
-          SizedBox(height: screenHeight * 0.008),
-          Divider(),
-          SizedBox(height: screenHeight * 0.008),
-
+          SizedBox(height: screenHeight * 0.005),
           // Calories Section with Firebase data
           Expanded(
             child: Row(
@@ -923,7 +883,6 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 
-  // Update the _buildMacroTrackingSection method to pass custom colors
   Widget _buildMacroTrackingSection(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -991,117 +950,117 @@ class _HomescreenState extends State<Homescreen> {
       );
     }
 
-    // Use LayoutBuilder for responsive design
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Row(
-          children: [
-            Expanded(
-              child: _buildMacroCard(
-                'Protein',
-                '${_goalsData!['protein'] ?? 0}',
-                'g left',
-                Icons.flash_on,
-                Colors.amber, // Yellow color for protein
-                isDarkTheme,
-              ),
-            ),
-            SizedBox(width: screenWidth * 0.03),
-            Expanded(
-              child: _buildMacroCard(
-                'Carbs',
-                '${_goalsData!['carbs'] ?? 0}',
-                'g left',
-                Icons.grain,
-                Colors.green, // Green color for carbs
-                isDarkTheme,
-              ),
-            ),
-            SizedBox(width: screenWidth * 0.03),
-            Expanded(
-              child: _buildMacroCard(
-                'Fats',
-                '${_goalsData!['fat'] ?? 0}',
-                'g left',
-                Icons.water_drop,
-                Colors.blue, // Blue color for fats
-                isDarkTheme,
-              ),
-            ),
-          ],
-        );
-      },
+    return Row(
+      children: [
+        Expanded(
+          child: _buildMacroCard(
+            'Protein',
+            '${_goalsData!['protein'] ?? 0}',
+            'g left',
+            Icons.flash_on,
+            Colors.amber,
+            isDarkTheme,
+          ),
+        ),
+        SizedBox(width: screenWidth * 0.03),
+        Expanded(
+          child: _buildMacroCard(
+            'Carbs',
+            '${_goalsData!['carbs'] ?? 0}',
+            'g left',
+            Icons.grain,
+            Colors.green,
+            isDarkTheme,
+          ),
+        ),
+        SizedBox(width: screenWidth * 0.03),
+        Expanded(
+          child: _buildMacroCard(
+            'Fats',
+            '${_goalsData!['fat'] ?? 0}',
+            'g left',
+            Icons.water_drop,
+            Colors.blue,
+            isDarkTheme,
+          ),
+        ),
+      ],
     );
   }
 
-  // Update the _buildMacroCard method to accept a color parameter and be responsive
   Widget _buildMacroCard(
     String title,
     String value,
     String unit,
     IconData icon,
-    Color iconColor, // New color parameter
+    Color iconColor,
     bool isDarkTheme,
   ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      padding: EdgeInsets.all(screenWidth * 0.04),
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.018,
+        vertical: screenHeight * 0.008,
+      ),
       decoration: _getCardDecoration(isDarkTheme),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Title
           Text(
             title,
             style: TextStyle(
               color: isDarkTheme ? Colors.white70 : Colors.black54,
               fontSize: screenWidth * 0.035,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
-          SizedBox(height: screenHeight * 0.015),
+          if (title == 'Protein') SizedBox(height: screenHeight * 0.01),
+          if (title == 'Carbs') SizedBox(height: screenHeight * 0.01),
+          if (title == 'Fats') SizedBox(height: screenHeight * 0.01),
+          // Icon
           Container(
-            padding: EdgeInsets.all(screenWidth * 0.02),
+            padding: EdgeInsets.all(screenWidth * 0.015),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(
-                0.1,
-              ), // Use custom color with opacity
+              color: iconColor.withOpacity(0.16),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: iconColor, // Use the custom color
-              size: screenWidth * 0.06,
-            ),
+            child: Icon(icon, color: iconColor, size: screenWidth * 0.06),
           ),
-          SizedBox(height: screenHeight * 0.015),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: value,
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.white : Colors.black87,
-                      fontSize: screenWidth * 0.06,
-                      fontWeight: FontWeight.bold,
-                    ),
+          // Value with unit
+          Flexible(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: isDarkTheme ? Colors.white : Colors.black87,
+                    fontSize: screenWidth * 0.05,
+                    fontWeight: FontWeight.bold,
                   ),
-                  TextSpan(
-                    text: ' $unit',
-                    style: TextStyle(
-                      color: isDarkTheme ? Colors.white70 : Colors.black54,
-                      fontSize: screenWidth * 0.035,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  unit,
+                  style: TextStyle(
+                    color: isDarkTheme ? Colors.white70 : Colors.black54,
+                    fontSize: screenWidth * 0.03,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ],
@@ -1109,6 +1068,7 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 
+  // FIXED FIBER SECTION - COMPLETELY REDESIGNED
   Widget _buildFiberSection(bool isDarkTheme) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1116,41 +1076,49 @@ class _HomescreenState extends State<Homescreen> {
     // Show loading or error states
     if (_isLoadingGoals) {
       return Container(
-        padding: EdgeInsets.all(screenWidth * 0.05),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.04,
+          vertical: screenHeight * 0.015, // Increased vertical padding
+        ),
         decoration: _getCardDecoration(isDarkTheme),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Fiber Remaining',
                   style: TextStyle(
                     color: isDarkTheme ? Colors.white70 : Colors.black54,
-                    fontSize: screenWidth * 0.035,
+                    fontSize: screenWidth * 0.03,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.01),
-                CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.primary(isDarkTheme),
+                SizedBox(height: screenHeight * 0.005),
+                SizedBox(
+                  width: screenWidth * 0.05,
+                  height: screenWidth * 0.05,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.primary(isDarkTheme),
+                    ),
                   ),
                 ),
               ],
             ),
             Container(
-              padding: EdgeInsets.all(screenWidth * 0.03),
+              padding: EdgeInsets.all(screenWidth * 0.02),
               decoration: BoxDecoration(
-                color: AppColors.primary(isDarkTheme).withOpacity(0.2),
+                color: AppColors.primary(isDarkTheme).withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.eco,
                 color: AppColors.primary(isDarkTheme),
-                size: screenWidth * 0.06,
+                size: screenWidth * 0.05,
               ),
             ),
           ],
@@ -1159,65 +1127,67 @@ class _HomescreenState extends State<Homescreen> {
     }
 
     return Container(
-      padding: EdgeInsets.all(screenWidth * 0.05),
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.04,
+        vertical: screenHeight * 0.015, // Increased vertical padding
+      ),
       decoration: _getCardDecoration(isDarkTheme),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Fiber Remaining',
-                  style: TextStyle(
-                    color: isDarkTheme ? Colors.white70 : Colors.black54,
-                    fontSize: screenWidth * 0.035,
-                    fontWeight: FontWeight.w500,
-                  ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Fiber Remaining',
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.white70 : Colors.black54,
+                  fontSize: screenWidth * 0.04,
+                  fontWeight: FontWeight.w600,
                 ),
-                SizedBox(height: screenHeight * 0.01),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${_goalsData?['fiber'] ?? 0}',
-                          style: TextStyle(
-                            color: isDarkTheme ? Colors.white : Colors.black87,
-                            fontSize: screenWidth * 0.08,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' g',
-                          style: TextStyle(
-                            color: isDarkTheme
-                                ? Colors.white70
-                                : Colors.black54,
-                            fontSize: screenWidth * 0.04,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: screenHeight * 0.0025),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '${_goalsData?['fiber'] ?? 0}',
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.white : Colors.black87,
+                      fontSize: screenWidth * 0.08,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(width: screenWidth * 0.008),
+                  Text(
+                    'g',
+                    style: TextStyle(
+                      color: isDarkTheme ? Colors.white70 : Colors.black54,
+                      fontSize: screenWidth * 0.03,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
           Container(
             padding: EdgeInsets.all(screenWidth * 0.03),
             decoration: BoxDecoration(
-              color: AppColors.primary(isDarkTheme).withOpacity(0.2),
+              color: AppColors.primary(isDarkTheme).withOpacity(0.16),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.eco,
               color: AppColors.primary(isDarkTheme),
-              size: screenWidth * 0.06,
+              size: screenWidth * 0.05,
             ),
           ),
         ],
@@ -1344,7 +1314,7 @@ class _HomescreenState extends State<Homescreen> {
                     children: [
                       Expanded(
                         child: _buildAILabCard(
-                          'Smart Gymkit',
+                          'AI Workout Planner',
                           'Your gym companion.',
                           Icons.show_chart,
                           'smart-gymkit',
@@ -1433,11 +1403,10 @@ class _HomescreenState extends State<Homescreen> {
               child: Icon(
                 icon,
                 color: AppColors.primary(isDarkTheme),
-                size: screenWidth * 0.045,
+                size: screenWidth * 0.059,
               ),
             ),
 
-            // Text content at bottom
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1447,7 +1416,7 @@ class _HomescreenState extends State<Homescreen> {
                     title,
                     style: TextStyle(
                       color: isDarkTheme ? Colors.white : Colors.black87,
-                      fontSize: screenWidth * 0.0325,
+                      fontSize: screenWidth * 0.0365,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
                     ),

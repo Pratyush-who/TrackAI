@@ -207,7 +207,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -251,9 +251,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground(true).withOpacity(0.8),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkGrey, width: 1),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       child: Row(
         children: [
@@ -265,9 +265,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: !isMetric
-                      ? AppColors.successColor
-                      : Colors.transparent,
+                  color: !isMetric ? AppColors.darkPrimary : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -276,9 +274,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: !isMetric
-                          ? Colors.white
-                          : AppColors.textSecondary(true),
+                      color: !isMetric ? Colors.white : Colors.black54,
                     ),
                   ),
                 ),
@@ -293,7 +289,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: isMetric ? AppColors.successColor : Colors.transparent,
+                  color: isMetric ? AppColors.darkPrimary : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -302,9 +298,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isMetric
-                          ? Colors.white
-                          : AppColors.textSecondary(true),
+                      color: isMetric ? Colors.white : Colors.black54,
                     ),
                   ),
                 ),
@@ -334,7 +328,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
         const SizedBox(height: 16),
@@ -342,9 +336,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           height: 300,
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: AppColors.cardBackground(true).withOpacity(0.8),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.darkGrey, width: 1),
+            border: Border.all(color: Colors.grey.shade300, width: 1),
           ),
           child: isMetric
               ? _buildMetricHeightSlider()
@@ -358,7 +352,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: AppColors.successColor,
+            color: AppColors.darkPrimary,
           ),
         ),
       ],
@@ -376,7 +370,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                 'ft',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary(true),
+                  color: Colors.black54,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -392,10 +386,10 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                       overlayShape: const RoundSliderOverlayShape(
                         overlayRadius: 20,
                       ),
-                      activeTrackColor: AppColors.successColor,
-                      inactiveTrackColor: AppColors.darkGrey,
-                      thumbColor: AppColors.successColor,
-                      overlayColor: AppColors.successColor.withOpacity(0.3),
+                      activeTrackColor: AppColors.darkPrimary,
+                      inactiveTrackColor: Colors.grey.shade300,
+                      thumbColor: AppColors.darkPrimary,
+                      overlayColor: AppColors.darkPrimary.withOpacity(0.3),
                     ),
                     child: Slider(
                       value: heightFeet,
@@ -425,7 +419,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                 'in',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary(true),
+                  color: Colors.black54,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -441,10 +435,10 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                       overlayShape: const RoundSliderOverlayShape(
                         overlayRadius: 20,
                       ),
-                      activeTrackColor: AppColors.successColor,
-                      inactiveTrackColor: AppColors.darkGrey,
-                      thumbColor: AppColors.successColor,
-                      overlayColor: AppColors.successColor.withOpacity(0.3),
+                      activeTrackColor: AppColors.darkPrimary,
+                      inactiveTrackColor: Colors.grey.shade300,
+                      thumbColor: AppColors.darkPrimary,
+                      overlayColor: AppColors.darkPrimary.withOpacity(0.3),
                     ),
                     child: Slider(
                       value: heightInches,
@@ -477,7 +471,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           'cm',
           style: TextStyle(
             fontSize: 14,
-            color: AppColors.textSecondary(true),
+            color: Colors.black54,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -489,10 +483,10 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                 trackHeight: 6,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
-                activeTrackColor: AppColors.successColor,
-                inactiveTrackColor: AppColors.darkGrey,
-                thumbColor: AppColors.successColor,
-                overlayColor: AppColors.successColor.withOpacity(0.3),
+                activeTrackColor: AppColors.darkPrimary,
+                inactiveTrackColor: Colors.grey.shade300,
+                thumbColor: AppColors.darkPrimary,
+                overlayColor: AppColors.darkPrimary.withOpacity(0.3),
               ),
               child: Slider(
                 value: heightCm,
@@ -525,7 +519,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
         const SizedBox(height: 16),
@@ -533,9 +527,9 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           height: 300,
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: AppColors.cardBackground(true).withOpacity(0.8),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.darkGrey, width: 1),
+            border: Border.all(color: Colors.grey.shade300, width: 1),
           ),
           child: Column(
             children: [
@@ -543,7 +537,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                 isMetric ? 'kg' : 'lbs',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary(true),
+                  color: Colors.black54,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -559,10 +553,10 @@ class _HeightWeightPageState extends State<HeightWeightPage>
                       overlayShape: const RoundSliderOverlayShape(
                         overlayRadius: 20,
                       ),
-                      activeTrackColor: AppColors.successColor,
-                      inactiveTrackColor: AppColors.darkGrey,
-                      thumbColor: AppColors.successColor,
-                      overlayColor: AppColors.successColor.withOpacity(0.3),
+                      activeTrackColor: AppColors.darkPrimary,
+                      inactiveTrackColor: Colors.grey.shade300,
+                      thumbColor: AppColors.darkPrimary,
+                      overlayColor: AppColors.darkPrimary.withOpacity(0.3),
                     ),
                     child: Slider(
                       value: isMetric ? weightKg : weightLbs,
@@ -594,7 +588,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: AppColors.successColor,
+            color: AppColors.darkPrimary,
           ),
         ),
       ],
@@ -607,7 +601,7 @@ class _HeightWeightPageState extends State<HeightWeightPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        color: AppColors.lightPrimary,
+        color: AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: _continue,

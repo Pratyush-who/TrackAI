@@ -191,7 +191,7 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -265,10 +265,10 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary(true).withOpacity(0.1)
-              : AppColors.cardBackground(true),
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary(true) : AppColors.darkGrey,
+            color: isSelected ? AppColors.primary(true) : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -280,14 +280,10 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primary(true).withOpacity(0.2)
-                    : AppColors.darkGrey.withOpacity(0.3),
+                    : AppColors.darkPrimary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: isSelected ? AppColors.primary(true) : Colors.white70,
-                size: 24,
-              ),
+              child: Icon(icon, color: AppColors.darkPrimary, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -301,7 +297,7 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
                       fontWeight: FontWeight.w600,
                       color: isSelected
                           ? AppColors.primary(true)
-                          : AppColors.textPrimary(true),
+                          : Colors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -309,7 +305,7 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
                     subtitle,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary(true),
+                      color: Colors.black54,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -334,8 +330,10 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        
-        color: selectedAccomplishment == null ? AppColors.darkGrey : AppColors.darkPrimary,
+
+        color: selectedAccomplishment == null
+            ? Colors.grey[300]
+            : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedAccomplishment != null ? _continue : null,
@@ -350,7 +348,9 @@ class _AccomplishmentPageState extends State<AccomplishmentPage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedAccomplishment != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
+            color: selectedAccomplishment != null
+                ? AppColors.textPrimary(true)
+                : AppColors.textSecondary(true),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

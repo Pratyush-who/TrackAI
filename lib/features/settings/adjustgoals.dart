@@ -59,7 +59,6 @@ class _AdjustGoalsPageState extends State<AdjustGoalsPage> {
     });
 
     try {
-      // Get onboarding data from Firebase
       final onboardingData = await OnboardingService.getOnboardingData();
       
       if (onboardingData == null) {

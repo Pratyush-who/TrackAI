@@ -78,9 +78,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
           child: SlideTransition(
             position: _slideAnimation,
             child: Container(
-              decoration: BoxDecoration(
-                
-              ),
+              decoration: BoxDecoration(),
               child: SafeArea(
                 child: Padding(
                   padding: EdgeInsets.symmetric(
@@ -88,7 +86,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
                     vertical: screenHeight * 0.02,
                   ),
                   child: Column(
-                    children: [                      
+                    children: [
                       // Main content - scrollable
                       Expanded(
                         child: SingleChildScrollView(
@@ -113,7 +111,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
                           ),
                         ),
                       ),
-                      
+
                       // Bottom button
                       _buildNextButton(),
                     ],
@@ -127,17 +125,14 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
     );
   }
 
- Widget _buildIcon() {
+  Widget _buildIcon() {
     return Container(
       width: 80,
       height: 80,
       decoration: BoxDecoration(
         color: AppColors.primary(true).withOpacity(0.1),
         shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.primary(true),
-          width: 0.5,
-        ),
+        border: Border.all(color: AppColors.primary(true), width: 0.5),
       ),
       child: Icon(
         FontAwesomeIcons.userGroup,
@@ -153,7 +148,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -174,11 +169,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.info_outline,
-            color: AppColors.primary(true),
-            size: 16,
-          ),
+          Icon(Icons.info_outline, color: AppColors.primary(true), size: 16),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
@@ -211,7 +202,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
 
   Widget _buildGenderOption(String gender) {
     final isSelected = selectedGender == gender;
-    
+
     return GestureDetector(
       onTap: () => _selectGender(gender),
       child: AnimatedContainer(
@@ -219,14 +210,12 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? AppColors.primary(true).withOpacity(0.1)
-              : AppColors.cardBackground(true),
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
-                ? AppColors.primary(true)
-                : AppColors.darkGrey,
+            color: isSelected ? AppColors.primary(true) : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -238,9 +227,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isSelected 
-                      ? AppColors.primary(true)
-                      : AppColors.textPrimary(true),
+                  color: isSelected ? AppColors.primary(true) : Colors.black87,
                 ),
               ),
             ),
@@ -262,8 +249,9 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        
-        color: selectedGender == null ? AppColors.darkGrey : AppColors.darkPrimary,
+        color: selectedGender == null
+            ? Colors.grey[300]
+            : AppColors.darkPrimary,
       ),
       child: ElevatedButton(
         onPressed: selectedGender != null ? _continue : null,
@@ -278,7 +266,7 @@ class _GenderSelectionPageState extends State<GenderSelectionPage>
         child: Text(
           'Next',
           style: TextStyle(
-            color: selectedGender != null ? AppColors.textPrimary(true) : AppColors.textSecondary(true),
+            color: selectedGender != null ? Colors.white : Colors.grey[600],
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

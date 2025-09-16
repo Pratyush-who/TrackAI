@@ -6,6 +6,7 @@ import 'package:trackai/core/services/auth_services.dart';
 import 'package:trackai/core/services/streak_service.dart';
 import 'package:trackai/core/themes/theme_provider.dart';
 import 'package:trackai/features/analytics/analyticsscreen.dart';
+import 'package:trackai/features/home/homepage/desc%20and%20scan/food_desc.dart';
 import 'package:trackai/features/home/presentation/homescreen.dart';
 import 'package:trackai/features/settings/service/cam_Screen.dart';
 import 'package:trackai/features/settings/presentation/settingsscreen.dart';
@@ -81,40 +82,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       vsync: this,
     );
     _fabExpandController = AnimationController(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
     _fabAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeOut),
     );
     _fabExpandAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fabExpandController, curve: Curves.easeOutCubic),
+      CurvedAnimation(parent: _fabExpandController, curve: Curves.easeOutBack),
     );
 
-    // Smoother slide animations
+    // Improved slide animations
     _fabSlideAnimation1 =
         Tween<Offset>(
-          begin: const Offset(0.8, 0.0),
+          begin: const Offset(1.2, 0.0),
           end: const Offset(0.0, 0.0),
         ).animate(
           CurvedAnimation(
             parent: _fabExpandController,
-            curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic),
+            curve: const Interval(0.0, 0.7, curve: Curves.easeOutBack),
           ),
         );
 
     _fabSlideAnimation2 =
         Tween<Offset>(
-          begin: const Offset(0.8, 0.0),
+          begin: const Offset(1.2, 0.0),
           end: const Offset(0.0, 0.0),
         ).animate(
           CurvedAnimation(
             parent: _fabExpandController,
-            curve: const Interval(0.1, 0.9, curve: Curves.easeOutCubic),
+            curve: const Interval(0.2, 0.9, curve: Curves.easeOutBack),
           ),
         );
 
-    // Smoother rotation animation
+    // Smooth rotation animation
     _fabRotationAnimation = Tween<double>(begin: 0.0, end: 0.125).animate(
       CurvedAnimation(parent: _fabExpandController, curve: Curves.easeInOut),
     );
@@ -142,7 +143,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     try {
       final currentStreak = await StreakService.getCurrentStreakCount();
       final longestStreak = await StreakService.getLongestStreak();
-      
+
       setState(() {
         _currentStreak = currentStreak;
         _longestStreak = longestStreak;
@@ -204,33 +205,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _onDescribeFood() async {
     _toggleFabExpansion();
-    
+
     // Add slight delay for better UX
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     if (mounted) {
       Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const ImageAnalysisScreen(
-            analysisType: 'describe',
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => const FoodDescriptionScreen()),
       );
     }
   }
 
   void _onScanNutrition() async {
     _toggleFabExpansion();
-    
+
     // Add slight delay for better UX
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     if (mounted) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const ImageAnalysisScreen(
-            analysisType: 'scan',
-          ),
+          builder: (context) => const ImageAnalysisScreen(analysisType: 'scan'),
         ),
       );
     }
@@ -322,17 +317,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildStreakStatRow(String title, String value, IconData icon, bool isDark) {
+  Widget _buildStreakStatRow(
+    String title,
+    String value,
+    IconData icon,
+    bool isDark,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            Icon(
-              icon,
-              color: AppColors.primary(isDark),
-              size: 16,
-            ),
+            Icon(icon, color: AppColors.primary(isDark), size: 16),
             const SizedBox(width: 8),
             Text(
               title,
@@ -374,12 +370,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 // Pattern background behind content but still allowing interactions
                 if (_patternBackgroundEnabled)
                   Positioned.fill(
-                    child: IgnorePointer( // This is the key fix - ignores pointer events
+                    child: IgnorePointer(
+                      // This is the key fix - ignores pointer events
                       child: CustomPaint(
                         painter: PatternBackgroundPainter(
                           color: isDark
-                              ? Colors.white.withOpacity(0.12) // More visible in dark mode
-                              : Colors.black.withOpacity(0.08), // More visible in light mode
+                              ? Colors.white.withOpacity(
+                                  0.12,
+                                ) // More visible in dark mode
+                              : Colors.black.withOpacity(
+                                  0.08,
+                                ), // More visible in light mode
                         ),
                       ),
                     ),
@@ -468,14 +469,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.red,
-                        ),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                       ),
                     ),
                   )
                 : Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -486,7 +488,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _currentStreak > 99 ? '99+' : _currentStreak.toString(),
+                          _currentStreak > 99
+                              ? '99+'
+                              : _currentStreak.toString(),
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black,
                             fontSize: 14,
@@ -554,26 +558,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         backgroundColor: Colors.transparent,
         elevation: 0,
         selectedItemColor: const Color.fromRGBO(95, 200, 185, 1.0),
-        unselectedItemColor: isDark 
-            ? Colors.grey[600] 
-            : Colors.grey[500],
+        unselectedItemColor: isDark ? Colors.grey[600] : Colors.grey[500],
         selectedFontSize: 12,
         unselectedFontSize: 12,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w400,
-        ),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
         items: _navItems.map((item) {
           final isSelected = _navItems.indexOf(item) == currentIndex;
           return BottomNavigationBarItem(
             icon: Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Icon(
-                isSelected ? item.activeIcon : item.icon,
-                size: 24,
-              ),
+              child: Icon(isSelected ? item.activeIcon : item.icon, size: 24),
             ),
             label: item.label,
           );
@@ -589,33 +584,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         return Stack(
           alignment: Alignment.bottomRight,
           children: [
-            // Backdrop for expanded FABs - only show when expanding
-            if (_fabExpandController.value > 0.0)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Opacity(
-                  opacity: _fabExpandController.value,
-                  child: Container(
-                    width: 280 * _fabExpandController.value,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.black.withOpacity(0.3 * _fabExpandController.value)
-                          : Colors.white.withOpacity(0.8 * _fabExpandController.value),
-                      borderRadius: BorderRadius.circular(40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1 * _fabExpandController.value),
-                          blurRadius: 10 * _fabExpandController.value,
-                          spreadRadius: 2 * _fabExpandController.value,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
+            // Remove the ugly white backdrop completely
             // Expandable buttons row
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -628,33 +597,37 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: FadeTransition(
                       opacity: _fabExpandAnimation,
                       child: Container(
-                        margin: const EdgeInsets.only(right: 12),
+                        margin: const EdgeInsets.only(right: 16, bottom: 8),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              margin: const EdgeInsets.only(bottom: 4),
+                              margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
+                                horizontal: 12,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: isDark
-                                    ? Colors.white.withOpacity(0.9)
-                                    : Colors.black.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.cardBackground(
+                                  isDark,
+                                ).withOpacity(0.95),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: AppColors.darkPrimary.withOpacity(0.2),
+                                  width: 1,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
                               child: Text(
-                                'Scan',
+                                'Scan Nutrition',
                                 style: TextStyle(
-                                  color: isDark ? Colors.black87 : Colors.white,
+                                  color: AppColors.textPrimary(isDark),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -665,6 +638,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               mini: true,
                               onPressed: _onScanNutrition,
                               backgroundColor: AppColors.accent(isDark),
+                              elevation: 4,
                               shape: const CircleBorder(),
                               child: const Icon(
                                 Icons.qr_code_scanner,
@@ -685,33 +659,37 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: FadeTransition(
                       opacity: _fabExpandAnimation,
                       child: Container(
-                        margin: const EdgeInsets.only(right: 12),
+                        margin: const EdgeInsets.only(right: 16, bottom: 8),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              margin: const EdgeInsets.only(bottom: 4),
+                              margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
+                                horizontal: 12,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: isDark
-                                    ? Colors.white.withOpacity(0.9)
-                                    : Colors.black.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.cardBackground(
+                                  isDark,
+                                ).withOpacity(0.95),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: AppColors.darkPrimary.withOpacity(0.2),
+                                  width: 1,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
                               child: Text(
-                                'Describe',
+                                'Describe Food',
                                 style: TextStyle(
-                                  color: isDark ? Colors.black87 : Colors.white,
+                                  color: AppColors.textPrimary(isDark),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -722,6 +700,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               mini: true,
                               onPressed: _onDescribeFood,
                               backgroundColor: AppColors.primary(isDark),
+                              elevation: 4,
                               shape: const CircleBorder(),
                               child: const Icon(
                                 Icons.restaurant_menu,
@@ -735,30 +714,39 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
 
-                // Main FAB - smoother animation
+                // Main FAB - improved animation
                 AnimatedBuilder(
                   animation: _fabAnimation,
                   builder: (context, child) {
                     return Transform.scale(
                       scale: _fabAnimation.value,
-                      child: FloatingActionButton(
-                        heroTag: "main_fab",
-                        onPressed: _toggleFabExpansion,
-                        backgroundColor: const Color.fromRGBO(95, 200, 185, 1.0),
-                        shape: const CircleBorder(),
-                        elevation: 6,
-                        child: AnimatedBuilder(
-                          animation: _fabRotationAnimation,
-                          builder: (context, child) {
-                            return Transform.rotate(
-                              angle: _fabRotationAnimation.value * 2 * 3.14159,
-                              child: const Icon(
-                                Icons.add,
-                                color: AppColors.white,
-                                size: 28,
-                              ),
-                            );
-                          },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: FloatingActionButton(
+                          heroTag: "main_fab",
+                          onPressed: _toggleFabExpansion,
+                          backgroundColor: const Color.fromRGBO(
+                            95,
+                            200,
+                            185,
+                            1.0,
+                          ),
+                          shape: const CircleBorder(),
+                          elevation: 6,
+                          child: AnimatedBuilder(
+                            animation: _fabRotationAnimation,
+                            builder: (context, child) {
+                              return Transform.rotate(
+                                angle:
+                                    _fabRotationAnimation.value * 2 * 3.14159,
+                                child: const Icon(
+                                  Icons.add,
+                                  color: AppColors.white,
+                                  size: 28,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     );
@@ -837,11 +825,7 @@ class PatternBackgroundPainter extends CustomPainter {
     // Draw grid of dots
     for (double x = spacing; x < size.width; x += spacing) {
       for (double y = spacing; y < size.height; y += spacing) {
-        canvas.drawCircle(
-          Offset(x, y),
-          dotRadius,
-          paint,
-        );
+        canvas.drawCircle(Offset(x, y), dotRadius, paint);
       }
     }
   }

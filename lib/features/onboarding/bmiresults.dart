@@ -135,7 +135,6 @@ class _BmiResultsPageState extends State<BmiResultsPage>
                               const SizedBox(height: 24),
                               _buildSubtitle(),
                               const SizedBox(height: 48),
-
                               _buildResultsCard(),
                               const SizedBox(height: 32),
                               _buildHealthMessage(),
@@ -207,7 +206,7 @@ class _BmiResultsPageState extends State<BmiResultsPage>
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: Colors.black,
         letterSpacing: -0.5,
       ),
       textAlign: TextAlign.center,
@@ -252,13 +251,12 @@ class _BmiResultsPageState extends State<BmiResultsPage>
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground(true),
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkGrey, width: 1),
+        border: Border.all(color: AppColors.darkGrey, width: 0.7),
       ),
       child: Column(
         children: [
-          // Health Score
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -267,7 +265,7 @@ class _BmiResultsPageState extends State<BmiResultsPage>
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
               AnimatedBuilder(
@@ -296,7 +294,7 @@ class _BmiResultsPageState extends State<BmiResultsPage>
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
               Column(

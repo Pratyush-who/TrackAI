@@ -13,6 +13,11 @@ class OnboardingData {
   String goalPace;
   String dietPreference;
   DateTime? completedAt;
+  
+  // New target fields
+  double? targetAmount;
+  String? targetUnit;
+  int? targetTimeframe;
 
   // Computed properties for BMI calculation
   double get heightCm => (heightFeet * 12 + heightInches) * 2.54;
@@ -34,6 +39,9 @@ class OnboardingData {
     this.goalPace = '',
     this.dietPreference = '',
     this.completedAt,
+    this.targetAmount,
+    this.targetUnit,
+    this.targetTimeframe,
   });
 
   // Method to calculate BMI
@@ -138,6 +146,9 @@ class OnboardingData {
       'goalPace': goalPace,
       'dietPreference': dietPreference,
       'completedAt': completedAt,
+      'targetAmount': targetAmount,
+      'targetUnit': targetUnit,
+      'targetTimeframe': targetTimeframe,
     };
   }
 
@@ -171,6 +182,9 @@ class OnboardingData {
       goalPace: map['goalPace'] ?? '',
       dietPreference: map['dietPreference'] ?? '',
       completedAt: parseDateTime(map['completedAt']),
+      targetAmount: map['targetAmount']?.toDouble(),
+      targetUnit: map['targetUnit'],
+      targetTimeframe: map['targetTimeframe'],
     );
   }
 }

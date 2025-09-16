@@ -38,6 +38,10 @@ class OnboardingService {
         'desiredWeight': onboardingData['desiredWeight'] ?? 0.0,
         'goalPace': onboardingData['goalPace'] ?? '',
         'dietPreference': onboardingData['dietPreference'] ?? '',
+        'targetAmountKg': onboardingData['targetAmountKg'] ?? 0.0,
+        'targetAmountLbs': onboardingData['targetAmountLbs'] ?? 0.0,
+        'targetUnit': onboardingData['targetUnit'] ?? '',
+        'targetTimeframe': onboardingData['targetTimeframe'] ?? 0,
         'completedAt': onboardingData['completedAt'] != null
             ? Timestamp.fromDate(onboardingData['completedAt'] as DateTime)
             : FieldValue.serverTimestamp(),
